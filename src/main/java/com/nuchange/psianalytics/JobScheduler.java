@@ -1,7 +1,8 @@
 package com.nuchange.psianalytics;
 
 import com.nuchange.psianalytics.jobs.FlatJob;
-import com.nuchange.psianalytics.model.AnalyticCronJob;
+import com.nuchange.psianalytics.model.AnalyticsCronJob;
+import com.nuchange.psianalytics.util.MetaDataService;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +42,14 @@ public class JobScheduler implements SchedulingConfigurer {
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
+    @Autowired
+    private MetaDataService metaDataService;
+
     @Override
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-        final List<AnalyticCronJob> cronJobs = analyticCronJobRepository.findAllByEnabled(true);
+        final List<AnalyticsCronJob> cronJobs = metaDataService.getActiveAnalyticsCronJobs();
 
-        for (AnalyticCronJob cronJob : cronJobs) {
+        for (AnalyticsCronJob cronJob : cronJobs) {
             FlatJob bean = (FlatJob) applicationContext.getBean(cronJob.getName());
             if (bean == null) {
                 logger.error("Could not find bean for processing Job: " + cronJob.getName());
@@ -63,7 +67,7 @@ public class JobScheduler implements SchedulingConfigurer {
         }
     }
 
-    private Trigger getTrigger(AnalyticCronJob quartzCronScheduler) throws ParseException {
+    private Trigger getTrigger(AnalyticsCronJob quartzCronScheduler) throws ParseException {
         PeriodicTrigger periodicTrigger;
         Date now = new Date();
         long nextExecutionTimeByStatement = new CronExpression(quartzCronScheduler.getExpression()).
@@ -73,7 +77,7 @@ public class JobScheduler implements SchedulingConfigurer {
         return periodicTrigger;
     }
 
-    private Runnable getTask(final AnalyticCronJob quartzCronScheduler) {
+    private Runnable getTask(final AnalyticsCronJob quartzCronScheduler) {
         return new Runnable() {
             @Override
             public void run() {

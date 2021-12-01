@@ -4,11 +4,13 @@ import com.nuchange.psianalytics.jobs.JobConstants;
 import com.nuchange.psianalytics.model.ProcessedEvents;
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;
+import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -21,6 +23,9 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
     private JobParameters jobParameters;
 
     public JdbcTemplate template;
+
+    @Autowired
+    private MetaDataService metaDataService;
 
     public QueryBasedJobWriter(DataSource ds){
         super();
@@ -51,7 +56,7 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
 
             /* Update Processed Events If Event Based */
             if (getJobParameters().getString(JobConstants.TYPE).equals(JobConstants.JOB_TYPE_EVENT)) {
-                ProcessedEvents processedEvents = processedEventsRepository.findByCategory(category);
+                ProcessedEvents processedEvents = metaDataService.findProcessedEventByCategory(category);
                 if (processedEvents == null) {
                     processedEvents = new ProcessedEvents();
                     processedEvents.setCategory(category);
@@ -59,7 +64,7 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
                 }
                 processedEvents.setLastProcessedId(executionContext.getInt("eventId"));
                 processedEvents.setLastProcessedUuid(executionContext.getString("eventUuid"));
-                processedEventsRepository.save(processedEvents);
+                metaDataService.addOrUpdateProcessedEvent(processedEvents);
             }
         }
     }

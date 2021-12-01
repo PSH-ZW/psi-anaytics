@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics.model;
 
-public class AnalyticCronJob {
+public class AnalyticsCronJob {
     private Integer id;
     private String name;
     private Integer startDelay;

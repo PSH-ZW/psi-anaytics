@@ -24,4 +24,28 @@
             <column name="enabled" type="boolean"/>
         </createTable>
     </changeSet>
+
+    <changeSet author="vishnu" id="add_processed_events_table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="processed_events"/>
+            </not>
+        </preConditions>
+        <createTable tableName="processed_events">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="source" type="varchar(50)"/>
+            <column name="last_processed_id" type="number"/>
+            <column name="last_processed_uuid" type="varchar(36)"/>
+            <column name="name" type="varchar(36)"/>
+            <column name="category" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="locked" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

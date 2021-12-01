@@ -1,6 +1,7 @@
 package com.nuchange.psianalytics.jobs;
 
-import com.nuchange.psianalytics.model.AnalyticCronJob;
+import com.nuchange.psianalytics.model.AnalyticsCronJob;
+import com.nuchange.psianalytics.util.MetaDataService;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -20,12 +21,16 @@ public class MrsCommonJob {
     @Autowired
     JobLauncher jobLauncher;
 
+    @Autowired
+    private MetaDataService metaDataService;
+
     public void runMrsJob(String category) throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         String jobName = JobConstants.CATEGORY_TO_ANALYTICS_JOB.get(category);
 
         /* Check if base query is running or not */
-        AnalyticCronJob analyticCronJob = analyticCronJobRepository.findByName(jobName);
-        if (!analyticCronJob.getEnabled()) {
+        AnalyticsCronJob analyticsCronJob = metaDataService.getAnalyticsCronJobByName(jobName);
+        //TODO: add null check here?
+        if (!analyticsCronJob.getEnabled()) {
             /* Means Base Job Is Running */
             return;
         }

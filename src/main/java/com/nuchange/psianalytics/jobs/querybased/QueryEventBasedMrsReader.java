@@ -5,6 +5,7 @@ import com.nuchange.psianalytics.model.EventRecords;
 import com.nuchange.psianalytics.model.ProcessedEvents;
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;
+import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -29,6 +30,9 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         super(ds);
     }
 
+    @Autowired
+    private MetaDataService metaDataService;
+
     public void setStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
         super.setJobParameter(stepExecution.getJobParameters());
@@ -50,8 +54,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
             id = processedEvents.getLastProcessedId();
         }
 
-        EventRecords eventRecords = MRSContext.getInstance().getEventRecordService().
-                getRecordGreaterThanIdAndCategory(id, eventCategory);
+        EventRecords eventRecords = metaDataService.getRecordGreaterThanIdAndCategory(id, eventCategory);
 
         if (eventRecords == null) {
             return null;
@@ -75,7 +78,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
     }
 
     private ProcessedEvents finaLastProcessedEventsForCategory(String category) {
-        ProcessedEvents processedEvents = processedEventsRepository.findByCategory(category);
+        ProcessedEvents processedEvents = metaDataService.findProcessedEventByCategory(category);
         return processedEvents;
     }
 }
