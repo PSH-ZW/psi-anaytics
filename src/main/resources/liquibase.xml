@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet author="vishnu" id="add_analytics_cron_job">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="analytics_cron_job"/>
+            </not>
+        </preConditions>
+        <createTable tableName="analytics_cron_job">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="start_delay" type="number"/>
+            <column name="expression" type="varchar(30)"/>
+            <column name="enabled" type="boolean"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
