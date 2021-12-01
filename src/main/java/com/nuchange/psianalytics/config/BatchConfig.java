@@ -1,8 +1,8 @@
 package com.nuchange.psianalytics.config;
 
-import com.nuchange.psianalytics.jobs.Processor;
-import com.nuchange.psianalytics.jobs.Reader;
-import com.nuchange.psianalytics.jobs.Writer;
+import com.nuchange.psianalytics.jobs.patient.PatientProcessor;
+import com.nuchange.psianalytics.jobs.patient.PatientReader;
+import com.nuchange.psianalytics.jobs.patient.PatientWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -24,13 +24,13 @@ public class BatchConfig {
     public StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    Reader myCustomReader;
+    PatientReader myCustomReader;
 
     @Autowired
-    Writer myCustomWriter;
+    PatientWriter myCustomWriter;
 
     @Autowired
-    Processor myCustomProcessor;
+    PatientProcessor myCustomProcessor;
 
     @Bean
     public Job createJob() {

@@ -1,0 +1,16 @@
+{
+  "jobs": {
+    "patient": {
+      "input": "sql/mrs_patient_fetch.sql",
+      "lastNRecords": "select patient_id from patient where patient_id > ? order by patient_id asc limit ?",
+      "firstRecord": "select patient_id from patient order by patient_id asc limit 1",
+      "target": "patient",
+      "existQuery": "select count(*) from patient where patient_id = ?",
+      "primaryKey": "patient_id",
+      "findIdByUuid": "select person_id from person where uuid = ?",
+      "childs": [
+        "conditions"
+      ]
+    }
+  }
+}

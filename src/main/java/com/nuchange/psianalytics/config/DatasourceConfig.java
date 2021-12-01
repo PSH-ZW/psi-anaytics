@@ -16,27 +16,27 @@ import javax.sql.DataSource;
 public class DatasourceConfig {
 
     @Primary
-    @Bean(name = "mysqlDatasource")
-    @ConfigurationProperties(prefix = "mysql.datasource")
-    public DataSource mysqlDatasource() {
+    @Bean(name = "mrsDatasource")
+    @ConfigurationProperties(prefix = "mrs.datasource")
+    public DataSource mrsDatasource() {
         return DataSourceBuilder.create().build();
     }
 
-    @Bean(name = "postgresDatasource")
-    @ConfigurationProperties(prefix = "postgresql.datasource")
-    public DataSource postgresDatasource() {
+    @Bean(name = "analyticsDatasource")
+    @ConfigurationProperties(prefix = "analytics.datasource")
+    public DataSource analyticsDatasource() {
         return DataSourceBuilder.create().build();
     }
 
     @Bean(name = "mrsJdbcTemplate")
     public JdbcTemplate mrsJdbcTemplate(
-            @Qualifier("mysqlDatasource") DataSource dataSource) {
+            @Qualifier("mrsDatasource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 
     @Bean(name = "analyticsJdbcTemplate")
     public JdbcTemplate analyticsJdbcTemplate(
-            @Qualifier("postgresDatasource") DataSource dataSource) {
+            @Qualifier("analyticsDatasource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 }
