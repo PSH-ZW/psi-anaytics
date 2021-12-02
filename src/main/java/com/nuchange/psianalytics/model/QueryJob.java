@@ -10,7 +10,7 @@ public class QueryJob {
     private String[] existQueryParams;
     private String primaryKey;
     private String fetchAll;
-    private String[] childs;
+    private String[] children;
     private String dateColumn;
     private String parentKey;
     private String findIdByUuid;
@@ -71,12 +71,12 @@ public class QueryJob {
         this.fetchAll = fetchAll;
     }
 
-    public String[] getChilds() {
-        return childs;
+    public String[] getChildren() {
+        return children;
     }
 
-    public void setChilds(String[] childs) {
-        this.childs = childs;
+    public void setChildren(String[] children) {
+        this.children = children;
     }
 
     public String getParentKey() {

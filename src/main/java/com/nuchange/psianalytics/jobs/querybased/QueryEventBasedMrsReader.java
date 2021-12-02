@@ -48,7 +48,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         String eventCategory = JobConstants.CATEGORY_TO_EVENT.get(category);
 
         /* Find Last Processed Id From Processed Events */
-        ProcessedEvents processedEvents = finaLastProcessedEventsForCategory(category);
+        ProcessedEvents processedEvents = findLastProcessedEventsForCategory(category);
         int id = 0;
         if (processedEvents != null && processedEvents.getLastProcessedId() != null) {
             id = processedEvents.getLastProcessedId();
@@ -77,7 +77,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         return resultExtractorList;
     }
 
-    private ProcessedEvents finaLastProcessedEventsForCategory(String category) {
+    private ProcessedEvents findLastProcessedEventsForCategory(String category) {
         ProcessedEvents processedEvents = metaDataService.findProcessedEventByCategory(category);
         return processedEvents;
     }

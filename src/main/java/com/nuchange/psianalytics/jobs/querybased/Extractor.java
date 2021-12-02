@@ -58,8 +58,8 @@ public class Extractor {
 
     public void readChilds(String parentCategory, Map<String,Object> stringObjectMap, List<ResultExtractor> childExtractors) throws IOException {
         QueryJob jobDetails = QueryBaseJobUtil.getJobDetails(parentCategory);
-        if(jobDetails.getChilds() != null) {
-            String[] childs = jobDetails.getChilds();
+        if(jobDetails.getChildren() != null) {
+            String[] childs = jobDetails.getChildren();
             for (String child : childs) {
                 QueryJob childJob = QueryBaseJobUtil.getJobDetails(child);
                 if (childJob != null) {

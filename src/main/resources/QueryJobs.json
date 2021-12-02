@@ -8,7 +8,7 @@
       "existQuery": "select count(*) from patient where patient_id = ?",
       "primaryKey": "patient_id",
       "findIdByUuid": "select person_id from person where uuid = ?",
-      "childs": [
+      "children": [
         "conditions"
       ]
     }

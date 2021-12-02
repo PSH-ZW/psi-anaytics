@@ -22,7 +22,7 @@ import java.util.List;
 
 @Configuration
 @EnableBatchProcessing
-public class PatientJob {
+public class PatientBatchConfig {
     @Autowired
     protected JobBuilderFactory jobBuilderFactory;
 

@@ -58,4 +58,42 @@
         </sql>
     </changeSet>
 
+    <changeSet author="vishnu" id="add_patient_table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="patient"/>
+            </not>
+        </preConditions>
+        <createTable tableName="patient">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="patient_id" type="int"/>
+            <column name="patient_identifier" type="varchar(255)"/>
+            <column name="gender" type="varchar(20)"/>
+            <column name="dead" type="boolean"/>
+            <column name="birthdate" type="timestamp"/>
+            <column name="death_date" type="timestamp"/>
+            <column name="date_created" type="timestamp"/>
+            <column name="uuid" type="varchar(36)"/>
+            <column name="address1" type="varchar(400)"/>
+            <column name="address2" type="varchar(400)"/>
+            <column name="address3" type="varchar(400)"/>
+            <column name="address4" type="varchar(400)"/>
+            <column name="address5" type="varchar(400)"/>
+            <column name="address6" type="varchar(400)"/>
+            <column name="city_village" type="varchar(100)"/>
+            <column name="state_province" type="varchar(100)"/>
+            <column name="country" type="varchar(100)"/>
+            <column name="country_district" type="varchar(100)"/>
+            <column name="inactive" type="boolean"/>
+            <column name="postal_code" type="varchar(20)"/>
+            <column name="given_name" type="varchar(100)"/>
+            <column name="middle_name" type="varchar(100)"/>
+            <column name="family_name" type="varchar(100)"/>
+            <column name="date_deactivated" type="timestamp"/>
+            <column name="deactivated_reason" type="varchar(500)"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
