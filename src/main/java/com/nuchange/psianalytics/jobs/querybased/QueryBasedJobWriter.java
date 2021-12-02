@@ -48,10 +48,8 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
             QueryJob jobDetails = QueryBaseJobUtil.getJobDetails(category);
             List<String> colHeaders = extractor.getColHeaders();
             Integer id = extractor.getProcessingId();
-            String uuid = null;
             for (Map<String,Object> stringObjectMap : extractor.getRowValues()) {
                 ex.insertData(target, jobDetails, colHeaders, id, stringObjectMap);
-                uuid = (String) stringObjectMap.get("uuid");
             }
 
             /* Update Processed Events If Event Based */

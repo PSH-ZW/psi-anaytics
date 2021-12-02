@@ -48,4 +48,14 @@
         </createTable>
     </changeSet>
 
+    <changeSet id = "add patient cron job" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+                <tableExists tableName="analytics_cron_job"/>
+        </preConditions>
+        <sql>
+            insert into analytics_cron_job (name, start_delay, expression, enabled)
+            values ('mrsPatientJob', 5, '0 45 * ? * *', true);
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

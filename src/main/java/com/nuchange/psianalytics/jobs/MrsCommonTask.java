@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MrsCommonJob {
+public class MrsCommonTask {
 
     @Autowired
     ApplicationContext context;
@@ -42,10 +42,10 @@ public class MrsCommonJob {
         maps.put("category", new JobParameter(category));
         maps.put("source", new JobParameter("mrs"));
         maps.put(JobConstants.TYPE, new JobParameter(JobConstants.JOB_TYPE_EVENT));
-        Job fhirJob = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
+        Job job = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
         JobParameters parameters = new JobParameters(maps);
 
-        JobExecution jobExecution = jobLauncher.run(fhirJob, parameters);
+        JobExecution jobExecution = jobLauncher.run(job, parameters);
 
     }
 }

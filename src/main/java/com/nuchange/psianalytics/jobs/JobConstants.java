@@ -32,8 +32,7 @@ public class JobConstants {
 
     public static final Map<String, String> CATEGORY_TO_EVENT = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
-
-            put(MRS_PATIENT, "FhirPatientExt");
+            put(MRS_PATIENT, "patient");
         }
     });
 }

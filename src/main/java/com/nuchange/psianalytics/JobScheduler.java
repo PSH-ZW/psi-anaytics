@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics;
 
-import com.nuchange.psianalytics.jobs.FlatJob;
+import com.nuchange.psianalytics.jobs.FlatteningTask;
 import com.nuchange.psianalytics.model.AnalyticsCronJob;
 import com.nuchange.psianalytics.util.MetaDataService;
 import org.quartz.CronExpression;
@@ -37,7 +37,7 @@ public class JobScheduler implements SchedulingConfigurer {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private Map<String, FlatJob> jobs = new HashMap<>();
+    private Map<String, FlatteningTask> jobs = new HashMap<>();
 
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -50,7 +50,7 @@ public class JobScheduler implements SchedulingConfigurer {
         final List<AnalyticsCronJob> cronJobs = metaDataService.getActiveAnalyticsCronJobs();
 
         for (AnalyticsCronJob cronJob : cronJobs) {
-            FlatJob bean = (FlatJob) applicationContext.getBean(cronJob.getName());
+            FlatteningTask bean = (FlatteningTask) applicationContext.getBean(cronJob.getName());
             if (bean == null) {
                 logger.error("Could not find bean for processing Job: " + cronJob.getName());
             } else{
@@ -81,7 +81,7 @@ public class JobScheduler implements SchedulingConfigurer {
         return new Runnable() {
             @Override
             public void run() {
-                FlatJob job = jobs.get(quartzCronScheduler.getName());
+                FlatteningTask job = jobs.get(quartzCronScheduler.getName());
                 try {
                     job.process();
                 } catch (InterruptedException e) {
