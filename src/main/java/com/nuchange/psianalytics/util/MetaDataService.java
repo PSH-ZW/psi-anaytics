@@ -63,7 +63,7 @@ public class MetaDataService {
         String insertSql = "insert into processed_events(source, lastProcessedId, lastProcessedUuid, category, name) " +
                 "values (?, ?, ?, ?, ?)";
         String updateSql = "update processed_events set last_processed_id = ?, last_processed_uuid = ? where id = ?";
-        if(processedEvents.getId() != null) {
+        if(processedEvents.getId() == null) {
             analyticsJdbcTemplate.update(insertSql, processedEvents.getSource(), processedEvents.getLastProcessedId(),
                     processedEvents.getLastProcessedUuid(), processedEvents.getCategory(), processedEvents.getName());
         }

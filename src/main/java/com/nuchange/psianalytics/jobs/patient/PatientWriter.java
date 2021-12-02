@@ -14,7 +14,7 @@ import java.util.List;
 @Component(JobConstants.PATIENT_MRS_JOB_ITEM_WRITER_ID)
 public class PatientWriter extends QueryEventBasedMrsWriter {
 
-    public PatientWriter(@Qualifier("analyticsDataSource") DataSource ds) {
+    public PatientWriter(@Qualifier("analyticsDatasource") DataSource ds) {
         super(ds);
     }
 

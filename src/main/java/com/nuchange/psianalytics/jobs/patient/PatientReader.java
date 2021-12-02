@@ -14,7 +14,7 @@ import java.util.List;
 @Component(JobConstants.PATIENT_MRS_JOB_ITEM_READER_ID)
 public class PatientReader extends QueryEventBasedMrsReader {
 
-    public PatientReader(@Qualifier("mrsDataSource") DataSource ds) {
+    public PatientReader(@Qualifier("mrsDatasource") DataSource ds) {
         super(ds);
     }
 
