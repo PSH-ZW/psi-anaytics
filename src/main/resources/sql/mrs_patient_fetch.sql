@@ -25,9 +25,20 @@ select
   pn.middle_name,
   pn.family_name,
   tele_attr.value as telephone,
+  spec_occu.value as occupation_specific,
+  mother_name.value as mothers_name,
+  kin_add.value as next_of_kin_address,
+  reg_no.value as registration_number_of_partner,
+  clinic_hos.value as nearest_clinic_or_hospital,
+  site_name.value as outreach_site_name,
+  index_code.value as index_client_code,
+  kin_tel.value as next_of_kin_telephone,
+  oth_rel.value as next_of_kin_relationship_specific,
+  kin_name.value as next_of_kin_contact_name,
+  nat_id.value as nationality_id_number,
   get_concept_name(nationality_attr.value) as nationality,
   get_concept_name(couple_test_attr.value) as couple_testing,
-  get_concept_name(twelve_month_attr.value) as tested_in_twelve_months,
+  get_concept_name(twelve_month_attr.value) as tested_in_last_twelve_months,
   get_concept_name(hiv_res_attr.value) as hiv_test_result,
   get_concept_name(hiv_test_attr.value) as tested_for_hiv,
   get_concept_name(dreams_attr.value) as dreams_activity,
@@ -41,7 +52,7 @@ select
   get_concept_name(kin_rel_attr.value) as next_of_kin_relationship,
   get_concept_name(firstborn_attr.value) as firstborn,
   get_concept_name(is_twin_attr.value) as twin,
-  get_concept_name(distr_birth_attr.value) as district_or_birth,
+  get_concept_name(distr_birth_attr.value) as district_of_birth,
   get_concept_name(client_resident_attr.value) as client_resident,
   get_concept_name(mar_stat_attr.value) as marital_status,
   get_concept_name(ethnicity_attr.value) as ethnicity,
@@ -75,4 +86,15 @@ from person per
   left join person_attribute hiv_res_attr on hiv_res_attr.person_id = per.person_id and hiv_res_attr.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'If yes for ever been tested for HIV, Result?')
   left join person_attribute twelve_month_attr on twelve_month_attr.person_id = per.person_id and twelve_month_attr.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Ever been tested in the last twelve months')
   left join person_attribute couple_test_attr on couple_test_attr.person_id = per.person_id and couple_test_attr.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Couple testing ?couple_test')
+  left join person_attribute spec_occu on spec_occu.person_id = per.person_id and spec_occu.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Other specific (occupation)')
+  left join person_attribute nat_id on nat_id.person_id = per.person_id and nat_id.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'National ID Number')
+  left join person_attribute mother_name on mother_name.person_id = per.person_id and mother_name.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Mother\'s name')
+  left join person_attribute kin_name on kin_name.person_id = per.person_id and kin_name.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Next-of-kin Contact Name')
+  left join person_attribute oth_rel on oth_rel.person_id = per.person_id and oth_rel.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'If relationship to next to kin other, then specify')
+  left join person_attribute kin_add on kin_add.person_id = per.person_id and kin_add.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Next-of-kin Address')
+  left join person_attribute kin_tel on kin_tel.person_id = per.person_id and kin_tel.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Next-of-kin Telephone Number')
+  left join person_attribute index_code on index_code.person_id = per.person_id and index_code.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Index Client Code')
+  left join person_attribute site_name on site_name.person_id = per.person_id and site_name.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Outreach site name')
+  left join person_attribute clinic_hos on clinic_hos.person_id = per.person_id and clinic_hos.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Nearest Clinic/Hospital')
+  left join person_attribute reg_no on reg_no.person_id = per.person_id and reg_no.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'If couple testing yes,capture the registration no.')
 where per.person_id = ?;
