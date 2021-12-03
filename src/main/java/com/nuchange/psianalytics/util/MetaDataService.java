@@ -39,10 +39,10 @@ public class MetaDataService {
         return null;
     }
 
-    public EventRecords getRecordGreaterThanIdAndCategory(int id, String category) {
+    public EventRecords getRecordGreaterThanIdAndCategory(Integer id, String category) {
         String sql = "SELECT * FROM event_records WHERE category = ? and id > ? order by id limit 1";
         List<EventRecords> eventRecords = mrsJdbcTemplate
-                .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(EventRecords.class), id, category);
+                .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(EventRecords.class), category, id);
         if(!CollectionUtils.isEmpty(eventRecords)) {
             return eventRecords.get(0);
         }
@@ -60,7 +60,7 @@ public class MetaDataService {
     }
 
     public void addOrUpdateProcessedEvent(ProcessedEvents processedEvents) {
-        String insertSql = "insert into processed_events(source, lastProcessedId, lastProcessedUuid, category, name) " +
+        String insertSql = "insert into processed_events(source, last_processed_id, last_processed_uuid, category, name) " +
                 "values (?, ?, ?, ?, ?)";
         String updateSql = "update processed_events set last_processed_id = ?, last_processed_uuid = ? where id = ?";
         if(processedEvents.getId() == null) {

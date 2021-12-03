@@ -44,7 +44,7 @@ public class Extractor {
         List<ResultExtractor> extractors = new ArrayList<>();
         AnalyticsUtil.getRowAndColumnValuesForQuery(template, query, colHeaders, rowValues, params);
         for (Map<String, Object> stringObjectMap : rowValues) {
-            readChilds(category, stringObjectMap, extractors);
+            readChildren(category, stringObjectMap, extractors);
         }
 
         resultExtractor.setColHeaders(colHeaders);
@@ -56,7 +56,7 @@ public class Extractor {
         return extractors;
     }
 
-    public void readChilds(String parentCategory, Map<String,Object> stringObjectMap, List<ResultExtractor> childExtractors) throws IOException {
+    public void readChildren(String parentCategory, Map<String,Object> stringObjectMap, List<ResultExtractor> childExtractors) throws IOException {
         QueryJob jobDetails = QueryBaseJobUtil.getJobDetails(parentCategory);
         if(jobDetails.getChildren() != null) {
             String[] childs = jobDetails.getChildren();
@@ -72,7 +72,7 @@ public class Extractor {
                     AnalyticsUtil.getRowAndColumnValuesForQuery(template, query, colHeaders, colValues, new Object[] {id});
                     for (Map<String, Object> colValue : colValues) {
                         List<Map<String, Object>> newList = new ArrayList<>();
-                        readChilds(child, colValue, childExtractors);
+                        readChildren(child, colValue, childExtractors);
                         newList.add(colValue);
                         ResultExtractor resultExtractor = new ResultExtractor();
                         resultExtractor.setCategory(child);

@@ -100,4 +100,43 @@
         <renameColumn tableName="patient" oldColumnName="country_district" newColumnName="county_district"/>
     </changeSet>
 
+    <changeSet author="vishnu" id="add attribute columns in patient">
+        <addColumn tableName="patient">
+            <column name="telephone" type="varchar" />
+            <column name="education" type="varchar" />
+            <column name="occupation" type="varchar" />
+            <column name="occupation_specific" type="varchar" />
+            <column name="nationality" type="varchar" />
+            <column name="nationality_id_number" type="varchar" />
+            <column name="ethnicity" type="varchar" />
+            <column name="marital_status" type="varchar" />
+            <column name="client_resident" type="varchar" />
+            <column name="district_of_birth" type="varchar" />
+            <column name="mothers_name" type="varchar" />
+            <column name="twin" type="varchar" />
+            <column name="firstborn" type="varchar" />
+            <column name="next_of_kin_contact_name" type="varchar" />
+            <column name="next_of_kin_relationship" type="varchar" />
+            <column name="next_of_kin_relationship_specific" type="varchar" />
+            <column name="next_of_kin_address" type="varchar" />
+            <column name="next_of_kin_telephone" type="varchar" />
+            <column name="population" type="varchar" />
+            <column name="referral_source" type="varchar" />
+            <column name="contact_tracing" type="varchar" />
+            <column name="date_index_client_tested" type="varchar" />
+            <column name="index_client_code" type="varchar" />
+            <column name="index_relationship" type="varchar" />
+            <column name="site_type" type="varchar" />
+            <column name="outreach_classification" type="varchar" />
+            <column name="outreach_site_name" type="varchar" />
+            <column name="moonlight_testing" type="varchar" />
+            <column name="dreams_activity" type="varchar" />
+            <column name="nearest_clinic_or_hospital" type="varchar" />
+            <column name="tested_for_hiv" type="varchar" />
+            <column name="hiv_test_result" type="varchar" />
+            <column name="tested_in_last_twelve_months" type="varchar" />
+            <column name="couple_testing" type="varchar" />
+            <column name="registration_number_of_partner" type="varchar" />
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

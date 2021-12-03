@@ -62,14 +62,14 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         }
 
         Object[] params = new Object[] { eventRecords.getObject() };
-        UUID uuid = getUuidFromParam(params);
+        String uuid = getUuidFromParam(params);
         QueryJob queryJob = QueryBaseJobUtil.getJobDetails(category);
         String queryToFindId = queryJob.getFindIdByUuid();
         List<Integer> listOfId = getTemplate().query(queryToFindId, new RowMapper<Integer>() {
             public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return rs.getInt(1);
             }
-        }, uuid.toString());
+        }, uuid);
 
         List<ResultExtractor> resultExtractorList =
                 getResultExtractorForCategoryAndId(queryJob, category, new Long(listOfId.get(0)));
@@ -79,14 +79,15 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         return resultExtractorList;
     }
 
-    private UUID getUuidFromParam(Object[] params) {
-        //TODO: this is only temp, fix this if needed.
+    private String getUuidFromParam(Object[] params) {
         if(params == null) {
             return null;
         }
         String[] tokens = ((String) params[0]).split("/");
         String uuidString = tokens[6].substring(0,36);
-        return UUID.fromString(uuidString);
+        //Doing this to verify the string is a valid UUID, if not, this will throw an exception
+        //TODO: can be removed if not needed.
+        return UUID.fromString(uuidString).toString();
     }
 
     private ProcessedEvents findLastProcessedEventsForCategory(String category) {
