@@ -5,6 +5,8 @@ import com.nuchange.psianalytics.model.ResultExtractor;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -18,6 +20,8 @@ public abstract class QueryBasedJobReader<D> implements ItemReader<D>, StepExecu
 
     private JobParameters jobParameters;
 
+    @Autowired
+    @Qualifier("mrsJdbcTemplate")
     private JdbcTemplate template;
 
     public QueryBasedJobReader(DataSource ds) {
@@ -46,7 +50,4 @@ public abstract class QueryBasedJobReader<D> implements ItemReader<D>, StepExecu
         Extractor ex = new Extractor(template);
         return ex.getResultExtractors(queryJob, category, id);
     }
-
-
-
 }

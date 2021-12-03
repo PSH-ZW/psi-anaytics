@@ -11,6 +11,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -22,6 +23,8 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
 
     private JobParameters jobParameters;
 
+    @Autowired
+    @Qualifier("analyticsJdbcTemplate")
     public JdbcTemplate template;
 
     @Autowired

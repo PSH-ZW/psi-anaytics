@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 //@Component(JobConstants.QUERY_EVENT_BASED_MRS_JOB_ITEM_READER_STEP_ONE)
 public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<ResultExtractor>> {
@@ -61,13 +62,14 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         }
 
         Object[] params = new Object[] { eventRecords.getObject() };
+        UUID uuid = getUuidFromParam(params);
         QueryJob queryJob = QueryBaseJobUtil.getJobDetails(category);
         String queryToFindId = queryJob.getFindIdByUuid();
         List<Integer> listOfId = getTemplate().query(queryToFindId, new RowMapper<Integer>() {
             public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return rs.getInt(1);
             }
-        }, params);
+        }, uuid.toString());
 
         List<ResultExtractor> resultExtractorList =
                 getResultExtractorForCategoryAndId(queryJob, category, new Long(listOfId.get(0)));
@@ -75,6 +77,16 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         executionContext.put("eventId", eventRecords.getId());
         executionContext.put("eventUuid", eventRecords.getUuid());
         return resultExtractorList;
+    }
+
+    private UUID getUuidFromParam(Object[] params) {
+        //TODO: this is only temp, fix this if needed.
+        if(params == null) {
+            return null;
+        }
+        String[] tokens = ((String) params[0]).split("/");
+        String uuidString = tokens[6].substring(0,36);
+        return UUID.fromString(uuidString);
     }
 
     private ProcessedEvents findLastProcessedEventsForCategory(String category) {

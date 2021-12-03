@@ -96,4 +96,8 @@
         </createTable>
     </changeSet>
 
+    <changeSet author="vishnu" id="rename column country_district to county_district">
+        <renameColumn tableName="patient" oldColumnName="country_district" newColumnName="county_district"/>
+    </changeSet>
+
 </databaseChangeLog>

@@ -23,7 +23,7 @@ select
   pi.identifier as patient_identifier,
   pn.given_name,
   pn.middle_name,
-  pn.family_name,
+  pn.family_name
 from person per
   inner join patient pat on pat.patient_id=per.person_id
   left join person_address pa on pa.person_id=per.person_id and pa.preferred = true
