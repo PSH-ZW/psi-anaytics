@@ -3,6 +3,7 @@ package com.nuchange.psianalytics.config;
 import com.nuchange.psianalytics.jobs.patient.PatientProcessor;
 import com.nuchange.psianalytics.jobs.patient.PatientReader;
 import com.nuchange.psianalytics.jobs.patient.PatientWriter;
+import com.nuchange.psianalytics.listener.JobCompletionNotificationListener;
 import com.nuchange.psianalytics.model.ResultExtractor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -35,10 +36,14 @@ public class BatchConfig {
     @Autowired
     PatientProcessor myCustomProcessor;
 
+    @Autowired
+    JobCompletionNotificationListener completionListener;
+
     @Bean
     public Job createJob() {
         return jobBuilderFactory.get("MyJob")
                 .incrementer(new RunIdIncrementer())
+                .listener(completionListener)
                 .flow(createStep()).end().build();
     }
 
