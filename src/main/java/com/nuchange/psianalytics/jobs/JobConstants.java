@@ -17,6 +17,10 @@ public class JobConstants {
     public static final String TYPE = "type";
     public static final String JOB_TYPE_BASE = "base";
     public static final String JOB_TYPE_EVENT = "event_based";
+    public static final String OBS_FLOWSHEET = "flowsheet";
+    public static final String LABEL = "label";
+    public static final String OBS_CONTROL_GROUP = "obsGroupControl";
+    public static final String OBS_SECTION_CONTROL = "section";
 
     public static final Map<String, String> CATEGORY_TO_ANALYTICS_JOB = Collections.unmodifiableMap(new HashMap<String, String>() {
         {

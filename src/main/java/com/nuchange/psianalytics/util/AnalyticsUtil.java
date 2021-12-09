@@ -1,15 +1,20 @@
 package com.nuchange.psianalytics.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nuchange.psianalytics.jobs.JobConstants;
+import com.nuchange.psianalytics.model.FormConcept;
+import com.nuchange.psianalytics.model.FormControl;
+import com.nuchange.psianalytics.model.FormTable;
+import com.nuchange.psianalytics.model.Forms;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AnalyticsUtil {
 
@@ -131,6 +136,96 @@ public class AnalyticsUtil {
                 return colHeaders;
             }
         }, params);
+    }
+
+    public static List<String> generateCreateTableForForm(String formName) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Forms forms;
+        forms = mapper.readValue(AnalyticsUtil.class.getClassLoader().getResource(formName), Forms.class);
+        List<String> queries = new ArrayList<>();
+        Map<String, FormTable> obsWithConcepts = new HashMap<>();
+        handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null, null);
+        StringBuilder query = new StringBuilder("");
+        query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(forms.getName())).append("(");
+        query.append("id serial PRIMARY KEY, ");
+        if (obsWithConcepts.containsKey(forms.getName())) {
+            for (FormConcept concept : obsWithConcepts.get(forms.getName()).getConcepts()) {
+                String name = AnalyticsUtil.generateColumnName(concept.getName());
+                query.append(name).append(" varchar, ");
+            }
+        }
+        query.append("encounter_id integer, visit_id integer, patient_id integer, instance_id integer, provider_id integer ");
+        query.append("username varchar, date_created timestamp, patient_identifier varchar, ");
+        query.append("location_id integer, location_name varchar)");
+        queries.add(query.toString());
+        if (obsWithConcepts.containsKey(forms.getName())){
+            obsWithConcepts.remove(forms.getName());
+        }
+        for (String s : obsWithConcepts.keySet()) {
+            queries.add(createQueryForFormTable(obsWithConcepts.get(s), forms.getName()));
+        }
+        return queries;
+    }
+
+    public static void handleObsControls(List<FormControl> controls, Map<String, FormTable> obsWithConcepts,
+                                         String parent, String formName, String sectionLabel) {
+        for (FormControl control : controls) {
+            extractConceptsForObsControl(obsWithConcepts, control, parent, formName, sectionLabel);
+        }
+    }
+    public static void extractConceptsForObsControl(Map<String, FormTable> obsWithConcepts,
+                                                    FormControl control, String parent, String tableName, String sectionLabel) {
+        if (control.getType().equals(JobConstants.OBS_FLOWSHEET) || control.getType().equals(JobConstants.LABEL)) {
+            return;
+        }
+        if (control.getType().equals(JobConstants.OBS_CONTROL_GROUP)) {
+            handleObsControls(control.getControls(), obsWithConcepts, parent, control.getConcept().getName(), null);
+        } else if (control.getType().equals(JobConstants.OBS_SECTION_CONTROL)) {
+            handleObsControls(control.getControls(), obsWithConcepts, parent, tableName, control.getLabel().getValue());
+        } else {
+            if (tableName == null) {
+                tableName = parent;
+                parent = null;
+            }
+            if (control.getProperties().getMultiSelect() != null && control.getProperties().getMultiSelect()) {
+                parent = tableName;
+                tableName = tableName + "_multiselect";
+            }
+            if (!obsWithConcepts.containsKey(tableName)) {
+                obsWithConcepts.put(tableName, new FormTable(tableName));
+            }
+            FormTable formTable = obsWithConcepts.get(tableName);
+            FormConcept formConcept = control.getConcept();
+            /*Concept conceptByDb = MRSContext.getInstance().getConceptService().findConceptByUuid(formConcept.getUuid());
+            String conceptName = conceptByDb.getFullySpecifiedName(Locale.ENGLISH).getName();*/
+            String conceptName = formConcept.getName();
+            formConcept.setName(AnalyticsUtil.getShortName(conceptName));
+            if (sectionLabel != null) {
+                formConcept.setName(sectionLabel + "_" + formConcept.getName());
+            }
+            formTable.getConcepts().add(formConcept);
+            formTable.setProperties(control.getProperties());
+            formTable.setParent(parent);
+        }
+    }
+    private static String createQueryForFormTable(FormTable formTable, String formName) {
+        StringBuilder query = new StringBuilder("");
+        String tableName = "";
+        if (!formTable.getName().contains("multiselect")) {
+            tableName = AnalyticsUtil.generateColumnName(formName + "_" + formTable.getName());
+        } else {
+            tableName = AnalyticsUtil.generateColumnName(formTable.getName());
+        }
+        query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(tableName)).append(" (");
+        query.append("id serial PRIMARY KEY, ");
+        for (FormConcept concept : formTable.getConcepts()) {
+            String name = AnalyticsUtil.generateColumnName(concept.getName());
+            query.append(name).append(" varchar, ");
+        }
+        query.append("parent_id integer, encounter_id integer, visit_id integer, patient_id integer, instance_id integer, provider_id integer, ");
+        query.append("username varchar, date_created timestamp, patient_identifier varchar,");
+        query.append("location_id integer, location_name varchar)");
+        return query.toString();
     }
 }
 
