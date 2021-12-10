@@ -1,11 +1,11 @@
 package com.nuchange.psianalytics.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nuchange.psianalytics.jobs.JobConstants;
-import com.nuchange.psianalytics.model.FormConcept;
-import com.nuchange.psianalytics.model.FormControl;
-import com.nuchange.psianalytics.model.FormTable;
-import com.nuchange.psianalytics.model.Forms;
+import com.nuchange.psianalytics.model.*;
+import io.micrometer.core.instrument.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
@@ -141,7 +141,8 @@ public class AnalyticsUtil {
     public static List<String> generateCreateTableForForm(String formName) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Forms forms;
-        forms = mapper.readValue(AnalyticsUtil.class.getClassLoader().getResource(formName), Forms.class);
+        forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
+        /*forms = mapper.readValue(AnalyticsUtil.class.getClassLoader().getResource(formName), Forms.class);*/
         List<String> queries = new ArrayList<>();
         Map<String, FormTable> obsWithConcepts = new HashMap<>();
         handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null, null);
@@ -196,9 +197,7 @@ public class AnalyticsUtil {
             }
             FormTable formTable = obsWithConcepts.get(tableName);
             FormConcept formConcept = control.getConcept();
-            /*Concept conceptByDb = MRSContext.getInstance().getConceptService().findConceptByUuid(formConcept.getUuid());
-            String conceptName = conceptByDb.getFullySpecifiedName(Locale.ENGLISH).getName();*/
-            String conceptName = formConcept.getName();
+            String conceptName = PSIContext.getInstance().getMetaDataService().getFullNameOfConceptByUuid(UUID.fromString(formConcept.getUuid()));
             formConcept.setName(AnalyticsUtil.getShortName(conceptName));
             if (sectionLabel != null) {
                 formConcept.setName(sectionLabel + "_" + formConcept.getName());
@@ -226,6 +225,27 @@ public class AnalyticsUtil {
         query.append("username varchar, date_created timestamp, patient_identifier varchar,");
         query.append("location_id integer, location_name varchar)");
         return query.toString();
+    }
+
+    private static Forms parseForm(JsonNode array){
+        JsonNode resources = array.get("formJson").get("resources");
+        String version = array.get("formJson").get("version").asText();
+        String versionString = "";
+        if(!StringUtils.isEmpty(version)){
+            versionString = "." + version + "/";
+        }
+        String value = resources.get(0).get("value").toString();
+        ObjectMapper mapper = new ObjectMapper();
+        Forms c = null;
+        try {
+            c = mapper.readValue(value.replace("\\", "").replaceAll("^\"|\"$", ""), Forms.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*for(FormControl control : c.getControls()){
+            parseObj(control, c.getName());
+        }*/
+        return c;
     }
 }
 

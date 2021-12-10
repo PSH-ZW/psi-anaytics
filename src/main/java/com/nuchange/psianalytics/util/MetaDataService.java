@@ -1,6 +1,7 @@
 package com.nuchange.psianalytics.util;
 
 import com.nuchange.psianalytics.model.AnalyticsCronJob;
+import com.nuchange.psianalytics.model.ConceptName;
 import com.nuchange.psianalytics.model.EventRecords;
 import com.nuchange.psianalytics.model.ProcessedEvents;
 import org.simpleflatmapper.jdbc.spring.JdbcTemplateMapperFactory;
@@ -10,7 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MetaDataService {
@@ -71,5 +74,15 @@ public class MetaDataService {
             analyticsJdbcTemplate.update(updateSql, processedEvents.getLastProcessedId(),
                     processedEvents.getLastProcessedUuid(), processedEvents.getId());
         }
+    }
+
+    public String getFullNameOfConceptByUuid(UUID conceptUuid){
+        final String sql = "SELECT concept_name.name FROM concept INNER JOIN concept_name ON " +
+                "concept.concept_id = concept_name.concept_id WHERE concept.uuid = ? AND concept_name_type = 'FULLY_SPECIFIED' and locale = 'en'";
+        List<String> conceptNames = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), conceptUuid.toString());
+        if(!CollectionUtils.isEmpty(conceptNames)) {
+            return conceptNames.get(0);
+        }
+        return null;
     }
 }

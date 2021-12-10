@@ -21,7 +21,7 @@ class PsiAnalyticsApplicationTests {
 //	@org.junit.Test
 	@Test
 	public void shouldCreateQueryFromJsonThree() throws IOException {
-		String formName = "forms/Vitals_5.json";
+		String formName = "forms/unprocessed/GI Tract Form Template 5690_1.json";
 		List<String> query = AnalyticsUtil.generateCreateTableForForm(formName);
 		Assert.assertNotNull(query);
 	}
