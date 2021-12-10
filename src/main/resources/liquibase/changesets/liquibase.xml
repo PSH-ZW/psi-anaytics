@@ -139,4 +139,27 @@
             <column name="registration_number_of_partner" type="varchar" />
         </addColumn>
     </changeSet>
+
+    <changeSet author="vishnu" id="add_patient_enrollment">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="patient_enrollment"/>
+            </not>
+        </preConditions>
+        <createTable tableName="patient_enrollment">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="patient_identifier" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="program" type="varchar"/>
+            <column name="org_unit" type="varchar"/>
+            <column name="status" type="varchar"/>
+            <column name="program_unique_id" type="number"/>
+            <column name="enrollment_date" type="date"/>
+            <column name="incident_date" type="date"/>
+            <column name="date_created" type="timestamp"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
