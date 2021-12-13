@@ -5,6 +5,7 @@ import com.nuchange.psianalytics.model.EventRecords;
 import com.nuchange.psianalytics.model.ProcessedEvents;
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;
+import com.nuchange.psianalytics.util.AnalyticsUtil;
 import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import org.springframework.batch.core.ExitStatus;
@@ -20,7 +21,6 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 //@Component(JobConstants.QUERY_EVENT_BASED_MRS_JOB_ITEM_READER_STEP_ONE)
 public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<ResultExtractor>> {
@@ -61,8 +61,8 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
             return null;
         }
 
-        Object[] params = new Object[] { eventRecords.getObject() };
-        String uuid = getUuidFromParam(params);
+        String objectRef = eventRecords.getObject();
+        String uuid = AnalyticsUtil.getUuidFromParam(objectRef, eventCategory);
         QueryJob queryJob = QueryBaseJobUtil.getJobDetails(category);
         String queryToFindId = queryJob.getFindIdByUuid();
         List<Integer> listOfId = getTemplate().query(queryToFindId, new RowMapper<Integer>() {
@@ -77,17 +77,6 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         executionContext.put("eventId", eventRecords.getId());
         executionContext.put("eventUuid", eventRecords.getUuid());
         return resultExtractorList;
-    }
-
-    private String getUuidFromParam(Object[] params) {
-        if(params == null) {
-            return null;
-        }
-        String[] tokens = ((String) params[0]).split("/");
-        String uuidString = tokens[6].substring(0,36);
-        //Doing this to verify the string is a valid UUID, if not, this will throw an exception
-        //TODO: can be removed if not needed.
-        return UUID.fromString(uuidString).toString();
     }
 
     private ProcessedEvents findLastProcessedEventsForCategory(String category) {

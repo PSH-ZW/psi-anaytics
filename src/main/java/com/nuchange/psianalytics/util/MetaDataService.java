@@ -84,7 +84,8 @@ public class MetaDataService {
 
     public Encounter getEncounterByEncounterId(Integer encounterId){
         final String sql = "SELECT * FROM encounter WHERE encounter_id = ?";
-        List<Encounter> encounters = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Encounter.class), encounterId);
+        List<Encounter> encounters = mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(Encounter.class), encounterId);
         if(!CollectionUtils.isEmpty(encounters)){
             return encounters.get(0);
         }
@@ -94,5 +95,15 @@ public class MetaDataService {
     public List<Obs> getObsByEncounterIdAndVoided(Integer encounterId, Integer voided){
         final String sql = "SELECT * FROM obs WHERE encounter_id = ? AND voided = ? AND form_namespace_and_path IS NOT null ";
         return mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Obs.class), encounterId, voided);
+    }
+
+    public Encounter getEncounterByUuid(String encounterUUID) {
+        final String sql = "SELECT * FROM encounter WHERE uuid = ?";
+        List<Encounter> encounters = mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(Encounter.class), encounterUUID);
+        if(!CollectionUtils.isEmpty(encounters)){
+            return encounters.get(0);
+        }
+        return null;
     }
 }

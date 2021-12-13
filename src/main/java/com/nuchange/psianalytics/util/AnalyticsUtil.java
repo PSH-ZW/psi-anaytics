@@ -247,5 +247,17 @@ public class AnalyticsUtil {
         }*/
         return c;
     }
+
+    public static String getUuidFromParam(String params, String eventCategory) {
+        if(params == null) {
+            return null;
+        }
+        String[] tokens = params.split("/");
+        int position = JobConstants.UUID_POSITION.get(eventCategory);
+        String uuidString = tokens[position].substring(0,36);
+        //Doing this to verify the string is a valid UUID, if not, this will throw an exception
+        //TODO: can be removed if not needed.
+        return UUID.fromString(uuidString).toString();
+    }
 }
 
