@@ -8,14 +8,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
 public class EncounterHelper {
     private static final Logger logger = LoggerFactory.getLogger(EncounterHelper.class);
 
-    private static List<String> snomedConceptList = null;
     // <form,<concept, obsType>>
     private static Map<String, Map<String, ObsType>> formConceptMap = new HashMap<>();
 
