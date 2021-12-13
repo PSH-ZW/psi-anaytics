@@ -3,7 +3,7 @@ package com.nuchange.psianalytics.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class FormCotrolProperty {
+public class FormControlProperty {
 
     private Boolean mandatory;
     private Boolean notes;

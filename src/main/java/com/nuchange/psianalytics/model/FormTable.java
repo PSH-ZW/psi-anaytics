@@ -8,7 +8,7 @@ public class FormTable {
     private String name;
     private List<FormConcept> concepts;
     private String parent;
-    private FormCotrolProperty properties;
+    private FormControlProperty properties;
 
     public FormTable(String name) {
         this.name = name;
@@ -40,11 +40,11 @@ public class FormTable {
         this.parent = parent;
     }
 
-    public FormCotrolProperty getProperties() {
+    public FormControlProperty getProperties() {
         return properties;
     }
 
-    public void setProperties(FormCotrolProperty properties) {
+    public void setProperties(FormControlProperty properties) {
         this.properties = properties;
     }
 }

@@ -19,3 +19,17 @@
 
 ####Running the application
 Run PsiAnalyticsApplication.java
+
+---
+
+###Overview
+This project is used to flatten the hierarchical tables in openMRS(mysql DB) to an analytics DB(postgres).
+The data from the analytics DB will be used for syncing with DHIS2.
+
+####DB Access
+We will be using jdbc templates for querying the DB. The datasources and jdbcTemplates are defined in DataSourceConfig.
+
+####Batch jobs
+  wip
+####Flattening Process
+ wip

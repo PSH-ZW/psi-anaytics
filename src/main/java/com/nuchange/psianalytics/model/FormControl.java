@@ -9,7 +9,7 @@ public class FormControl {
 
     private String type;
     private FormLabel label;
-    private FormCotrolProperty properties;
+    private FormControlProperty properties;
     private FormConcept concept;
     List<FormControl> controls;
 
@@ -37,11 +37,11 @@ public class FormControl {
         this.controls = controls;
     }
 
-    public FormCotrolProperty getProperties() {
+    public FormControlProperty getProperties() {
         return properties;
     }
 
-    public void setProperties(FormCotrolProperty properties) {
+    public void setProperties(FormControlProperty properties) {
         this.properties = properties;
     }
 
