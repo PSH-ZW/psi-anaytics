@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nuchange.psianalytics.jobs.JobConstants;
 import com.nuchange.psianalytics.model.*;
 import io.micrometer.core.instrument.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,6 +19,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class AnalyticsUtil {
+    private static Logger logger = LoggerFactory.getLogger(AnalyticsUtil.class);
+    private static Map<String, Forms> formCache = new HashMap<>();
 
     public static String getInsertQuery(List<String> colHeaders, String target) {
         StringBuilder query = new StringBuilder("INSERT INTO " + target + " (");
@@ -249,15 +253,65 @@ public class AnalyticsUtil {
     }
 
     public static String getUuidFromParam(String params, String eventCategory) {
-        if(params == null) {
+        if (params == null) {
             return null;
         }
         String[] tokens = params.split("/");
         int position = JobConstants.UUID_POSITION.get(eventCategory);
-        String uuidString = tokens[position].substring(0,36);
+        String uuidString = tokens[position].substring(0, 36);
         //Doing this to verify the string is a valid UUID, if not, this will throw an exception
         //TODO: can be removed if not needed.
         return UUID.fromString(uuidString).toString();
+    }
+
+    public static Forms readForm(String fileName) throws IOException {
+        if (formCache.containsKey(fileName)) {
+            return formCache.get(fileName);
+        }
+        String resource = replaceSpecialCharWithUnderScore(fileName);
+        logger.debug("Finding file  : " + resource);
+        ObjectMapper mapper = new ObjectMapper();
+        Forms forms = mapper.readValue(AnalyticsUtil.class.getClassLoader().getResource(resource), Forms.class);
+        formCache.put(fileName, forms);
+        return forms;
+    }
+
+    public static String replaceSpecialCharWithUnderScore(String fileName) {
+        return fileName.replaceAll("&", "_");
+    }
+
+    public static Map<String, ObsType> extractConceptsFromFile(String fileName) throws IOException {
+        Forms forms = readForm(fileName);
+        Map<String, ObsType> conceptTypes = new HashMap<>();
+        getConceptTypeFromControls(forms.getControls(), conceptTypes, null, null);
+        return conceptTypes;
+    }
+
+    private static void getConceptTypeFromControls(List<FormControl> formControlList, Map<String, ObsType> concepts, String parentType,
+                                                   FormLabel formLabel) {
+        for (FormControl formControl : formControlList) {
+            if (formControl.getType().equals(JobConstants.OBS_CONTROL)) {
+                String uuid = formControl.getConcept().getUuid();
+                ObsType obsType = new ObsType();
+                obsType.setUuid(uuid);
+                if (parentType!= null && parentType.equals(JobConstants.OBS_SECTION_CONTROL)) {
+                    obsType.setParentType(JobConstants.OBS_SECTION_CONTROL);
+                    obsType.setLabel(formLabel);
+                }
+                if (formControl.getProperties().getMultiSelect() != null && formControl.getProperties().getMultiSelect()) {
+                    obsType.setControlType(JobConstants.MULTI_SELECT);
+                } else {
+                    obsType.setControlType(JobConstants.TABLE);
+                }
+                concepts.put(uuid, obsType);
+
+            } else if (formControl.getType().equals(JobConstants.OBS_FLOWSHEET) || formControl.getType().equals(JobConstants.LABEL)) {
+                continue;
+            } else {
+                getConceptTypeFromControls(formControl.getControls(), concepts, formControl.getType(), formControl.getLabel());
+            }
+        }
+
     }
 }
 

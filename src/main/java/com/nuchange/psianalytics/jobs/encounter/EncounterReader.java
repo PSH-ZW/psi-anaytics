@@ -23,8 +23,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     @Autowired
     private EncounterHelper encounterHelper;
 
-    /*@Autowired
-    public BatchUtil batchUtil;*/
 
     public EncounterReader(DataSource dataSource) {
         super(dataSource);
@@ -55,8 +53,9 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
             Forms form = AnalyticsUtil.readForm("forms/" + file.getFileName() + ".json");
-            String conceptName = obs.getConcept().getFullySpecifiedName(Locale.ENGLISH).getName();
-            String conceptUuid = obs.getConcept().getUuid();
+            Concept concept = PSIContext.getInstance().getMetaDataService().getConceptByObsId(obs.getObsId());
+            String conceptName = PSIContext.getInstance().getMetaDataService().getFullNameOfConceptByUuid(UUID.fromString(concept.getUuid()));
+            String conceptUuid = concept.getUuid();
             String formTableName = AnalyticsUtil.generateColumnName(form.getName());
             String formNameWithInstance = formTableName + "_" + file.getInstance().toString();
             if (conceptMap.containsKey(conceptUuid)) {
@@ -67,8 +66,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                 conceptName = AnalyticsUtil.getShortName(conceptName);
                 conceptName = AnalyticsUtil.generateColumnName(conceptName);
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
-                    if (obs.getObsGroup() == null) {
-                        if (obs.getVoided()) {
+                    if (obs.getObsGroupId() == null) {
+                        if (obs.getVoided() == 1) {
                             deleted.add(formTableName + "_multiselect");
                             continue;
                         }
@@ -85,15 +84,15 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                         for (Query query : queryList) {
                             if (!query.getColAndVal().containsKey(conceptName)) {
                                 query.getColAndVal().put(conceptName, MRSServiceUtil.getValueAsString(obs, Locale.ENGLISH));
-                                if (snomedConceptList.contains(String.valueOf(obs.getConcept().getConceptId()))) {
+                                /*if (snomedConceptList.contains(String.valueOf(obs.getConcept().getConceptId()))) {
 //                                    logger.debug("Obs "+obs.getObsId());
                                     if (obs.getValueSct() != null) {
                                         BigInteger id = obs.getValueSct().getConceptId().getId();
                                         query.getColAndVal().put(conceptName + "_sct", id.toString());
                                     }
-                                }
+                                }*/
                                 addExtraAttributeToQuery(query, encounter, file);
-                                query.setIgnore(obs.getVoided());
+                                query.setIgnore(obs.getVoided() == 1? true: false);
                                 inserted = true;
                                 break;
                             }
@@ -103,18 +102,19 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             query.setTable(formTableName + "_multiselect");
                             queryList.add(query);
                             query.getColAndVal().put(conceptName, MRSServiceUtil.getValueAsString(obs, Locale.ENGLISH));
-                            if (snomedConceptList.contains(String.valueOf(obs.getConcept().getConceptId()))) {
+                            /*if (snomedConceptList.contains(String.valueOf(obs.getConcept().getConceptId()))) {
                                 if (obs.getValueSct() != null) {
                                     BigInteger id = obs.getValueSct().getConceptId().getId();
                                     query.getColAndVal().put(conceptName + "_sct", id.toString());
                                 }
-                            }
+                            }*/
                             addExtraAttributeToQuery(query, encounter, file);
-                            query.setIgnore(obs.getVoided());
+                            query.setIgnore(obs.getVoided() == 1? true: false);
                         }
                     } else {
                         Obs parentObs = findParentObs(obs);
-                        String parentConceptName = parentObs.getConcept().getFullySpecifiedName(Locale.ENGLISH).getName();
+                        Concept parentConcept = PSIContext.getInstance().getMetaDataService().getConceptByObsId(parentObs.getObsId());
+                        String parentConceptName = PSIContext.getInstance().getMetaDataService().getFullNameOfConceptByUuid(UUID.fromString(parentConcept.getUuid()));
                         if (!obsColAndVal_multiselect.containsKey(formNameWithInstance + "_multiselect")) {
                             List<Query> list = new ArrayList<>();
                             Query query = new Query();
@@ -131,7 +131,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                                 query.setParentTable(formTableName);
                                 query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
                                 addExtraAttributeToQuery(query, encounter, file);
-                                query.setIgnore(obs.getVoided());
+                                query.setIgnore(obs.getVoided() == 1? true: false);
                                 inserted = true;
                                 break;
                             }
@@ -145,14 +145,14 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             query.setParentTable(formTableName);
                             query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
                             addExtraAttributeToQuery(query, encounter, file);
-                            query.setIgnore(obs.getVoided());
+                            query.setIgnore(obs.getVoided() == 1? true: false);
                         }
                     }
                 }
 
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
 
-                    if (obs.getObsGroup() != null) {
+                    if (obs.getObsGroupId() != null) {
                         generateQueryForObsGroup(obs, obs.getObsGroup(), obsColAndVal, file, form, encounter);
                     } else {
                         if (!obsColAndVal.containsKey(formNameWithInstance)) {
@@ -163,7 +163,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                         Query query = obsColAndVal.get(formNameWithInstance);
                         query.getColAndVal().put(conceptName, MRSServiceUtil.getValueAsString(obs, Locale.ENGLISH));
                         addExtraAttributeToQuery(query, encounter, file);
-                        query.setIgnore(obs.getVoided());
+                        query.setIgnore(obs.getVoided() == 1? true: false);
                     }
                 }
             }
@@ -224,11 +224,10 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                 insertQueries.add(createIgnoredQueryFrom(encounterId, JobConstants.LAB_ORDER));
             }
         }*/
-        Patient patient = encounter.getPatient();
-        Location location = encounter.getLocation();
+        /*Patient patient = encounter.getPatient();*/
 
         /* Get All Diagnosis For An Encounter */
-        List<ResultExtractor> diagnosisExtractors = new ArrayList<>();
+/*        List<ResultExtractor> diagnosisExtractors = new ArrayList<>();
         List<Obs> visitDiagnosisList = MRSContext.getInstance().getObsService().getObsAtTopLevelByEncounterId(encounterId, JobConstants.VISIT_DIAGNOSIS_CONCEPT_UUID);
         if (!CollectionUtils.isEmpty(visitDiagnosisList)) {
             logger.debug("Visit Diagnosis found " + visitDiagnosisList.size());
@@ -243,7 +242,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                     Set<String> colHeaders = new HashSet<>();
                     Map<String, Object> values = new HashMap<>();
                     for (Obs obs : memberObs) {
-                        if (obs.getVoided()) {
+                        if (obs.getVoided() == 1) {
                             continue;
                         }
                         Concept concept = obs.getConcept();
@@ -296,8 +295,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                         colHeaders.add("date_created");
                         values.put("encounter_id", encounterId);
                         values.put("parent_id", diagnosisObsGrp.getObsId());
-                        values.put("patient_identifier", String.valueOf(patient.getPrimaryIdentifier()));
-                        /*values.put("provider", provider.getName());*/
+                        values.put("patient_identifier", String.valueOf(encounter.getPatientId()));
+                        *//*values.put("provider", provider.getName());*//*
                         values.put("location_id", location.getLocationId());
                         values.put("location_name", location.getName());
                         values.put("date_created", encounter.getEncounterDatetime());
@@ -315,9 +314,9 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             }
         } else {
             insertQueries.add(createIgnoredQueryFrom(encounterId, JobConstants.DIAGNOSIS));
-        }
+        }*/
 
-        extractorWithTarget.put(JobConstants.DIAGNOSIS, diagnosisExtractors);
+//        extractorWithTarget.put(JobConstants.DIAGNOSIS, diagnosisExtractors);
 
         if (!CollectionUtils.isEmpty(deleted)) {
             deleted.forEach(d -> {
@@ -352,13 +351,15 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     public void addExtraAttributeToQuery(Query query, Encounter encounter, FileAttributes file) {
         /*EncounterProvider encounterProvider = MRSContext.getInstance().getEncounterProviderService().getEncounterProviderByEncounter(encounter);
         Provider provider = encounterProvider.getProviderId();*/
+
         query.getColAndVal().put("encounter_id", String.valueOf(encounter.getEncounterId()));
         query.getColAndVal().put("visit_id", String.valueOf(encounter.getVisitId()));
-        query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatient().getPatientId()));
-        query.getColAndVal().put("patient_identifier", String.valueOf(encounter.getPatient().getPrimaryIdentifier()));
+        query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatientId()));
+        query.getColAndVal().put("patient_identifier", String.valueOf(encounter.getPatientId()));
         /*query.getColAndVal().put("provider_id", String.valueOf(provider.getProviderId()));*/
-        query.getColAndVal().put("location_id", String.valueOf(encounter.getLocation().getLocationId()));
-        query.getColAndVal().put("location_name", encounter.getLocation().getName());
+        query.getColAndVal().put("location_id", String.valueOf(encounter.getLocationId()));
+        Location location = PSIContext.getInstance().getMetaDataService().getLocationByEncounterId(encounter.getEncounterId());
+        query.getColAndVal().put("location_name", location.getName());
         query.getColAndVal().put("date_created", String.valueOf(encounter.getEncounterDatetime()));
         query.getColAndVal().put("instance_id", String.valueOf(file.getInstance()));
     }
@@ -368,8 +369,9 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         if(parentObs != null && parentObs.getObsGroup() != null) {
             generateQueryForObsGroup(parentObs, parentObs.getObsGroup(), obsColAndVal, file, forms, encounter);
         }
+        Concept parentConcept = PSIContext.getInstance().getMetaDataService().getConceptByObsId(parentObs.getObsId());
         String formTableName = AnalyticsUtil.generateColumnName(forms.getName());
-        String parentConceptName = parentObs.getConcept().getFullySpecifiedName(Locale.ENGLISH).getName();
+        String parentConceptName = PSIContext.getInstance().getMetaDataService().getFullNameOfConceptByUuid(UUID.fromString(parentConcept.getUuid()));
         String tableName = forms.getName() + "_" + AnalyticsUtil.generateColumnName(parentConceptName);
         tableName = AnalyticsUtil.generateColumnName(tableName);
         String tableNameWithInstance = tableName + "_" + file.getInstance().toString();
@@ -378,17 +380,18 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             query.setTable(tableName);
             obsColAndVal.put(tableNameWithInstance, query);
         }
-        String conceptName = currentObs.getConcept().getFullySpecifiedName(Locale.ENGLISH).getName();
+        Concept currentConcept = PSIContext.getInstance().getMetaDataService().getConceptByObsId(parentObs.getObsId());
+        String conceptName = PSIContext.getInstance().getMetaDataService().getFullNameOfConceptByUuid(UUID.fromString(currentConcept.getUuid()));
         conceptName = AnalyticsUtil.generateColumnName(conceptName);
         Query query = obsColAndVal.get(tableNameWithInstance);
-        query.setIgnore(currentObs.getVoided());
+        query.setIgnore(currentObs.getVoided() == 1? true: false);
         query.getColAndVal().put(conceptName, MRSServiceUtil.getValueAsString(currentObs, Locale.ENGLISH));
         query.getColAndVal().put("parent_id",  null);
         query.setParentTable(formTableName);
         query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
         query.getColAndVal().put("encounter_id", String.valueOf(encounter.getEncounterId()));
-        query.getColAndVal().put("visit_id", String.valueOf(encounter.getVisit().getVisitId()));
-        query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatient().getPatientId()));
+        query.getColAndVal().put("visit_id", String.valueOf(encounter.getVisitId()));
+        query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatientId()));
         query.getColAndVal().put("instance_id", String.valueOf(file.getInstance()));
     }
 
