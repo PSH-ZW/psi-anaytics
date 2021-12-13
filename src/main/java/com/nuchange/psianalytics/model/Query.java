@@ -10,6 +10,8 @@ public class Query {
     String parentConcept;
     String parentTable;
 
+    private boolean ignore = false;
+
     public String getTable() {
         return table;
     }
@@ -40,5 +42,13 @@ public class Query {
 
     public void setParentTable(String parentTable) {
         this.parentTable = parentTable;
+    }
+
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        this.ignore = ignore;
     }
 }

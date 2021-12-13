@@ -1,9 +1,6 @@
 package com.nuchange.psianalytics.util;
 
-import com.nuchange.psianalytics.model.AnalyticsCronJob;
-import com.nuchange.psianalytics.model.ConceptName;
-import com.nuchange.psianalytics.model.EventRecords;
-import com.nuchange.psianalytics.model.ProcessedEvents;
+import com.nuchange.psianalytics.model.*;
 import org.simpleflatmapper.jdbc.spring.JdbcTemplateMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,7 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,5 +80,19 @@ public class MetaDataService {
             return conceptNames.get(0);
         }
         return null;
+    }
+
+    public Encounter getEncounterByEncounterId(Integer encounterId){
+        final String sql = "SELECT * FROM encounter WHERE encounter_id = ?";
+        List<Encounter> encounters = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Encounter.class), encounterId);
+        if(!CollectionUtils.isEmpty(encounters)){
+            return encounters.get(0);
+        }
+        return null;
+    }
+
+    public List<Obs> getObsByEncounterIdAndVoided(Integer encounterId, Integer voided){
+        final String sql = "SELECT * FROM obs WHERE encounter_id = ? AND voided = ? AND form_namespace_and_path IS NOT null ";
+        return mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Obs.class), encounterId, voided);
     }
 }
