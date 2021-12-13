@@ -3,6 +3,7 @@ import com.nuchange.psianalytics.jobs.JobConstants;
 import com.nuchange.psianalytics.jobs.querybased.QueryBasedJobReader;
 import com.nuchange.psianalytics.model.*;
 import com.nuchange.psianalytics.util.AnalyticsUtil;
+import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.PSIContext;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     @Autowired
     private EncounterHelper encounterHelper;
 
+    @Autowired
+    protected MetaDataService metaDataService;
 
     public EncounterReader(DataSource dataSource) {
         super(dataSource);
@@ -396,8 +399,10 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     }
 
     private Obs findParentObs(Obs obs) {
-        if (obs.getObsGroup() != null) {
-            return findParentObs(obs.getObsGroup());
+        Integer obsGroupId = obs.getObsGroupId();
+        while (obsGroupId != null) {
+            obs = metaDataService.getObsById(obsGroupId);
+            obsGroupId = obs.getObsGroupId();
         }
         return obs;
     }

@@ -97,6 +97,15 @@ public class MetaDataService {
         return mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Obs.class), encounterId, voided);
     }
 
+    public Obs getObsById(Integer id){
+        final String sql = "SELECT * FROM obs WHERE obs_id = ? ";
+        List<Obs> obs = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Obs.class), id);
+        if(!CollectionUtils.isEmpty(obs)) {
+            return obs.get(0);
+        }
+        return null;
+    }
+
     public Encounter getEncounterByUuid(String encounterUUID) {
         final String sql = "SELECT * FROM encounter WHERE uuid = ?";
         List<Encounter> encounters = mrsJdbcTemplate.query(sql,
