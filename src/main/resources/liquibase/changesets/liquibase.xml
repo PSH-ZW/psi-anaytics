@@ -58,6 +58,16 @@
         </sql>
     </changeSet>
 
+    <changeSet id = "encounter cron job" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="analytics_cron_job"/>
+        </preConditions>
+        <sql>
+            insert into analytics_cron_job (name, start_delay, expression, enabled)
+            values ('mrsEncounterJob', 5, '0 50 * ? * *', true);
+        </sql>
+    </changeSet>
+
     <changeSet author="vishnu" id="add_patient_table">
         <preConditions onFail="MARK_RAN">
             <not>
