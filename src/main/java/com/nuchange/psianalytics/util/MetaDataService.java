@@ -115,7 +115,7 @@ public class MetaDataService {
         List<String> dataType = mrsJdbcTemplate.query(sql,
                 JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), conceptId);
         if(!CollectionUtils.isEmpty(dataType)) {
-            return ConceptDatatype.valueOf(dataType.get(0));
+            return ConceptDatatype.create(dataType.get(0));
         }
         return null;
     }
@@ -161,7 +161,8 @@ public class MetaDataService {
 
     public Concept getConceptByObsId(Integer obsId){
         final String sql = "select * from concept where concept_id = (select concept_id from obs where obs_id = ?)";
-        List<Concept> concepts = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Concept.class), obsId);
+        List<Concept> concepts = mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(Concept.class), obsId);
         if(!CollectionUtils.isEmpty(concepts)){
             return concepts.get(0);
         }
@@ -169,7 +170,7 @@ public class MetaDataService {
     }
 
     public Location getLocationByEncounterId(Integer encounterId){
-        final String sql = "select * from location where location_id = (select location_id from encounter where encounter_id = ?)";
+        final String sql = "select location_id, name, uuid from location where location_id = (select location_id from encounter where encounter_id = ?)";
         List<Location> locations = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Location.class), encounterId);
         if(!CollectionUtils.isEmpty(locations)){
             return locations.get(0);

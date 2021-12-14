@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 public class Concept {
 
     private Integer conceptId;
+    private Integer classId;
     private Integer retired;
     private String shortName;
     private String description;
@@ -16,6 +17,10 @@ public class Concept {
     private Timestamp dateRetired;
     private String retireReason;
     private String uuid;
+    private Integer changedBy;
+    private Integer creator;
+    private Integer retiredBy;
+    private Integer datatypeId;
 
     public Integer getConceptId() {
         return conceptId;
@@ -111,5 +116,45 @@ public class Concept {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public Integer getChangedBy() {
+        return changedBy;
+    }
+
+    public void setChangedBy(Integer changedBy) {
+        this.changedBy = changedBy;
+    }
+
+    public Integer getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Integer creator) {
+        this.creator = creator;
+    }
+
+    public Integer getRetiredBy() {
+        return retiredBy;
+    }
+
+    public void setRetiredBy(Integer retiredBy) {
+        this.retiredBy = retiredBy;
+    }
+
+    public Integer getDatatypeId() {
+        return datatypeId;
+    }
+
+    public void setDatatypeId(Integer datatypeId) {
+        this.datatypeId = datatypeId;
+    }
+
+    public Integer getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Integer classId) {
+        this.classId = classId;
     }
 }

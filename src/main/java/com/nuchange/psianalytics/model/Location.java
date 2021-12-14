@@ -1,5 +1,8 @@
 package com.nuchange.psianalytics.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Location {
     private Integer locationId;
     private String name;
@@ -29,3 +32,4 @@ public class Location {
         this.uuid = uuid;
     }
 }
+

@@ -270,7 +270,8 @@ public class AnalyticsUtil {
         String resource = replaceSpecialCharWithUnderScore(fileName);
         logger.debug("Finding file  : " + resource);
         ObjectMapper mapper = new ObjectMapper();
-        Forms forms = mapper.readValue(AnalyticsUtil.class.getClassLoader().getResource(resource), Forms.class);
+
+        Forms forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(resource)));
         formCache.put(fileName, forms);
         return forms;
     }

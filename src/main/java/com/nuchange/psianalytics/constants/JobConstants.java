@@ -28,6 +28,7 @@ public class JobConstants {
 
     public static final String ENCOUNTER = "encounter";
     public static final String MRS_ENCOUNTER = "encounter";
+    public static final String ENCOUNTER_CRON_JOB_NAME = "Encounter";
     public static final String MRS_ENCOUNTER_JOB = "mrsEncounterJob";
     public static final String ENCOUNTER_EVENT_BASE_JOB = "ENCOUNTER_EVENT_BASE_JOB";
     public static final String MULTI_SELECT = "multiSelect";
@@ -61,7 +62,7 @@ public class JobConstants {
     public static final Map<String, Integer> UUID_POSITION = Collections.unmodifiableMap(new HashMap<String, Integer>() {
         {
             put(MRS_PATIENT, PATIENT_UUID_POSITION);
-            put(MRS_ENCOUNTER, ENCOUNTER_UUID_POSITION);
+            put(ENCOUNTER_CRON_JOB_NAME, ENCOUNTER_UUID_POSITION);
         }
     });
 }

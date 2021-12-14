@@ -11,6 +11,14 @@
       "children": [
         "conditions"
       ]
+    },
+    "encounter": {
+      "input": "sql/mrs_encounter_fetch.sql",
+      "lastNRecords": "select encounter_id from encounter where encounter_id > ? order by id asc limit ?",
+      "target": "encounter",
+      "primaryKey": "encounter_id",
+      "existQuery": "select count(*) from encounter where encounter_id = ?",
+      "findIdByUuid": "select encounter_id from encounter where uuid = ?"
     }
   }
 }
