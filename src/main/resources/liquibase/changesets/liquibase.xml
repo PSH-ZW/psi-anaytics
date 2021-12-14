@@ -172,4 +172,24 @@
             <column name="date_created" type="timestamp"/>
         </createTable>
     </changeSet>
+
+    <changeSet author="vishnu" id="add_encounter_table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="encounter"/>
+            </not>
+        </preConditions>
+        <createTable tableName="encounter">
+            <column name="encounter_id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="uuid" type="varchar(36)"/>
+            <column name="encounter_type_id" type="number"/>
+            <column name="visit_id" type="number"/>
+            <column name="location_id" type="number"/>
+            <column name="patient_id" type="number"/>
+            <column name="encounter_date_created" type="timestamp"/>
+            <column name="location_name" type="varchar"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

@@ -3,3 +3,7 @@ CREATE TABLE viac_form_template_8681(id serial PRIMARY KEY, vf_gravida varchar, 
 CREATE TABLE viac_form_template_8681_viac_form_service_provided (id serial PRIMARY KEY, vf_facility varchar, vf_site_type varchar, vf_district varchar, vf_setting varchar, parent_id integer, encounter_id integer, visit_id integer, patient_id integer, instance_id integer, provider_id integer, username varchar, date_created timestamp, patient_identifier varchar,location_id integer, location_name varchar);
 
 CREATE TABLE viac_form_template_8681_viac_form_management (id serial PRIMARY KEY, vf_treatment_given varchar, vf_treatment_given_specify_details varchar, vf_client_referred varchar, vf_referred_to varchar, vf_referred_for_public_sector varchar, vf_referred_for_if_other_specify_details varchar, vf_referred_for_pvt_sector varchar, vf_referred_for_if_other_specify_details_pvt_sector varchar, vf_referred_for_other_nsc varchar, vf_referred_for_if_other_specify_details_other_nsc varchar, parent_id integer, encounter_id integer, visit_id integer, patient_id integer, instance_id integer, provider_id integer, username varchar, date_created timestamp, patient_identifier varchar,location_id integer, location_name varchar);
+
+grant all privileges on table viac_form_template_8681 to analytics;
+grant all privileges on table viac_form_template_8681_viac_form_management to analytics;
+grant all privileges on table viac_form_template_8681_viac_form_service_provided to analytics;
