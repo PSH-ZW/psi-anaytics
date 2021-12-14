@@ -87,9 +87,10 @@ public class AnalyticsUtil {
         if (name.contains("(")) {
            name = name.substring(0, name.indexOf("(")).trim();
         }
-        name = name.replaceAll(" ", "_").replaceAll(",", "").replaceAll("-", "_").replaceAll("/", "_");
-        name = name.replaceAll("&", "");
-        name = name.replaceAll("__", "_");
+        name = name.replaceAll(" ", "_").replaceAll(",", "");
+        name = name.replaceAll("-", "_").replaceAll("/", "_");
+        name = name.replaceAll("&", "").replaceAll("\\?", "");
+        name = name.replaceAll("__", "_").replaceAll("\\.", "_");
         return name.toLowerCase();
     }
 
@@ -158,7 +159,7 @@ public class AnalyticsUtil {
                 query.append(name).append(" varchar, ");
             }
         }
-        query.append("encounter_id integer, visit_id integer, patient_id integer, instance_id integer, provider_id integer ");
+        query.append("encounter_id integer, visit_id integer, patient_id integer, ");
         query.append("username varchar, date_created timestamp, patient_identifier varchar, ");
         query.append("location_id integer, location_name varchar)");
         queries.add(query.toString());
