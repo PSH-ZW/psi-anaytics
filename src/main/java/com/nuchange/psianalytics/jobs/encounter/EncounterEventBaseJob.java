@@ -1,7 +1,7 @@
 package com.nuchange.psianalytics.jobs.encounter;
 
 import com.nuchange.psianalytics.jobs.FlatteningTask;
-import com.nuchange.psianalytics.jobs.JobConstants;
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.model.AnalyticsCronJob;
 import com.nuchange.psianalytics.util.MetaDataService;
 import org.quartz.DisallowConcurrentExecution;

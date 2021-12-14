@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics.jobs.querybased;
 
-import com.nuchange.psianalytics.jobs.JobConstants;
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.model.ProcessedEvents;
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;

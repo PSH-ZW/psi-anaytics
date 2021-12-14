@@ -1,4 +1,4 @@
-package com.nuchange.psianalytics.jobs;
+package com.nuchange.psianalytics.constants;
 
 import java.util.Collections;
 import java.util.HashMap;

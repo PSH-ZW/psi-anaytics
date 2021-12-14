@@ -10,6 +10,8 @@ public class Obs {
 
     private Integer encounterId;
 
+    private Integer conceptId;
+
     private Integer orderId;
 
     private Timestamp obsDatetime;
@@ -292,5 +294,13 @@ public class Obs {
 
     public void setInterpretation(String interpretation) {
         this.interpretation = interpretation;
+    }
+
+    public Integer getConceptId() {
+        return conceptId;
+    }
+
+    public void setConceptId(Integer conceptId) {
+        this.conceptId = conceptId;
     }
 }

@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics.jobs.encounter;
 
-import com.nuchange.psianalytics.jobs.JobConstants;
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.querybased.QueryBasedJobWriter;
 import com.nuchange.psianalytics.model.EncounterJobDto;
 import com.nuchange.psianalytics.model.Query;

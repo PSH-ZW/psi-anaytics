@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics.jobs.encounter.eventbased;
 
-import com.nuchange.psianalytics.jobs.JobConstants;
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.encounter.EncounterReader;
 import com.nuchange.psianalytics.model.Encounter;
 import com.nuchange.psianalytics.model.EncounterJobDto;

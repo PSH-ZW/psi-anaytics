@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics.jobs.patient;
 
-import com.nuchange.psianalytics.jobs.JobConstants;
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.model.ResultExtractor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

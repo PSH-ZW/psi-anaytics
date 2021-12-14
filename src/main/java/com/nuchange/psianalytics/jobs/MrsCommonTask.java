@@ -1,5 +1,6 @@
 package com.nuchange.psianalytics.jobs;
 
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.model.AnalyticsCronJob;
 import com.nuchange.psianalytics.util.MetaDataService;
 import org.springframework.batch.core.*;
