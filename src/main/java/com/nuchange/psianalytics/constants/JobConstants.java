@@ -30,19 +30,8 @@ public class JobConstants {
     public static final String MRS_ENCOUNTER = "encounter";
     public static final String MRS_ENCOUNTER_JOB = "mrsEncounterJob";
     public static final String ENCOUNTER_EVENT_BASE_JOB = "ENCOUNTER_EVENT_BASE_JOB";
-    public static final String VISIT_DIAGNOSIS_CONCEPT_UUID = "159947AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    public static final String CODED_DIAGNOSIS_CONCEPT_UUID = "1284AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    public static final String DIAGNOSIS_CERTAINTY_CONCEPT_UUID = "159394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    public static final String DIAGNOSIS_ORDER_CONCEPT_UUID = "159946AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    public static final String NON_CODED_DIAGNOSIS_CONCEPT_UUID = "161602AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    public static final String BAHMNI_DIAGNOSIS_STATUS_CONCEPT_UUID = "ed247048-101d-4bcb-9761-2a276b558230";
-    public static final String DIAGNOSIS_SCT_DESCRIPTION_CONCEPT_UUID = "0096c5fe-92ca-4080-bf99-2d0ee1b9215b";
     public static final String MULTI_SELECT = "multiSelect";
     public static final String TABLE = "table";
-    public static final String ORDERS = "orders";
-    public static final String DIAGNOSIS = "diagnosis";
-    public static final String CODED_DIAGNOSIS_SCT_DESCRIPTION_COLUMN = "coded_diagnosis_sct_description";
-    public static final String CODED_DIAGNOSIS_SCT_CONCEPT_ID_COLUMN = "sct2_concept_id";
     public static final String OBS_CONTROL = "obsControl";
 
     public static final Map<String, String> CATEGORY_TO_ANALYTICS_JOB = Collections.unmodifiableMap(new HashMap<String, String>() {

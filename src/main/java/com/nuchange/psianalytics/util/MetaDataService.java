@@ -227,8 +227,8 @@ public class MetaDataService {
 
             if (!dataType.equals(ConceptDatatype.NUMERIC) && !dataType.equals(ConceptDatatype.STRUCTURED_NUMERIC)) {
                 if (dataType.equals(ConceptDatatype.DATE)) {
-                    SimpleDateFormat var16 = new SimpleDateFormat("yyyy-MM-dd");
-                    return obs.getValueDatetime() == null ? "" : var16.format(obs.getValueDatetime());
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    return obs.getValueDatetime() == null ? "" : dateFormat.format(obs.getValueDatetime());
                 }
 
                 if (dataType.equals(ConceptDatatype.TIME)) {
@@ -246,11 +246,11 @@ public class MetaDataService {
                 }
 
                 if (dataType.equals(ConceptDatatype.COMPLEX) && obs.getValueComplex() != null) {
-                    String[] var12 = obs.getValueComplex().split("\\|");
+                    String[] complexValues = obs.getValueComplex().split("\\|");
 
-                    for (int var15 = 0; var15 < var12.length; ++var15) {
-                        if (StringUtils.isNotEmpty(var12[var15])) {
-                            return var12[var15].trim();
+                    for (String complexValue : complexValues) {
+                        if (StringUtils.isNotEmpty(complexValue)) {
+                            return complexValue.trim();
                         }
                     }
                 }
@@ -262,8 +262,8 @@ public class MetaDataService {
                 if (dataType.equals(ConceptDatatype.NUMERIC)) {
                     if (isPreciseConceptNumeric(obs.getConceptId())) {
                         double groupMember = obs.getValueNumeric();
-                        int i1 = (int) groupMember;
-                        return Integer.toString(i1);
+                        int numericValue = (int) groupMember;
+                        return Integer.toString(numericValue);
                     }
 
                     df.format(obs.getValueNumeric());
@@ -286,24 +286,24 @@ public class MetaDataService {
                 return obs.getValueText();
             } else if (!CollectionUtils.isEmpty(groupMembers)) {
                  {
-                    StringBuilder var10 = new StringBuilder();
-                    Obs var18;
-                    for (Iterator var14 = groupMembers.iterator(); var14.hasNext(); var10.append(getValueAsString(var18, locale))) {
-                        var18 = (Obs) var14.next();
-                        if (var10.length() > 0) {
-                            var10.append(", ");
+                    StringBuilder memberValues = new StringBuilder();
+                    Obs memberObs;
+                    for (Iterator<Obs> obsIterator = groupMembers.iterator(); obsIterator.hasNext(); memberValues.append(getValueAsString(memberObs, locale))) {
+                        memberObs = obsIterator.next();
+                        if (memberValues.length() > 0) {
+                            memberValues.append(", ");
                         }
                     }
 
-                    return var10.toString();
+                    return memberValues.toString();
                 }
             } else {
                 if (obs.getValueComplex() != null) {
-                    String[] var9 = obs.getValueComplex().split("\\|");
+                    String[] complexValues = obs.getValueComplex().split("\\|");
 
-                    for (int var13 = 0; var13 < var9.length; ++var13) {
-                        if (StringUtils.isNotEmpty(var9[var13])) {
-                            return var9[var13].trim();
+                    for (String complexValue : complexValues) {
+                        if (StringUtils.isNotEmpty(complexValue)) {
+                            return complexValue.trim();
                         }
                     }
                 }
@@ -327,11 +327,11 @@ public class MetaDataService {
                 return Boolean.FALSE;
             }
         } else if (obs.getValueNumeric() != null) {
-            if (obs.getValueNumeric().doubleValue() == 1.0D) {
+            if (obs.getValueNumeric() == 1.0D) {
                 return Boolean.TRUE;
             }
 
-            if (obs.getValueNumeric().doubleValue() == 0.0D) {
+            if (obs.getValueNumeric() == 0.0D) {
                 return Boolean.FALSE;
             }
         }
