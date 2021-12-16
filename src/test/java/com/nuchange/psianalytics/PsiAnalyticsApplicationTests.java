@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PsiAnalyticsApplication.class)
+@SpringBootTest(classes = TestApplication.class)
 class PsiAnalyticsApplicationTests {
 
 	@Test

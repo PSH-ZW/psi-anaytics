@@ -64,6 +64,10 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                 batchDelete.forEach(d -> template.update(d));
             }
 
+            if (!CollectionUtils.isEmpty(batchUpdate)) {
+                batchUpdate.forEach(d -> template.update(d));
+            }
+
             for (Query query : queryChild) {
                 if (!deleteExecuted.contains(query.getParentTable())) {
                     /* delete if encounter and visit_id and instance present */

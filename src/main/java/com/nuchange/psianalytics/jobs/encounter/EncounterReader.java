@@ -49,6 +49,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         Map<String, List<Query>> obsColAndVal_multiselect = new HashMap<>();
 
         for (Obs obs : obsForEncounter) {
+            //TODO: we are doing this for each obs, check whether we can group obs belonging to one form.
             FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
             Forms form = AnalyticsUtil.readForm("forms/" + file.getFileName() + ".json");
@@ -146,10 +147,16 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             query.setTable(formTableName);
                             obsColAndVal.put(formNameWithInstance, query);
                         }
-                        Query query = obsColAndVal.get(formNameWithInstance);
-                        query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                        addExtraAttributeToQuery(query, encounter, file);
-                        query.setIgnore(obs.getVoided() == 1? true: false);
+                        if(!Objects.equals(obsType.getParentType(), JobConstants.OBS_CONTROL_GROUP)) {
+                            Query query = obsColAndVal.get(formNameWithInstance);
+                            query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
+                            //TODO: can we move this method call to the if condition above?
+                            addExtraAttributeToQuery(query, encounter, file);
+                            query.setIgnore(obs.getVoided() == 1);
+                        }
+                        else {
+                            //TODO: add to insert query of obsControlGroup table.
+                        }
                     }
                 }
             }

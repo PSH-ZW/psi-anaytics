@@ -223,7 +223,7 @@ public class MetaDataService {
                     return getFullNameOfConceptByIdAndLocale(obs.getValueDrug(), locale);
                 }
 
-                return "";
+                return getFullNameOfConceptByIdAndLocale(obs.getValueCoded(), locale);
             }
 
             if (!dataType.equals(ConceptDatatype.NUMERIC) && !dataType.equals(ConceptDatatype.STRUCTURED_NUMERIC)) {

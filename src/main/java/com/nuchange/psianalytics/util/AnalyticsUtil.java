@@ -161,7 +161,7 @@ public class AnalyticsUtil {
         }
         query.append("encounter_id integer, visit_id integer, patient_id integer, ");
         query.append("username varchar, date_created timestamp, patient_identifier varchar, ");
-        query.append("location_id integer, location_name varchar)");
+        query.append("location_id integer, location_name varchar, instance_id integer)");
         queries.add(query.toString());
         if (obsWithConcepts.containsKey(forms.getName())){
             obsWithConcepts.remove(forms.getName());
@@ -295,9 +295,15 @@ public class AnalyticsUtil {
                 String uuid = formControl.getConcept().getUuid();
                 ObsType obsType = new ObsType();
                 obsType.setUuid(uuid);
-                if (parentType!= null && parentType.equals(JobConstants.OBS_SECTION_CONTROL)) {
-                    obsType.setParentType(JobConstants.OBS_SECTION_CONTROL);
-                    obsType.setLabel(formLabel);
+                if (parentType != null) {
+                    if (parentType.equals(JobConstants.OBS_SECTION_CONTROL)) {
+                        obsType.setParentType(JobConstants.OBS_SECTION_CONTROL);
+                        obsType.setLabel(formLabel);
+                    }
+                    else if (parentType.equals(JobConstants.OBS_CONTROL_GROUP)) {
+                        obsType.setParentType(JobConstants.OBS_CONTROL_GROUP);
+                        obsType.setLabel(formLabel);
+                    }
                 }
                 if (formControl.getProperties().getMultiSelect() != null && formControl.getProperties().getMultiSelect()) {
                     obsType.setControlType(JobConstants.MULTI_SELECT);
