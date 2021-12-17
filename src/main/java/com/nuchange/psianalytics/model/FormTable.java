@@ -7,13 +7,11 @@ public class FormTable {
 
     private String name;
     private List<FormConcept> concepts;
-    private String parent;
     private FormControlProperty properties;
 
     public FormTable(String name) {
         this.name = name;
         concepts = new ArrayList<FormConcept>();
-        parent = "";
     }
 
     public String getName() {
@@ -30,14 +28,6 @@ public class FormTable {
 
     public void setConcepts(List<FormConcept> concepts) {
         this.concepts = concepts;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
     }
 
     public FormControlProperty getProperties() {

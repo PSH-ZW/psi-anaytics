@@ -154,9 +154,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             addExtraAttributeToQuery(query, encounter, file);
                             query.setIgnore(obs.getVoided() == 1);
                         }
-                        else {
-                            //TODO: add to insert query of obsControlGroup table.
-                        }
                     }
                 }
             }

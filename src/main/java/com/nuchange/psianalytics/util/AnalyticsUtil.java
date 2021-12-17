@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.model.*;
-import io.micrometer.core.instrument.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -142,13 +141,12 @@ public class AnalyticsUtil {
         }, params);
     }
 
-    public static List<String> generateCreateTableForForm(String formName) throws IOException {
+    public static String generateCreateTableForForm(String formName) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Forms forms;
         forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
-        List<String> queries = new ArrayList<>();
         Map<String, FormTable> obsWithConcepts = new HashMap<>();
-        handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null, null);
+        handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null);
         StringBuilder query = new StringBuilder();
         query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(forms.getName())).append("(");
         query.append("id serial PRIMARY KEY, ");
@@ -161,37 +159,26 @@ public class AnalyticsUtil {
         query.append("encounter_id integer, visit_id integer, patient_id integer, ");
         query.append("username varchar, date_created timestamp, patient_identifier varchar, ");
         query.append("location_id integer, location_name varchar, instance_id integer)");
-        queries.add(query.toString());
-        if (obsWithConcepts.containsKey(forms.getName())){
-            obsWithConcepts.remove(forms.getName());
-        }
-        for (String s : obsWithConcepts.keySet()) {
-            queries.add(createQueryForFormTable(obsWithConcepts.get(s), forms.getName()));
-        }
-        return queries;
+
+        return query.toString();
     }
 
     public static void handleObsControls(List<FormControl> controls, Map<String, FormTable> obsWithConcepts,
-                                         String parent, String formName, String sectionLabel) {
+                                         String formName, String sectionLabel) {
         for (FormControl control : controls) {
-            extractConceptsForObsControl(obsWithConcepts, control, parent, formName, sectionLabel);
+            extractConceptsForObsControl(obsWithConcepts, control, formName, sectionLabel);
         }
     }
     public static void extractConceptsForObsControl(Map<String, FormTable> obsWithConcepts,
-                                                    FormControl control, String parent, String tableName, String sectionLabel) {
-        //TODO: remove parent argument
-        if (control.getType().equals(JobConstants.OBS_FLOWSHEET) || control.getType().equals(JobConstants.LABEL)) {
+                                                    FormControl control, String tableName, String sectionLabel) {
+        if (control.getType().equals(JobConstants.LABEL)) {
             return;
         }
         if (control.getType().equals(JobConstants.OBS_CONTROL_GROUP)) {
-            handleObsControls(control.getControls(), obsWithConcepts, parent, tableName, null);
+            handleObsControls(control.getControls(), obsWithConcepts, tableName, null);
         } else if (control.getType().equals(JobConstants.OBS_SECTION_CONTROL)) {
-            handleObsControls(control.getControls(), obsWithConcepts, parent, tableName, control.getLabel().getValue());
+            handleObsControls(control.getControls(), obsWithConcepts, tableName, control.getLabel().getValue());
         } else {
-            if (tableName == null) {
-                tableName = parent;
-                parent = null;
-            }
             if (!obsWithConcepts.containsKey(tableName)) {
                 obsWithConcepts.put(tableName, new FormTable(tableName));
             }
@@ -199,56 +186,39 @@ public class AnalyticsUtil {
             FormConcept formConcept = control.getConcept();
 
             if (control.getProperties().getMultiSelect() != null && control.getProperties().getMultiSelect()) {
-                String fieldName = getShortName(formConcept.getName());
-                for(ConceptAnswer answerConcept : formConcept.getAnswers()) {
-                    FormConcept answerConceptName = answerConcept.getName();
-                    String multiSelectOptionName = answerConceptName.getName();
-                    multiSelectOptionName = fieldName + "_" + getShortName(multiSelectOptionName);
-                    answerConceptName.setName(multiSelectOptionName);
-                    formTable.getConcepts().add(answerConceptName);
-                }
+                generateFormConceptsForMultiselectColumns(formTable, formConcept);
             }
             else {
-                String conceptName = PSIContext.getInstance().getMetaDataService()
-                        .getFullNameOfConceptByUuid(UUID.fromString(formConcept.getUuid()));
-                formConcept.setName(getShortName(conceptName));
-                if (sectionLabel != null) {
-                    formConcept.setName(sectionLabel + "_" + formConcept.getName());
-                }
-                formTable.getConcepts().add(formConcept);
+                generateConceptForColumn(sectionLabel, formTable, formConcept);
             }
             formTable.setProperties(control.getProperties());
-            formTable.setParent(parent);
         }
     }
 
-    private static String createQueryForFormTable(FormTable formTable, String formName) {
-        StringBuilder query = new StringBuilder("");
-        String tableName = "";
-        if (!formTable.getName().contains("multiselect")) {
-            tableName = AnalyticsUtil.generateColumnName(formName + "_" + formTable.getName());
-        } else {
-            tableName = AnalyticsUtil.generateColumnName(formTable.getName());
+    private static void generateConceptForColumn(String sectionLabel, FormTable formTable, FormConcept formConcept) {
+        String conceptName = formConcept.getName();
+        formConcept.setName(getShortName(conceptName));
+        if (sectionLabel != null) {
+            formConcept.setName(sectionLabel + "_" + formConcept.getName());
         }
-        query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(tableName)).append(" (");
-        query.append("id serial PRIMARY KEY, ");
-        for (FormConcept concept : formTable.getConcepts()) {
-            String name = AnalyticsUtil.generateColumnName(concept.getName());
-            query.append(name).append(" varchar, ");
+        formTable.getConcepts().add(formConcept);
+    }
+
+    private static void generateFormConceptsForMultiselectColumns(FormTable formTable, FormConcept formConcept) {
+        //Generate a boolean column for each possible value of the multiselect.
+        String multiSelectFieldName = getShortName(formConcept.getName());
+        for(ConceptAnswer answerConcept : formConcept.getAnswers()) {
+            FormConcept answerConceptName = answerConcept.getName();
+            String multiSelectOptionName = answerConceptName.getName();
+            multiSelectOptionName = multiSelectFieldName + "_" + getShortName(multiSelectOptionName);
+            answerConceptName.setName(multiSelectOptionName);
+            formTable.getConcepts().add(answerConceptName);
         }
-        query.append("parent_id integer, encounter_id integer, visit_id integer, patient_id integer, instance_id integer, provider_id integer, ");
-        query.append("username varchar, date_created timestamp, patient_identifier varchar,");
-        query.append("location_id integer, location_name varchar)");
-        return query.toString();
     }
 
     private static Forms parseForm(JsonNode array){
         JsonNode resources = array.get("formJson").get("resources");
         String version = array.get("formJson").get("version").asText();
-        String versionString = "";
-        if(!StringUtils.isEmpty(version)){
-            versionString = "." + version + "/";
-        }
         String value = resources.get(0).get("value").toString();
         ObjectMapper mapper = new ObjectMapper();
         Forms c = null;
@@ -257,9 +227,6 @@ public class AnalyticsUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*for(FormControl control : c.getControls()){
-            parseObj(control, c.getName());
-        }*/
         return c;
     }
 
