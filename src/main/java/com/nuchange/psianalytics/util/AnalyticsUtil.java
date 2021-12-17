@@ -96,19 +96,19 @@ public class AnalyticsUtil {
 
     public static String getShortName(String name) {
         if (name.contains(",")) {
-            String shortName = "";
+            StringBuilder shortName = new StringBuilder();
             String lastName = name.substring(name.lastIndexOf(",")+1).trim();
             name = name.substring(0, name.lastIndexOf(","));
             String[] commaSeprated = name.split(",");
             for (String s : commaSeprated) {
                 s = s.trim();
                 String[] spaceSeprated = s.split(" ");
-                String firstLetters = "";
+                StringBuilder firstLetters = new StringBuilder();
                 for (String word : spaceSeprated) {
                     word = word.trim();
-                    firstLetters += word.charAt(0);
+                    firstLetters.append(word.charAt(0));
                 }
-                shortName += firstLetters + "_";
+                shortName.append(firstLetters).append("_");
             }
             return shortName + lastName;
         }
@@ -146,11 +146,10 @@ public class AnalyticsUtil {
         ObjectMapper mapper = new ObjectMapper();
         Forms forms;
         forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
-        /*forms = mapper.readValue(AnalyticsUtil.class.getClassLoader().getResource(formName), Forms.class);*/
         List<String> queries = new ArrayList<>();
         Map<String, FormTable> obsWithConcepts = new HashMap<>();
         handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null, null);
-        StringBuilder query = new StringBuilder("");
+        StringBuilder query = new StringBuilder();
         query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(forms.getName())).append("(");
         query.append("id serial PRIMARY KEY, ");
         if (obsWithConcepts.containsKey(forms.getName())) {
@@ -180,11 +179,12 @@ public class AnalyticsUtil {
     }
     public static void extractConceptsForObsControl(Map<String, FormTable> obsWithConcepts,
                                                     FormControl control, String parent, String tableName, String sectionLabel) {
+        //TODO: remove parent argument
         if (control.getType().equals(JobConstants.OBS_FLOWSHEET) || control.getType().equals(JobConstants.LABEL)) {
             return;
         }
         if (control.getType().equals(JobConstants.OBS_CONTROL_GROUP)) {
-            handleObsControls(control.getControls(), obsWithConcepts, parent, control.getConcept().getName(), null);
+            handleObsControls(control.getControls(), obsWithConcepts, parent, tableName, null);
         } else if (control.getType().equals(JobConstants.OBS_SECTION_CONTROL)) {
             handleObsControls(control.getControls(), obsWithConcepts, parent, tableName, control.getLabel().getValue());
         } else {
@@ -192,25 +192,36 @@ public class AnalyticsUtil {
                 tableName = parent;
                 parent = null;
             }
-            if (control.getProperties().getMultiSelect() != null && control.getProperties().getMultiSelect()) {
-                parent = tableName;
-                tableName = tableName + "_multiselect";
-            }
             if (!obsWithConcepts.containsKey(tableName)) {
                 obsWithConcepts.put(tableName, new FormTable(tableName));
             }
             FormTable formTable = obsWithConcepts.get(tableName);
             FormConcept formConcept = control.getConcept();
-            String conceptName = PSIContext.getInstance().getMetaDataService().getFullNameOfConceptByUuid(UUID.fromString(formConcept.getUuid()));
-            formConcept.setName(AnalyticsUtil.getShortName(conceptName));
-            if (sectionLabel != null) {
-                formConcept.setName(sectionLabel + "_" + formConcept.getName());
+
+            if (control.getProperties().getMultiSelect() != null && control.getProperties().getMultiSelect()) {
+                String fieldName = getShortName(formConcept.getName());
+                for(ConceptAnswer answerConcept : formConcept.getAnswers()) {
+                    FormConcept answerConceptName = answerConcept.getName();
+                    String multiSelectOptionName = answerConceptName.getName();
+                    multiSelectOptionName = fieldName + "_" + getShortName(multiSelectOptionName);
+                    answerConceptName.setName(multiSelectOptionName);
+                    formTable.getConcepts().add(answerConceptName);
+                }
             }
-            formTable.getConcepts().add(formConcept);
+            else {
+                String conceptName = PSIContext.getInstance().getMetaDataService()
+                        .getFullNameOfConceptByUuid(UUID.fromString(formConcept.getUuid()));
+                formConcept.setName(getShortName(conceptName));
+                if (sectionLabel != null) {
+                    formConcept.setName(sectionLabel + "_" + formConcept.getName());
+                }
+                formTable.getConcepts().add(formConcept);
+            }
             formTable.setProperties(control.getProperties());
             formTable.setParent(parent);
         }
     }
+
     private static String createQueryForFormTable(FormTable formTable, String formName) {
         StringBuilder query = new StringBuilder("");
         String tableName = "";
