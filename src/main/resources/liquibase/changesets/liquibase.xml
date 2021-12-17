@@ -192,4 +192,24 @@
             <column name="location_name" type="varchar"/>
         </createTable>
     </changeSet>
+
+    <changeSet author="sgk" id="event_record_yet_to_be_synced_to_dhis2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="event_record_left_to_sync"/>
+            </not>
+        </preConditions>
+        <createTable tableName="event_record_left_to_sync">
+            <column name="event_record_id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="table_name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="table_primary_identifier" type="number">
+                <constraints nullable="false"/>
+            </column>
+            <column name="encounter_date_created" type="timestamp"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
