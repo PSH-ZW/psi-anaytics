@@ -33,3 +33,23 @@ We will be using jdbc templates for querying the DB. The datasources and jdbcTem
   wip
 ####Flattening Process
  wip
+ 
+###Data Flow
+#Patient
+1. In bahmni we create a patient(event in openmrs) -> synced to analytics as patient and this raises an event 
+2. Bahmni mart-dhis sync reads above event and pushes to dhis2 (we delete the event)
+3. Dhis provides a unique id (tracked entity created)-> save in patient or mapping table
+
+#Enrollment 
+1. Patient getting enrolled to a program-> raises a program event and sync to analytics and raises an event.
+2. Check whether patient is already enrolled in DHIS-2 server, by looking at program enrollment table.
+3. If not enrolled -> enroll the patient and delete the event and update the uid to program enrollment table 
+4. If enrolled -> delete the event
+
+#Form-data
+1. Whenever a form is filled it raises an encounter event in bahmni and this gets synced to analytics DB and raises an 
+event 
+2. Mart-Dhis2 sync either creates an event or updates an event based on the meta-data for encounter.
+
+#Yet to discuss
+1. Termination of an enrollment 
