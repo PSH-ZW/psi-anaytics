@@ -86,6 +86,10 @@ public class AnalyticsUtil {
         if (name.contains("(")) {
            name = name.substring(0, name.indexOf("(")).trim();
         }
+        return replaceSpecialCharactersInColumnName(name);
+    }
+
+    public static String replaceSpecialCharactersInColumnName(String name) {
         name = name.replaceAll(" ", "_").replaceAll(",", "");
         name = name.replaceAll("-", "_").replaceAll("/", "_");
         name = name.replaceAll("&", "").replaceAll("\\?", "");
@@ -289,7 +293,6 @@ public class AnalyticsUtil {
                     obsType.setControlType(JobConstants.TABLE);
                 }
                 concepts.put(uuid, obsType);
-
             } else if (formControl.getType().equals(JobConstants.OBS_FLOWSHEET) || formControl.getType().equals(JobConstants.LABEL)) {
                 continue;
             } else {

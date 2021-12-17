@@ -1,4 +1,5 @@
 package com.nuchange.psianalytics.jobs.encounter;
+
 import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.querybased.QueryBasedJobReader;
 import com.nuchange.psianalytics.model.*;
@@ -18,12 +19,10 @@ import java.util.*;
 
 public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     private static final Logger logger = LoggerFactory.getLogger(EncounterReader.class);
-
-    @Autowired
-    private EncounterHelper encounterHelper;
-
     @Autowired
     protected MetaDataService metaDataService;
+    @Autowired
+    protected EncounterHelper encounterHelper;
 
     public EncounterReader(DataSource dataSource) {
         super(dataSource);
@@ -61,79 +60,19 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             if (conceptMap.containsKey(conceptUuid)) {
                 ObsType obsType = conceptMap.get(conceptUuid);
                 if (obsType.getParentType() != null && obsType.getParentType().equals(JobConstants.OBS_SECTION_CONTROL)) {
-                    conceptName = obsType.getLabel().getValue() + "_" + conceptName;
+                    conceptName = obsType.getLabel().getValue() + "_" + AnalyticsUtil.getShortName(conceptName);
                 }
                 conceptName = AnalyticsUtil.getShortName(conceptName);
                 conceptName = AnalyticsUtil.generateColumnName(conceptName);
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
-                    if (obs.getObsGroupId() == null) {
-                        if (obs.getVoided() == 1) {
-                            deleted.add(formTableName + "_multiselect");
-                            continue;
-                        }
-                        if (!obsColAndVal_multiselect.containsKey(formNameWithInstance + "_multiselect")) {
-                            List<Query> list = new ArrayList<>();
-                            Query query = new Query();
-                            query.setTable(formTableName + "_multiselect");
-                            list.add(query);
-                            obsColAndVal_multiselect.put((formNameWithInstance + "_multiselect"), list);
-                        }
-
-                        List<Query> queryList = obsColAndVal_multiselect.get(formNameWithInstance + "_multiselect");
-                        boolean inserted = false;
-                        for (Query query : queryList) {
-                            if (!query.getColAndVal().containsKey(conceptName)) {
-                                query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                                addExtraAttributeToQuery(query, encounter, file);
-                                query.setIgnore(obs.getVoided() == 1? true: false);
-                                inserted = true;
-                                break;
-                            }
-                        }
-                        if (!inserted) {
-                            Query query = new Query();
-                            query.setTable(formTableName + "_multiselect");
-                            queryList.add(query);
-                            query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                            query.setIgnore(obs.getVoided() == 1? true: false);
-                        }
-                    } else {
-                        Obs parentObs = findParentObs(obs);
-                        Concept parentConcept = metaDataService.getConceptByObsId(parentObs.getObsId());
-                        String parentConceptName = metaDataService.getFullNameOfConceptByUuid(UUID.fromString(parentConcept.getUuid()));
-                        if (!obsColAndVal_multiselect.containsKey(formNameWithInstance + "_multiselect")) {
-                            List<Query> list = new ArrayList<>();
-                            Query query = new Query();
-                            query.setTable(AnalyticsUtil.generateColumnName(parentConceptName) + "_multiselect");
-                            list.add(query);
-                            obsColAndVal_multiselect.put((formNameWithInstance + "_multiselect"), list);
-                        }
-                        List<Query> queryList = obsColAndVal_multiselect.get(formNameWithInstance + "_multiselect");
-                        boolean inserted = false;
-                        for (Query query : queryList) {
-                            if (!query.getColAndVal().containsKey(conceptName)) {
-                                query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                                query.getColAndVal().put("parent", null);
-                                query.setParentTable(formTableName);
-                                query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
-                                addExtraAttributeToQuery(query, encounter, file);
-                                query.setIgnore(obs.getVoided() == 1? true: false);
-                                inserted = true;
-                                break;
-                            }
-                        }
-                        if (!inserted) {
-                            Query query = new Query();
-                            query.setTable(AnalyticsUtil.generateColumnName(parentConceptName) + "_multiselect");
-                            queryList.add(query);
-                            query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                            query.getColAndVal().put("parent", null);
-                            query.setParentTable(formTableName);
-                            query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
-                            addExtraAttributeToQuery(query, encounter, file);
-                            query.setIgnore(obs.getVoided() == 1? true: false);
-                        }
-                    }
+                    //TODO: handle voiding
+                    //TODO: initialise query if this is the first one.
+                    String valueSelected = metaDataService.getFullNameOfConceptByIdAndLocale(obs.getValueCoded(), Locale.ENGLISH);
+                    valueSelected = AnalyticsUtil.getShortName(valueSelected);
+                    valueSelected = AnalyticsUtil.replaceSpecialCharactersInColumnName(valueSelected);
+                    String columnName = conceptName + "_" + valueSelected;
+                    Query query = obsColAndVal.get(formNameWithInstance);
+                    query.getColAndVal().put(columnName, "1");
                 }
 
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
@@ -147,7 +86,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             query.setTable(formTableName);
                             obsColAndVal.put(formNameWithInstance, query);
                         }
-                        if(!Objects.equals(obsType.getParentType(), JobConstants.OBS_CONTROL_GROUP)) {
+                        if (!Objects.equals(obsType.getParentType(), JobConstants.OBS_CONTROL_GROUP)) {
                             Query query = obsColAndVal.get(formNameWithInstance);
                             query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
                             //TODO: can we move this method call to the if condition above?
@@ -216,10 +155,10 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     }
 
     private void generateQueryForObsGroup(Obs currentObs, Obs parentObs, Map<String, Query> obsColAndVal,
-                                           FileAttributes file, Forms forms, Encounter encounter) {
-        if(parentObs != null) {
+                                          FileAttributes file, Forms forms, Encounter encounter) {
+        if (parentObs != null) {
             Obs obsGroup = metaDataService.getObsGroup(parentObs);
-            if(obsGroup != null) {
+            if (obsGroup != null) {
                 generateQueryForObsGroup(parentObs, obsGroup, obsColAndVal, file, forms, encounter);
             }
         }
@@ -238,9 +177,9 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         String conceptName = metaDataService.getFullNameOfConceptByUuid(UUID.fromString(currentConcept.getUuid()));
         conceptName = AnalyticsUtil.generateColumnName(conceptName);
         Query query = obsColAndVal.get(tableNameWithInstance);
-        query.setIgnore(currentObs.getVoided() == 1? true: false);
+        query.setIgnore(currentObs.getVoided() == 1 ? true : false);
         query.getColAndVal().put(conceptName, metaDataService.getValueAsString(currentObs, Locale.ENGLISH));
-        query.getColAndVal().put("parent_id",  null);
+        query.getColAndVal().put("parent_id", null);
         query.setParentTable(formTableName);
         query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
         query.getColAndVal().put("encounter_id", String.valueOf(encounter.getEncounterId()));
