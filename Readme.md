@@ -33,6 +33,9 @@ We will be using jdbc templates for querying the DB. The datasources and jdbcTem
   wip
 ####Flattening Process
  wip
+ ####Handling MultiSelect inputs
+ We will be creating a binary column for each of the values of the field. For the selected options we will set 't' to 
+indicate they have been selected.
  
 ###Data Flow
 #Patient

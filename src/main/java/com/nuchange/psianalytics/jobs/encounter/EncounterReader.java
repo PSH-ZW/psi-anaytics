@@ -37,15 +37,11 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         // adding voided obs to delete any obs got synced before and no non-voided obs are present
         obsForEncounter.addAll(voidedObs);
         Set<String> deleted = new HashSet<>();
-        /* To Store Concepts Which in Form With Type as multi-select, table */
-        Map<String, Map<String, ObsType>> conceptTypes = new HashMap<>();
-
         /* To Store All Queries which are generated */
         List<Query> insertQueries = new ArrayList<>();
 
         /* To Store Query For Insertion Which are generated according to each table */
         Map<String, Query> obsColAndVal = new HashMap<>();
-        Map<String, List<Query>> obsColAndVal_multiselect = new HashMap<>();
 
         for (Obs obs : obsForEncounter) {
             //TODO: we are doing this for each obs, check whether we can group obs belonging to one form.
@@ -72,7 +68,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                     valueSelected = AnalyticsUtil.replaceSpecialCharactersInColumnName(valueSelected);
                     String columnName = conceptName + "_" + valueSelected;
                     Query query = obsColAndVal.get(formNameWithInstance);
-                    query.getColAndVal().put(columnName, "1");
+                    query.getColAndVal().put(columnName, "t");
                 }
 
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
@@ -120,9 +116,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
 
         for (String key : obsColAndVal.keySet()) {
             insertQueries.add(obsColAndVal.get(key));
-        }
-        for (String key : obsColAndVal_multiselect.keySet()) {
-            insertQueries.addAll(obsColAndVal_multiselect.get(key));
         }
         EncounterJobDto dto = new EncounterJobDto();
         dto.setInsertQueries(insertQueries);
