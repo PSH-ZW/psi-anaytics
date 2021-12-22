@@ -343,7 +343,7 @@ public class MetaDataService {
     public void updateEventYetToBeSynced(String type, Object primaryIdentifier) {
         String insertSql = "insert into event_record_left_to_sync(type_name,type_identifier) " +
                 "values (?, ?)";
-        analyticsJdbcTemplate.update(type, primaryIdentifier.toString());
+        analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString());
 
     }
 }

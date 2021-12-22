@@ -265,4 +265,40 @@
             <column name="config" type="jsonb"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="add_log_table" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="log" schemaName="public"/>
+            </not>
+        </preConditions>
+        <comment>Creating a Log table to track status of the each sync</comment>
+        <sql>
+            CREATE TABLE public.log(
+            log_id SERIAL PRIMARY KEY,
+            program text,
+            synced_by text,
+            comments text,
+            status text,
+            failure_reason text,
+            date_created TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+    <changeSet id="rename_column_failure_reason_to_status_info" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <columnExists columnName="failure_reason" tableName="log"/>
+        </preConditions>
+        <comment>Renaming failure_reason to status_info in log table</comment>
+        <sql>
+            ALTER TABLE log RENAME COLUMN failure_reason TO status_info;
+        </sql>
+    </changeSet>
+
+    <changeSet author="vishnu" id="add_org_unit_column_to_patient">
+        <addColumn tableName="patient">
+            <column name="org_unit" type="varchar"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
