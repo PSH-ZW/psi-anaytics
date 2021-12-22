@@ -211,6 +211,7 @@
             </column>
         </createTable>
     </changeSet>
+
     <changeSet id="instance_tracker_table" author="sgk">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -247,5 +248,21 @@
         <addColumn tableName="patient">
             <column name="UIC" type="varchar"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet author="vishnu" id="add mapping table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="mapping"/>
+            </not>
+        </preConditions>
+        <createTable tableName="mapping">
+            <column name="mapping_name" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="lookup_table" type="jsonb"/>
+            <column name="mapping_json" type="jsonb"/>
+            <column name="config" type="jsonb"/>
+        </createTable>
     </changeSet>
 </databaseChangeLog>
