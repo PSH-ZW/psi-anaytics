@@ -49,7 +49,7 @@ public class PatientBatchConfig {
 
     @Bean(JobConstants.PATIENT_MRS_JOB_STEP_ID)
     public Step step() throws Exception {
-        return stepBuilderFactory.get(JobConstants.PATIENT_MRS_JOB_STEP_ID)
+         return stepBuilderFactory.get(JobConstants.PATIENT_MRS_JOB_STEP_ID)
                 .<List<ResultExtractor>, List<ResultExtractor>>chunk(1)
                 .reader(itemReader)
                 .processor(itemProcessor)

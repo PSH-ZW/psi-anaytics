@@ -1,10 +1,5 @@
 package com.nuchange.psianalytics.config;
 
-import com.nuchange.psianalytics.constants.JobConstants;
-import com.nuchange.psianalytics.model.EventRecords;
-import com.nuchange.psianalytics.model.ProcessedEvents;
-import com.nuchange.psianalytics.util.AnalyticsUtil;
-import com.nuchange.psianalytics.util.PSIContext;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;

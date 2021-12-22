@@ -21,6 +21,7 @@ select
   pa.country,
   pa.county_district,
   pi.identifier as patient_identifier,
+  pi_uic.identifier as UIC,
   pn.given_name,
   pn.middle_name,
   pn.family_name,
@@ -62,6 +63,7 @@ from person per
   inner join patient pat on pat.patient_id=per.person_id
   left join person_address pa on pa.person_id=per.person_id and pa.preferred = true
   left join patient_identifier pi on pi.patient_id=per.person_id and pi.preferred = true
+  left join patient_identifier pi_uic on pi_uic.patient_id=per.person_id and pi_uic.identifier_type = (select person_attribute_type_id from person_attribute_type where name = 'UIC')
   left join person_name pn on pn.person_id=per.person_id and pn.preferred = true
   left join person_attribute tele_attr on tele_attr.person_id = per.person_id and tele_attr.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Telephone')
   left join person_attribute nationality_attr on nationality_attr.person_id = per.person_id and nationality_attr.person_attribute_type_id=(select person_attribute_type_id from person_attribute_type where name = 'Nationality')

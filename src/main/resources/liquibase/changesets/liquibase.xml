@@ -203,13 +203,49 @@
             <column name="event_record_id" type="int" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="table_name" type="varchar">
+            <column name="type_name" type="varchar">
                 <constraints nullable="false"/>
             </column>
-            <column name="table_primary_identifier" type="number">
+            <column name="type_identifier" type="varchar">
                 <constraints nullable="false"/>
             </column>
-            <column name="encounter_date_created" type="timestamp"/>
         </createTable>
+    </changeSet>
+    <changeSet id="instance_tracker_table" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="instance_tracker" schemaName="public"/>
+            </not>
+        </preConditions>
+        <comment>Creating tracker table for tracked entity instance in public schema</comment>
+        <sql>
+            CREATE TABLE public.instance_tracker(
+            patient_id text,
+            instance_id text PRIMARY KEY,
+            created_by text,
+            date_created TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+    <changeSet id="marker_table" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="marker" schemaName="public"/>
+            </not>
+        </preConditions>
+        <comment>Creating Marker table to track last sync date time in public schema</comment>
+        <sql>
+            CREATE TABLE public.marker(
+            marker_id SERIAL PRIMARY KEY,
+            program_name TEXT,
+            category TEXT,
+            last_synced_date TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+    <changeSet author="sgk" id="add attribute UIC column in patient">
+        <addColumn tableName="patient">
+            <column name="UIC" type="varchar"/>
+        </addColumn>
     </changeSet>
 </databaseChangeLog>

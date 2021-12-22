@@ -53,6 +53,7 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
             Integer id = extractor.getProcessingId();
             for (Map<String,Object> stringObjectMap : extractor.getRowValues()) {
                 ex.insertData(target, jobDetails, colHeaders, id, stringObjectMap);
+                if(target.equals("patient")) metaDataService.updateEventYetToBeSynced(target, stringObjectMap.get("uuid"));
             }
 
             /* Update Processed Events If Event Based */
