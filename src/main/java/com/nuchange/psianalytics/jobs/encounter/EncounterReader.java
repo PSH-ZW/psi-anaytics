@@ -68,7 +68,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                     valueSelected = AnalyticsUtil.replaceSpecialCharactersInColumnName(valueSelected);
                     String columnName = conceptName + "_" + valueSelected;
                     Query query = obsColAndVal.get(formNameWithInstance);
-                    query.getColAndVal().put(columnName, "t");
+                    query.getColAndVal().put(columnName, "true");
                 }
 
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
