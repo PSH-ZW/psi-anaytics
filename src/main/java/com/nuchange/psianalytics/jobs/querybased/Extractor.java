@@ -3,6 +3,7 @@ package com.nuchange.psianalytics.jobs.querybased;
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;
 import com.nuchange.psianalytics.util.AnalyticsUtil;
+import com.nuchange.psianalytics.util.PSIContext;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -50,7 +51,7 @@ public class Extractor {
         AnalyticsUtil.getRowAndColumnValuesForQuery(template, query, colHeaders, rowValues, params);
         if(!CollectionUtils.isEmpty(rowValues)) {
             colHeaders.add("org_unit");
-            rowValues.get(0).put("org_unit", orgUnitId);
+            rowValues.get(0).put("org_unit", PSIContext.getInstance().getOrgUnitId());
         }
         for (Map<String, Object> stringObjectMap : rowValues) {
             readChildren(category, stringObjectMap, extractors);
