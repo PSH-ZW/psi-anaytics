@@ -19,6 +19,13 @@
       "primaryKey": "encounter_id",
       "existQuery": "select count(*) from encounter where encounter_id = ?",
       "findIdByUuid": "select encounter_id from encounter where uuid = ?"
+    },
+    "programenrollment": {
+      "input": "sql/mrs_program_enrolment_fetch.sql",
+      "target": "program_enrolment",
+      "existQuery": "select count(*) from program_enrolment where patient_program_id = ?",
+      "primaryKey": "patient_program_id",
+      "findIdByUuid": "select patient_program_id from patient_program where uuid = ?"
     }
   }
 }

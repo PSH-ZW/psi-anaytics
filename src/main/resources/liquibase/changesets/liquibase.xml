@@ -68,6 +68,16 @@
         </sql>
     </changeSet>
 
+    <changeSet id = "program enrolment cron job" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="analytics_cron_job"/>
+        </preConditions>
+        <sql>
+            insert into analytics_cron_job (name, start_delay, expression, enabled)
+            values ('mrsProgramEncounterJob', 5, '0 55 * ? * *', true);
+        </sql>
+    </changeSet>
+
     <changeSet author="vishnu" id="add_patient_table">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -301,4 +311,51 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="org_unit_tracker_table" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orgunit_tracker" schemaName="public"/>
+            </not>
+        </preConditions>
+        <comment>Creating tracker table for organisation units in public schema</comment>
+        <sql>
+            CREATE TABLE public.orgunit_tracker(
+            orgunit text  PRIMARY KEY,
+            id text,
+            date_created TIMESTAMP
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet author="sgk" id="drop patient enrolment table">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="patient_enrollment"/></preConditions>
+        <dropTable cascadeConstraints="true"
+                   tableName="patient_enrollment"/>
+    </changeSet>
+
+    <changeSet author="sgk" id="add_patient_program_enrolment">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="program_enrolment"/>
+            </not>
+        </preConditions>
+        <createTable tableName="program_enrolment">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="patient_program_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patient_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="program_id" type="int"/>
+            <column name="program_name" type="varchar"/>
+            <column name="org_unit" type="varchar"/>
+            <column name="date_enrolled" type="date"/>
+            <column name="date_completed" type="date"/>
+            <column name="outcome_concept_id" type="int"/>
+            <column name="uuid" type="varchar"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
