@@ -72,19 +72,19 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         EventRecords eventRecords = metaDataService.getRecordGreaterThanIdAndCategory(id, eventCategory);
 
         if (eventRecords == null) {
-//            if(category != null) {
-//                Job job = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
-//                /*JobOperator jobOperator1 = BatchRuntime.getJobOperator();*/
-//                /*Set<Long> executions = jobOperator.getRunningExecutions(job.getName());
-//                jobOperator.stop(executions.iterator().next());*/
-//                Set<JobExecution> executions = jobExplorer.findRunningJobExecutions(job.getName());
-//                for (JobExecution execution : executions) {
-//                    if (execution.getStatus().name().equals("STARTED")) {
-//                        Boolean stat = jobOperator.stop(execution.getId());
-//                        if (stat) System.out.println("Stopping Job !!: " + execution.getId());
-//                    }
-//                }
-//            }
+            if(category != null) {
+                Job job = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
+                /*JobOperator jobOperator1 = BatchRuntime.getJobOperator();*/
+                /*Set<Long> executions = jobOperator.getRunningExecutions(job.getName());
+                jobOperator.stop(executions.iterator().next());*/
+                Set<JobExecution> executions = jobExplorer.findRunningJobExecutions(job.getName());
+                for (JobExecution execution : executions) {
+                    if (execution.getStatus().name().equals("STARTED")) {
+                        Boolean stat = jobOperator.stop(execution.getId());
+                        if (stat) System.out.println("Stopping Job !!: " + execution.getId());
+                    }
+                }
+            }
             return null;
         }
 

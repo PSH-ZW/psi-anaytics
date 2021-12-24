@@ -38,7 +38,6 @@ public class ProgramEnrolmentBatchConfig {
     @Resource(name=JobConstants.PROGRAM_ENROLMENT_MRS_JOB_ITEM_WRITER_ID)
     protected ItemWriter<List<ResultExtractor>> itemWriter;
 
-    @Primary
     @Bean(JobConstants.PROGRAM_ENROLMENT_MRS_JOB)
     public Job job(@Qualifier(JobConstants.PROGRAM_ENROLMENT_MRS_JOB_STEP_ID) Step step) throws Exception{
         return jobBuilderFactory.get(JobConstants.PROGRAM_ENROLMENT_MRS_JOB)
