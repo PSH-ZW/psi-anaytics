@@ -15,10 +15,7 @@ import org.springframework.util.CollectionUtils;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
     private static final Logger logger = LoggerFactory.getLogger(EncounterWriter.class);
@@ -31,14 +28,15 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
         super(ds);
     }
 
-    protected void saveEncountertoDb(List<EncounterJobDto> list) throws Exception {
+    protected void saveEncounterToDb(List<EncounterJobDto> list) throws Exception {
         for (EncounterJobDto encounterJob : list) {
             List<Query> queryChild = new ArrayList<>();
 
             List<Query> insertQueries = encounterJob.getInsertQueries();
             List<String> batchDelete = new ArrayList<>();
-            List<String> batchUpdate = new ArrayList<>();
+            Set<String> batchUpdate = new HashSet<>();
             for (Query query : insertQueries) {
+                String encounterId = query.getColAndVal().get("encounter_id");
                 if (!deleteExecuted.contains(query.getTable())) {
                     batchDelete.add(deleteIfEncounterPresent(query));
                     deleteExecuted.add(query.getTable());
@@ -47,7 +45,7 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                     if (!deleteExecuted.contains(query.getParentTable())) {
                         /* delete if encounter and visit_id and instance present */
                         String deleteQuery = "DELETE FROM " + query.getParentTable() + " WHERE encounter_id = '" +
-                                query.getColAndVal().get("encounter_id") + "'";
+                                encounterId + "'";
                         batchDelete.add(deleteQuery);
                         deleteExecuted.add(query.getParentTable());
                     }
@@ -57,6 +55,7 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                 } else if (!query.isIgnore()) {
                     String insertQuery = createQuery(query);
                     batchUpdate.add(insertQuery);
+                    addEntryToEventTrackerIfNotExists(batchUpdate, encounterId);
                 }
             }
 
@@ -105,6 +104,15 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                 saveResultExtractorList(extractors, stepExecution.getExecutionContext());
             }
             deleteExecuted = new ArrayList<>();
+        }
+    }
+
+    private void addEntryToEventTrackerIfNotExists(Set<String> batchUpdate, String encounterId) {
+        String sql = "INSERT INTO event_tracker(encounter_id) values("+ encounterId +")";
+        boolean shouldInsertToEventTracker = !batchUpdate.contains(sql)
+                && !metaDataService.entryExistsInEventTracker(encounterId);
+        if(shouldInsertToEventTracker) {
+            batchUpdate.add(sql);
         }
     }
 

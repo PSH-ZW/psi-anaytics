@@ -28,7 +28,7 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
     public JdbcTemplate template;
 
     @Autowired
-    private MetaDataService metaDataService;
+    protected MetaDataService metaDataService;
 
     public QueryBasedJobWriter(DataSource ds){
         super();

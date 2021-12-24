@@ -31,6 +31,6 @@ public class Writer extends EncounterWriter<EncounterJobDto> {
 
     @Override
     public void write(List<? extends EncounterJobDto> list) throws Exception {
-        saveEncountertoDb((List<EncounterJobDto>) list);
+        saveEncounterToDb((List<EncounterJobDto>) list);
     }
 }

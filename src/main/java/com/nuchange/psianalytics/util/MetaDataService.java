@@ -204,6 +204,16 @@ public class MetaDataService {
         return null;
     }
 
+    public boolean entryExistsInEventTracker(String encounterId) {
+        final String sql = "SELECT count(*) from event_tracker where encounter_id = ?";
+        List<Integer> value =  analyticsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(Integer.class), encounterId);
+        if(!CollectionUtils.isEmpty(value)) {
+            return !value.get(0).equals(0);
+        }
+        return false;
+    }
+
     public String getValueAsString(Obs obs, Locale locale) {
         NumberFormat nf = NumberFormat.getNumberInstance(locale);
         DecimalFormat df = (DecimalFormat) nf;

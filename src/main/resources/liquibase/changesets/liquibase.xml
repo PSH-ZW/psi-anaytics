@@ -254,6 +254,7 @@
             );
         </sql>
     </changeSet>
+
     <changeSet author="sgk" id="add attribute UIC column in patient">
         <addColumn tableName="patient">
             <column name="UIC" type="varchar"/>
@@ -311,7 +312,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="org_unit_tracker_table" author="sgk">
+    <changeSet>
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="orgunit_tracker" schemaName="public"/>
@@ -358,4 +359,38 @@
             <column name="uuid" type="varchar"/>
         </createTable>
     </changeSet>
+
+    <changeSet author="vishnu" id="add program_id column to mapping">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists columnName="program_id" tableName="mapping"/></not>
+        </preConditions>
+        <addColumn tableName="mapping">
+            <column name="program_id" type="int"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="vishnu" id="add_event_tracker_table">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName = "event_tracker"/></not>
+        </preConditions>
+        <createTable tableName="event_tracker">
+            <column name="event_id" type="varchar">
+                <constraints unique="true"/>
+            </column>
+            <column name="encounter_id" type="varchar">
+                <constraints unique="true"/>
+            </column>
+            <column name="program_stage" type="varchar"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="vishnu" id="add org_unit to encounter table">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists columnName="org_id" tableName="encounter"/></not>
+        </preConditions>
+        <addColumn tableName="encounter">
+            <column name="org_unit" type="varchar"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
