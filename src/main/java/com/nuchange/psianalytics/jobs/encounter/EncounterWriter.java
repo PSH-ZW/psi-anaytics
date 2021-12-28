@@ -108,6 +108,7 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
     }
 
     private void addEntryToEventTrackerIfNotExists(Set<String> batchUpdate, String encounterId) {
+        //TODO: add more details here if needed.
         String sql = "INSERT INTO event_tracker(encounter_id) values("+ encounterId +")";
         boolean shouldInsertToEventTracker = !batchUpdate.contains(sql)
                 && !metaDataService.entryExistsInEventTracker(encounterId);

@@ -374,10 +374,10 @@
             <not><tableExists tableName = "event_tracker"/></not>
         </preConditions>
         <createTable tableName="event_tracker">
-            <column name="event_id" type="varchar">
+            <column name="event_id" type="int">
                 <constraints unique="true"/>
             </column>
-            <column name="encounter_id" type="varchar">
+            <column name="encounter_id" type="int">
                 <constraints unique="true"/>
             </column>
             <column name="program_stage" type="varchar"/>
