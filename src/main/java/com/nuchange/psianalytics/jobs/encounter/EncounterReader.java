@@ -63,7 +63,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
                     //TODO: handle voiding
                     //TODO: initialise query if this is the first one.
-                    String valueSelected = metaDataService.getFullNameOfConceptByIdAndLocale(obs.getValueCoded(), Locale.ENGLISH);
+                    String valueSelected = metaDataService.getFullNameOfConceptByConceptId(obs.getValueCoded());
                     valueSelected = AnalyticsUtil.getShortName(valueSelected);
                     valueSelected = AnalyticsUtil.replaceSpecialCharactersInColumnName(valueSelected);
                     String columnName = conceptName + "_" + valueSelected;

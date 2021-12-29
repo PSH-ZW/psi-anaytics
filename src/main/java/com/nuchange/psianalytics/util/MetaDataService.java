@@ -99,10 +99,10 @@ public class MetaDataService {
         return null;
     }
 
-    public String getFullNameOfConceptByIdAndLocale(Integer id, Locale locale){
-        final String sql = "SELECT name FROM concept_name WHERE concept_id = ? AND concept_name_type = 'FULLY_SPECIFIED' and locale = ?";
+    public String getFullNameOfConceptByConceptId(Integer id){
+        final String sql = "SELECT get_concept_name(?)";
         List<String> conceptNames = mrsJdbcTemplate.query(sql,
-                JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), id, locale.toLanguageTag());
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), id);
         if(!CollectionUtils.isEmpty(conceptNames)) {
             return conceptNames.get(0);
         }
@@ -221,7 +221,7 @@ public class MetaDataService {
         if (obs != null) {
             ConceptDatatype dataType = getDataTypeOfConceptWithConceptId(obs.getConceptId());
             if (dataType.equals(ConceptDatatype.BOOLEAN)) {
-                return getValueAsBoolean(obs) == null ? "" : getValueAsBoolean(obs).toString();
+                return getValueAsBoolean(obs);
             }
 
             if (dataType.equals(ConceptDatatype.CODED)) {
@@ -230,10 +230,10 @@ public class MetaDataService {
                 }
 
                 if (obs.getValueDrug() != null) {
-                    return getFullNameOfConceptByIdAndLocale(obs.getValueDrug(), locale);
+                    return getFullNameOfConceptByConceptId(obs.getValueDrug());
                 }
 
-                return getFullNameOfConceptByIdAndLocale(obs.getValueCoded(), locale);
+                return getFullNameOfConceptByConceptId(obs.getValueCoded());
             }
 
             if (!dataType.equals(ConceptDatatype.NUMERIC) && !dataType.equals(ConceptDatatype.STRUCTURED_NUMERIC)) {
@@ -287,7 +287,7 @@ public class MetaDataService {
                 return df.format(obs.getValueNumeric());
             } else if (obs.getValueCoded() != null) {
                 if (obs.getValueDrug() != null) {
-                    return getFullNameOfConceptByIdAndLocale(obs.getValueDrug(), locale);
+                    return getFullNameOfConceptByConceptId(obs.getValueDrug());
                 } else {
                     return getConceptNameByConceptNameId(obs.getValueCodedNameId());
                 }
@@ -326,28 +326,30 @@ public class MetaDataService {
         return null;
     }
 
-    public Boolean getValueAsBoolean(Obs obs) {
+    public String getValueAsBoolean(Obs obs) {
+        final String TRUE = "true";
+        final String FALSE = "false";
         if (obs.getValueCoded() != null) {
             final int YES_CONCEPT_ID = Integer.parseInt(getGlobalPropertyValue("concept.true"));
             if (obs.getValueCoded().equals(YES_CONCEPT_ID)) {
-                return Boolean.TRUE;
+                return TRUE;
             }
 
             final int NO_CONCEPT_ID = Integer.parseInt(getGlobalPropertyValue("concept.false"));
             if (obs.getValueCoded().equals(NO_CONCEPT_ID)) {
-                return Boolean.FALSE;
+                return FALSE;
             }
         } else if (obs.getValueNumeric() != null) {
             if (obs.getValueNumeric() == 1.0D) {
-                return Boolean.TRUE;
+                return TRUE;
             }
 
             if (obs.getValueNumeric() == 0.0D) {
-                return Boolean.FALSE;
+                return FALSE;
             }
         }
 
-        return Boolean.FALSE;
+        return FALSE;
     }
 
     public void updateEventYetToBeSynced(String type, Object primaryIdentifier) {
