@@ -393,4 +393,13 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="vishnu" id="add org_unit to encounter table">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists columnName="org_id" tableName="encounter"/></not>
+        </preConditions>
+        <addColumn tableName="encounter">
+            <column name="org_unit" type="varchar"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

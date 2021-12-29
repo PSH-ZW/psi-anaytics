@@ -205,9 +205,9 @@ public class MetaDataService {
     }
 
     public boolean entryExistsInEventTracker(String encounterId) {
-        final String sql = "SELECT count(*) from event_tracker where encounter_id = ?";
-        List<Integer> value =  analyticsJdbcTemplate.query(sql,
-                JdbcTemplateMapperFactory.newInstance().newRowMapper(Integer.class), encounterId);
+        final String sql = "SELECT count(*) from event_tracker where encounter_id = '%s'";
+        List<Integer> value =  analyticsJdbcTemplate.query(String.format(sql, encounterId),
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(Integer.class));
         if(!CollectionUtils.isEmpty(value)) {
             return !value.get(0).equals(0);
         }
