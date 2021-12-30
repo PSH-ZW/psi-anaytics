@@ -48,9 +48,9 @@
         </createTable>
     </changeSet>
 
-    <changeSet id = "add patient cron job" author="vishnu">
+    <changeSet id="add patient cron job" author="vishnu">
         <preConditions onFail="MARK_RAN">
-                <tableExists tableName="analytics_cron_job"/>
+            <tableExists tableName="analytics_cron_job"/>
         </preConditions>
         <sql>
             insert into analytics_cron_job (name, start_delay, expression, enabled)
@@ -58,7 +58,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id = "encounter cron job" author="sgk">
+    <changeSet id="encounter cron job" author="sgk">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="analytics_cron_job"/>
         </preConditions>
@@ -68,7 +68,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id = "program enrolment cron job" author="sgk">
+    <changeSet id="program enrolment cron job" author="sgk">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="analytics_cron_job"/>
         </preConditions>
@@ -122,41 +122,41 @@
 
     <changeSet author="vishnu" id="add attribute columns in patient">
         <addColumn tableName="patient">
-            <column name="telephone" type="varchar" />
-            <column name="education" type="varchar" />
-            <column name="occupation" type="varchar" />
-            <column name="occupation_specific" type="varchar" />
-            <column name="nationality" type="varchar" />
-            <column name="nationality_id_number" type="varchar" />
-            <column name="ethnicity" type="varchar" />
-            <column name="marital_status" type="varchar" />
-            <column name="client_resident" type="varchar" />
-            <column name="district_of_birth" type="varchar" />
-            <column name="mothers_name" type="varchar" />
-            <column name="twin" type="varchar" />
-            <column name="firstborn" type="varchar" />
-            <column name="next_of_kin_contact_name" type="varchar" />
-            <column name="next_of_kin_relationship" type="varchar" />
-            <column name="next_of_kin_relationship_specific" type="varchar" />
-            <column name="next_of_kin_address" type="varchar" />
-            <column name="next_of_kin_telephone" type="varchar" />
-            <column name="population" type="varchar" />
-            <column name="referral_source" type="varchar" />
-            <column name="contact_tracing" type="varchar" />
-            <column name="date_index_client_tested" type="varchar" />
-            <column name="index_client_code" type="varchar" />
-            <column name="index_relationship" type="varchar" />
-            <column name="site_type" type="varchar" />
-            <column name="outreach_classification" type="varchar" />
-            <column name="outreach_site_name" type="varchar" />
-            <column name="moonlight_testing" type="varchar" />
-            <column name="dreams_activity" type="varchar" />
-            <column name="nearest_clinic_or_hospital" type="varchar" />
-            <column name="tested_for_hiv" type="varchar" />
-            <column name="hiv_test_result" type="varchar" />
-            <column name="tested_in_last_twelve_months" type="varchar" />
-            <column name="couple_testing" type="varchar" />
-            <column name="registration_number_of_partner" type="varchar" />
+            <column name="telephone" type="varchar"/>
+            <column name="education" type="varchar"/>
+            <column name="occupation" type="varchar"/>
+            <column name="occupation_specific" type="varchar"/>
+            <column name="nationality" type="varchar"/>
+            <column name="nationality_id_number" type="varchar"/>
+            <column name="ethnicity" type="varchar"/>
+            <column name="marital_status" type="varchar"/>
+            <column name="client_resident" type="varchar"/>
+            <column name="district_of_birth" type="varchar"/>
+            <column name="mothers_name" type="varchar"/>
+            <column name="twin" type="varchar"/>
+            <column name="firstborn" type="varchar"/>
+            <column name="next_of_kin_contact_name" type="varchar"/>
+            <column name="next_of_kin_relationship" type="varchar"/>
+            <column name="next_of_kin_relationship_specific" type="varchar"/>
+            <column name="next_of_kin_address" type="varchar"/>
+            <column name="next_of_kin_telephone" type="varchar"/>
+            <column name="population" type="varchar"/>
+            <column name="referral_source" type="varchar"/>
+            <column name="contact_tracing" type="varchar"/>
+            <column name="date_index_client_tested" type="varchar"/>
+            <column name="index_client_code" type="varchar"/>
+            <column name="index_relationship" type="varchar"/>
+            <column name="site_type" type="varchar"/>
+            <column name="outreach_classification" type="varchar"/>
+            <column name="outreach_site_name" type="varchar"/>
+            <column name="moonlight_testing" type="varchar"/>
+            <column name="dreams_activity" type="varchar"/>
+            <column name="nearest_clinic_or_hospital" type="varchar"/>
+            <column name="tested_for_hiv" type="varchar"/>
+            <column name="hiv_test_result" type="varchar"/>
+            <column name="tested_in_last_twelve_months" type="varchar"/>
+            <column name="couple_testing" type="varchar"/>
+            <column name="registration_number_of_partner" type="varchar"/>
         </addColumn>
     </changeSet>
 
@@ -312,7 +312,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet>
+    <changeSet author="vishnu" id="add orgunit_tracker table">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="orgunit_tracker" schemaName="public"/>
@@ -321,7 +321,7 @@
         <comment>Creating tracker table for organisation units in public schema</comment>
         <sql>
             CREATE TABLE public.orgunit_tracker(
-            orgunit text  PRIMARY KEY,
+            orgunit text PRIMARY KEY,
             id text,
             date_created TIMESTAMP
             );
@@ -329,7 +329,9 @@
     </changeSet>
 
     <changeSet author="sgk" id="drop patient enrolment table">
-        <preConditions onFail="MARK_RAN"><tableExists tableName="patient_enrollment"/></preConditions>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="patient_enrollment"/>
+        </preConditions>
         <dropTable cascadeConstraints="true"
                    tableName="patient_enrollment"/>
     </changeSet>
@@ -362,7 +364,9 @@
 
     <changeSet author="vishnu" id="add program_id column to mapping">
         <preConditions onFail="MARK_RAN">
-            <not><columnExists columnName="program_id" tableName="mapping"/></not>
+            <not>
+                <columnExists columnName="program_id" tableName="mapping"/>
+            </not>
         </preConditions>
         <addColumn tableName="mapping">
             <column name="program_id" type="int"/>
@@ -371,7 +375,9 @@
 
     <changeSet author="vishnu" id="add_event_tracker_table">
         <preConditions onFail="MARK_RAN">
-            <not><tableExists tableName = "event_tracker"/></not>
+            <not>
+                <tableExists tableName="event_tracker"/>
+            </not>
         </preConditions>
         <createTable tableName="event_tracker">
             <column name="event_id" type="int">
@@ -386,7 +392,9 @@
 
     <changeSet author="vishnu" id="add org_unit to encounter table">
         <preConditions onFail="MARK_RAN">
-            <not><columnExists columnName="org_id" tableName="encounter"/></not>
+            <not>
+                <columnExists columnName="org_id" tableName="encounter"/>
+            </not>
         </preConditions>
         <addColumn tableName="encounter">
             <column name="org_unit" type="varchar"/>
@@ -426,7 +434,9 @@
     </changeSet>
 
     <changeSet author="sgk" id="drop_form_program_meta_data">
-        <preConditions onFail="MARK_RAN"><tableExists tableName="form_program_meta_data"/></preConditions>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="form_program_meta_data"/>
+        </preConditions>
         <dropTable cascadeConstraints="true"
                    tableName="form_program_meta_data"/>
     </changeSet>
@@ -448,7 +458,9 @@
     </changeSet>
 
     <changeSet author="sgk" id="drop_yetToBeSyncedTable">
-        <preConditions onFail="MARK_RAN"><tableExists tableName="event_record_left_to_sync"/></preConditions>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="event_record_left_to_sync"/>
+        </preConditions>
         <dropTable cascadeConstraints="true"
                    tableName="event_record_left_to_sync"/>
     </changeSet>
@@ -471,6 +483,34 @@
             <column name="program_id" type="varchar"/>
             <column name="encounter_id" type="varchar"/>
         </createTable>
+    </changeSet>
+
+    <changeSet author="vishnu" id="rename event_record_left_to_sync">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="event_record_left_to_sync"/>
+        </preConditions>
+        <renameTable oldTableName="event_record_left_to_sync" newTableName="events_to_sync"/>
+    </changeSet>
+
+    <changeSet author="vishnu" id="add column synced to events_to_sync">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="synced" tableName="events_to_sync"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="events_to_sync">
+            <column name="synced" type="boolean" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add dhis sync cron job" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="analytics_cron_job"/>
+        </preConditions>
+        <sql>
+            insert into analytics_cron_job (name, start_delay, expression, enabled)
+            values ('dhisSyncJob', 5, '0 45 * ? * *', true);
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

@@ -355,12 +355,12 @@ public class MetaDataService {
     public void updateEventYetToBeSynced(String type, Object primaryIdentifier, Object patientId, Object programId
             , Object encounterId, Boolean isEncounterType) {
         if (isEncounterType) {
-            String insertSql = "insert into event_record_left_to_sync(type_name,type_identifier,patient_id,encounter_id) " +
+            String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,encounter_id) " +
                     "values (?, ?, ?, ?)";
             analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
                     encounterId.toString());
         }else {
-            String insertSql = "insert into event_record_left_to_sync(type_name,type_identifier,patient_id,program_id) " +
+            String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,program_id) " +
                     "values (?, ?, ?, ?)";
             analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
                     programId.toString());
