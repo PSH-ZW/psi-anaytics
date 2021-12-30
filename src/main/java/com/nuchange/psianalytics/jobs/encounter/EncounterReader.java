@@ -46,6 +46,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         for (Obs obs : obsForEncounter) {
             //TODO: we are doing this for each obs, check whether we can group obs belonging to one form.
             FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
+            //TODO: below line needs to be uncommented post necessary meta_data is available
+            /*noMisMatch(file.getFullName());*/
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
             Forms form = AnalyticsUtil.readForm("forms/" + file.getFileName() + ".json");
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
@@ -196,6 +198,17 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
 
     public JobParameters getJobParameters() {
         return super.getJobParameters();
+    }
+
+    public Boolean noMisMatch(String formNameSpacePath) throws Exception {
+        /*String formNameSpacePath = metaDataService.getFormNameSpacePathForEncounter(encounterId);*/
+        String[] namePathFragment = formNameSpacePath.split("\\.");
+        String obsFormName = namePathFragment[0].substring(namePathFragment[0].indexOf("^") + 1);
+        Integer obsVersion = Integer.valueOf(namePathFragment[1].substring(0, namePathFragment[1].indexOf("/")));
+        FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(obsFormName);
+        if(formDetails.getVersion() < obsVersion) throw new Exception("Inconsistency in form version as form_meta_data version :"
+                + formDetails.getVersion().toString() + "is lower than current obs form version :" + obsVersion.toString());
+        return true;
     }
 
 }

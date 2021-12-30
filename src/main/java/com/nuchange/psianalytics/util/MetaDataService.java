@@ -352,10 +352,48 @@ public class MetaDataService {
         return FALSE;
     }
 
-    public void updateEventYetToBeSynced(String type, Object primaryIdentifier) {
-        String insertSql = "insert into event_record_left_to_sync(type_name,type_identifier) " +
-                "values (?, ?)";
-        analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString());
+    public void updateEventYetToBeSynced(String type, Object primaryIdentifier, Object patientId, Object programId
+            , Object encounterId, Boolean isEncounterType) {
+        if (isEncounterType) {
+            String insertSql = "insert into event_record_left_to_sync(type_name,type_identifier,patient_id,encounter_id) " +
+                    "values (?, ?, ?, ?)";
+            analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
+                    encounterId.toString());
+        }else {
+            String insertSql = "insert into event_record_left_to_sync(type_name,type_identifier,patient_id,program_id) " +
+                    "values (?, ?, ?, ?)";
+            analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
+                    programId.toString());
+        }
+    }
 
+    public String getFormNameSpacePathForEncounter(Integer encounterId) {
+        String sql = "select form_namespace_and_path from obs where encounter_id = ? and form_namespace_and_path is not null limit 1";
+        List<String> formNameSpaceNames = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), encounterId.toString());
+        if(!CollectionUtils.isEmpty(formNameSpaceNames)) {
+            return formNameSpaceNames.get(0);
+        }
+        return null;
+    }
+    public void initializeFormMetaDataTable() {
+        String sql = "select distinct name , version from form where published = 1";
+        List<FormDetails> formDetails = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance()
+                .newRowMapper(FormDetails.class));
+        if(!CollectionUtils.isEmpty(formDetails)){
+            String insertSql = "insert into form_meta_data(form_name, version) values(?, ?)";
+            for(FormDetails formDetail: formDetails){
+                analyticsJdbcTemplate.update(insertSql, formDetail.getFormName(), formDetail.getVersion().toString());
+            }
+        }
+    }
+    public FormDetails findFormMetaDataDetailsForName(String formName){
+        String sql = "select form_name, version from form_meta_data where form_name = ?";
+        List<FormDetails> formDetails = analyticsJdbcTemplate
+                .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(FormDetails.class), formName);
+        if(!CollectionUtils.isEmpty(formDetails)) {
+            return formDetails.get(0);
+        }
+        return null;
     }
 }
+

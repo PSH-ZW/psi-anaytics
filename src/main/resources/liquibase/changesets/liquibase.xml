@@ -393,13 +393,84 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="vishnu" id="add org_unit to encounter table">
+    <changeSet author="sgk" id="form_program_meta_data_table">
         <preConditions onFail="MARK_RAN">
-            <not><columnExists columnName="org_id" tableName="encounter"/></not>
+            <not>
+                <tableExists tableName="form_program_meta_data"/>
+            </not>
         </preConditions>
-        <addColumn tableName="encounter">
-            <column name="org_unit" type="varchar"/>
+        <createTable tableName="form_program_meta_data">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="form_name" type="varchar"/>
+            <column name="form_version" type="int"/>
+            <column name="program_id" type="int"/>
+            <column name="program_name" type="varchar"/>
+            <column name="associated_table" type="varchar"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="sgk" id="update_event_record_yet_to_be_synced_to_dhis2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="event_record_left_to_sync"/>
+            </not>
+        </preConditions>
+        <dropNotNullConstraint tableName="event_record_left_to_sync" columnName="type_identifier" columnDataType="varchar"/>
+        <addColumn tableName="event_record_left_to_sync">
+            <column name="patient_id" type="varchar"/>
+            <column name="program_id" type="varchar"/>
+            <column name="encounter_id" type="varchar"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet author="sgk" id="drop_form_program_meta_data">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="form_program_meta_data"/></preConditions>
+        <dropTable cascadeConstraints="true"
+                   tableName="form_program_meta_data"/>
+    </changeSet>
+
+    <changeSet author="sgk" id="form_meta_data_table_creation">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="form_meta_data"/>
+            </not>
+        </preConditions>
+        <createTable tableName="form_meta_data">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="form_name" type="varchar"/>
+            <column name="version" type="int"/>
+            <column name="associated_table" type="varchar"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="sgk" id="drop_yetToBeSyncedTable">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="event_record_left_to_sync"/></preConditions>
+        <dropTable cascadeConstraints="true"
+                   tableName="event_record_left_to_sync"/>
+    </changeSet>
+
+    <changeSet author="sgk" id="recreate_yetToBeSyncedTable">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="event_record_left_to_sync"/>
+            </not>
+        </preConditions>
+        <createTable tableName="event_record_left_to_sync">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="type_name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type_identifier" type="varchar"/>
+            <column name="patient_id" type="varchar"/>
+            <column name="program_id" type="varchar"/>
+            <column name="encounter_id" type="varchar"/>
+        </createTable>
     </changeSet>
 
 </databaseChangeLog>

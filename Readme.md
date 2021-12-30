@@ -56,3 +56,11 @@ event
 
 #Yet to discuss
 1. Termination of an enrollment 
+
+#issue with form_program_meta_data
+1. how do you make sure tables in analytics side is capable of syncing form data from bahmni
+2. issue is bahmni has a form which is version 2 and analytics table is version 1.
+   #solutions(proposed)
+   1. if version of table and version of obs does not match we stop sync
+   2. we need to have a utility which lists down all the forms which does not have a table and version detail in 
+   analytics(use spring based cmd line utility to support this)

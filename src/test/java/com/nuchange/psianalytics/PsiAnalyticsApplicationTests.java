@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestApplication.class)
@@ -36,4 +37,11 @@ class PsiAnalyticsApplicationTests {
 		assertFalse(query.contains("&"));
 		assertFalse(query.contains("__"));
 	}
+
+	/*@Test
+	public void shouldNotThrowExceptionAsVersionIsConsistentInMetaDataTable() throws Exception{
+		String formName = "Bahmni^test2.2/39-0";
+		Boolean noInconsistency = AnalyticsUtil.noMisMatch(formName);
+		assertTrue(noInconsistency);
+	}*/
 }
