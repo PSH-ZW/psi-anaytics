@@ -484,6 +484,23 @@
             <column name="encounter_id" type="varchar"/>
         </createTable>
     </changeSet>
+    <changeSet id = "delete row from analytics_cron_job" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="analytics_cron_job"/>
+        </preConditions>
+        <sql>
+            delete from analytics_cron_job where name = 'mrsProgramEncounterJob';
+        </sql>
+    </changeSet>
+    <changeSet id = "program enrolment cron job" author="sgk">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="analytics_cron_job"/>
+        </preConditions>
+        <sql>
+            insert into analytics_cron_job (name, start_delay, expression, enabled)
+            values ('mrsProgramEnrollmentJob', 5, '0 55 * ? * *', true);
+        </sql>
+    </changeSet>
 
     <changeSet author="vishnu" id="rename event_record_left_to_sync">
         <preConditions onFail="MARK_RAN">

@@ -30,7 +30,8 @@ public class JobConstants {
     public static final String PROGRAM_ENROLMENT_MRS_JOB_ITEM_READER_ID = "PROGRAM_ENROLMENT_MRS_JOB_ITEM_READER_ID";
     public static final String PROGRAM_ENROLMENT_MRS_JOB_ITEM_PROCESSOR_ID = "PROGRAM_ENROLMENT_MRS_JOB_ITEM_PROCESSOR_ID";
     public static final String PROGRAM_ENROLMENT_MRS_JOB_ITEM_WRITER_ID = "PROGRAM_ENROLMENT_MRS_JOB_ITEM_WRITER_ID";
-    public static final String MRS_PROGRAM_ENROLMENT_JOB = "mrsProgramEncounterJob";
+    /*public static final String MRS_PROGRAM_ENROLMENT_JOB = "mrsProgramEncounterJob";*/
+    public static final String MRS_PROGRAM_ENROLMENT_JOB = "mrsProgramEnrollmentJob";
 
     public static final String TYPE = "type";
     public static final String JOB_TYPE_EVENT = "event_based";
