@@ -10,15 +10,15 @@ grant all privileges on table viac_form_template_8681_viac_form_service_provided
 
 grant usage, select on all sequences in schema public to analytics; --run this in analytics db as user postgres
 
-insert into mapping(mapping_name, lookup_table, mapping_json, config) values('Patient', '{"instance":"patient"}',
+insert into mapping(program_name, lookup_table, mapping_json, config) values('Patient', '{"instance":"patient"}',
 '{"instance" : {"outreach_site_name":"gJcVOlb92FS","uic":"zRA08XEYiSF","gender":"AteZDFhkI0E","bithdate":"wSp6Q7QDMsk","residence":"Y1ZD9VjNofv","marital_status":"LopyyOT0FHa","occupation":"zW8FKylorqG","nationality":"KFvLq4usev1","education":"yIKK6uNLpBj","ethnicity":"U6K1PHFWDJa","district_of_birth":"HQOedKyjsdk","next_of_kin_address":"ZckwXrTWdx2","next_of_kin_telephone":"B3hSRRlA8ts","population":"oRtRjOifVZ5","contact_tracing":"CiTvAzwq3eu","index_client_code":"YiNIPRZdGR2","date_index_client_tested":"bcE9MqGH7y4","moonlight_testing":"HvNUMycHwJl","dreams_activity":"O6zCqRM450G","nearest_clinic_or_hospital":"iJixXXL0E4T","tested_for_hiv":"LWaFZ27oqD9","hiv_test_result":"XfQM8urodJJ","tested_in_the_last_twelve_months":"if8LjVC75bP","couple_testing":"zCOHwazkP0m","registration_number_of_partner" :"gAauAVU6bEJ"}}'
 ,'{"searchable":["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
-insert into mapping(mapping_name, lookup_table, mapping_json, config) values('Patient', '{"instance":"patient"}',
+insert into mapping(program_name, lookup_table, mapping_json, config) values('Patient', '{"instance":"patient"}',
 '{"formTableMappings" : {"patient" : {"outreach_site_name":"gJcVOlb92FS","uic":"zRA08XEYiSF","gender":"AteZDFhkI0E","bithdate":"wSp6Q7QDMsk","residence":"Y1ZD9VjNofv","marital_status":"LopyyOT0FHa","occupation":"zW8FKylorqG","nationality":"KFvLq4usev1","education":"yIKK6uNLpBj","ethnicity":"U6K1PHFWDJa","district_of_birth":"HQOedKyjsdk","next_of_kin_address":"ZckwXrTWdx2","next_of_kin_telephone":"B3hSRRlA8ts","population":"oRtRjOifVZ5","contact_tracing":"CiTvAzwq3eu","index_client_code":"YiNIPRZdGR2","date_index_client_tested":"bcE9MqGH7y4","moonlight_testing":"HvNUMycHwJl","dreams_activity":"O6zCqRM450G","nearest_clinic_or_hospital":"iJixXXL0E4T","tested_for_hiv":"LWaFZ27oqD9","hiv_test_result":"XfQM8urodJJ","tested_in_the_last_twelve_months":"if8LjVC75bP","couple_testing":"zCOHwazkP0m","registration_number_of_partner" :"gAauAVU6bEJ"}}}'
 ,'{"searchable":["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
-insert into mapping(mapping_name, mapping_json, config) values('Viac',
+insert into mapping(program_name, mapping_json, config) values('Viac',
 '{"formTableMappings" : {"viac_form_template_8681" : {"vf_setting":"Hc4iKERZLDk","vf_gravida":"UgU0MyC 73ST","vf_parity":"JItRQLxfQ4A","vf_type_of_visit":"TgBqFU96ZHX","vf_repeat_specify_period":"RYkDTB2J6QO","vf_treatment_specify_treatment":"onIfDntdyv0","vf_hiv_status":"hh9Z0ymuKRZ",
  "vf_age_at_sexual_debut":"uBemM37lrOO","vf_no_of_lifetime_partners":"hysSfrFntQ7","vf_presenting_complaints":"nC39lIMfk98", "vf_ever_treated_for_stis":"GycGAisxIRC","vf_condom_use_with_regular_non_regular_partner":"SdqY1kZRNui","vf_prior_family_planning_predominantly_used":"QGbsKfo1CA9", "vf_have_you_ever_used_coc":"SUid7AxCFNJ","vf_history_of_smoking":"awZ6r6EZcCs","vf_current_medication_for_chronic_conditions":"LPlUY436Swn", "vf_prior_ca_cervix_screening_in_lifetime":"tRLHoPkaCdv","vf_when_were_you_last_screened":"qD7cp0yKJeZ", "vf_method_used_in_your_last_screen":"ZnnJrowYqmi","vf_screening_method_used_on_this_visit":"Um6zN7O1vzy", "vf_specimen_collected_by":"AdIDU0YDVOj","vf_result":"Oxhq5sfsc7G","vf_intervention":"ioNfmq39dS3"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 

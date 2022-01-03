@@ -425,7 +425,8 @@
                 <tableExists tableName="event_record_left_to_sync"/>
             </not>
         </preConditions>
-        <dropNotNullConstraint tableName="event_record_left_to_sync" columnName="type_identifier" columnDataType="varchar"/>
+        <dropNotNullConstraint tableName="event_record_left_to_sync" columnName="type_identifier"
+                               columnDataType="varchar"/>
         <addColumn tableName="event_record_left_to_sync">
             <column name="patient_id" type="varchar"/>
             <column name="program_id" type="varchar"/>
@@ -530,7 +531,7 @@
         </sql>
     </changeSet>
 
-<!--    TODO: Do we need these columns? we could remove them if not needed.-->
+    <!--    TODO: Do we need these columns? we could remove them if not needed.-->
     <changeSet author="vishnu" id="add user and comment to events_to_sync">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -542,6 +543,29 @@
             <column name="user" type="varchar" defaultValue="superman"/>
             <column name="comment" type="varchar"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet author="vishnu" id="drop program_id from mapping">
+        <preConditions onFail="MARK_RAN">
+            <columnExists columnName="program_id" tableName="mapping"/>
+        </preConditions>
+        <dropColumn tableName="mapping" columnName="program_id"/>
+    </changeSet>
+
+    <changeSet author="vishnu" id="add program_stage_id to mapping">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists columnName="dhis_program_stage_id" tableName="mapping"/></not>
+        </preConditions>
+        <addColumn tableName="mapping">
+            <column name="dhis_program_stage_id" type="varchar"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="vishnu" id="rename mapping_name column in mapping to program_name">
+        <preConditions onFail="MARK_RAN">
+            <columnExists columnName="mapping_name" tableName="mapping"/>
+        </preConditions>
+        <renameColumn tableName="mapping" oldColumnName="mapping_name" newColumnName="program_name"/>
     </changeSet>
 
 </databaseChangeLog>
