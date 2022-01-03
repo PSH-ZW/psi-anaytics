@@ -10,6 +10,7 @@ import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -50,19 +51,20 @@ public class JobScheduler implements SchedulingConfigurer {
         final List<AnalyticsCronJob> cronJobs = metaDataService.getActiveAnalyticsCronJobs();
 
         for (AnalyticsCronJob cronJob : cronJobs) {
-            FlatteningTask bean = (FlatteningTask) applicationContext.getBean(cronJob.getName());
-            if (bean == null) {
-                logger.error("Could not find bean for processing Job: " + cronJob.getName());
-            } else{
-                jobs.put(cronJob.getName(), bean);
-                try {
-                    scheduledTaskRegistrar.setScheduler(threadPoolTaskScheduler);
-                    scheduledTaskRegistrar.addTriggerTask(getTask(cronJob), getTrigger(cronJob));
-                } catch (ParseException e) {
-                    logger.error("Could not parse the cron expression: " + cronJob.getExpression() + " for: " +
-                            cronJob.getName());
-                    e.printStackTrace();
-                }
+            FlatteningTask bean = null;
+            try {
+                 bean = (FlatteningTask) applicationContext.getBean(cronJob.getName());
+            } catch (NoSuchBeanDefinitionException e) {
+                logger.info("Could not find bean for processing Job: " + cronJob.getName());
+            }
+            jobs.put(cronJob.getName(), bean);
+            try {
+                scheduledTaskRegistrar.setScheduler(threadPoolTaskScheduler);
+                scheduledTaskRegistrar.addTriggerTask(getTask(cronJob), getTrigger(cronJob));
+            } catch (ParseException e) {
+                logger.error("Could not parse the cron expression: " + cronJob.getExpression() + " for: " +
+                        cronJob.getName());
+                e.printStackTrace();
             }
         }
     }
