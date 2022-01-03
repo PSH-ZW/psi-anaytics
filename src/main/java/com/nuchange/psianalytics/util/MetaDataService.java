@@ -1,9 +1,14 @@
 package com.nuchange.psianalytics.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nuchange.psianalytics.constants.MRSConstants.ConceptDatatype;
 import com.nuchange.psianalytics.model.*;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.simpleflatmapper.jdbc.spring.JdbcTemplateMapperFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,10 +18,7 @@ import org.springframework.util.CollectionUtils;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MetaDataService {
@@ -28,6 +30,10 @@ public class MetaDataService {
     @Autowired
     @Qualifier("mrsJdbcTemplate")
     protected JdbcTemplate mrsJdbcTemplate;
+
+    private static Logger logger = LoggerFactory.getLogger(MetaDataService.class);
+
+    private static Map<String, String> formToProgramMap = new HashMap<>();
 
     public List<AnalyticsCronJob> getActiveAnalyticsCronJobs() {
         String sql = "SELECT * FROM analytics_cron_job WHERE enabled = true";
@@ -352,13 +358,14 @@ public class MetaDataService {
         return FALSE;
     }
 
-    public void updateEventYetToBeSynced(String type, Object primaryIdentifier, Object patientId, Object programId
+    //TODO: make separate methods for enrollment and encounter
+    public void updateEventsToSync(String type, Object primaryIdentifier, Object patientId, Object programId
             , Object encounterId, Boolean isEncounterType) {
         if (isEncounterType) {
-            String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,encounter_id) " +
-                    "values (?, ?, ?, ?)";
+            String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,encounter_id, program_id) " +
+                    "values (?, ?, ?, ?, ?)";
             analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
-                    encounterId.toString());
+                    encounterId.toString(), programId);
         }else {
             String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,program_id) " +
                     "values (?, ?, ?, ?)";
@@ -375,6 +382,7 @@ public class MetaDataService {
         }
         return null;
     }
+
     public void initializeFormMetaDataTable() {
         String sql = "select distinct name , version from form where published = 1";
         List<FormDetails> formDetails = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance()
@@ -394,6 +402,58 @@ public class MetaDataService {
             return formDetails.get(0);
         }
         return null;
+    }
+
+    public String getProgramNameForFormTable(String formName) {
+        if(formToProgramMap.isEmpty()) {
+            initialiseFormProgramMap();
+        }
+        String program = formToProgramMap.get(formName);
+        //TODO: handle exception when form does not belong any programs.
+        return program;
+    }
+
+    private void initialiseFormProgramMap() {
+        List<Mapping> mappings = getAllMappings();
+        for(Mapping mapping : mappings) {
+            try{
+                Set<String> tables = getTablesFromMappingJson(mapping.getMappingJson());
+                for(String formTableName : tables) {
+                    formToProgramMap.put(formTableName, mapping.getProgramName());
+                }
+            }
+            catch (JsonProcessingException e) {
+                logger.error(String.format("Could not process mapping json for program : %s", mapping.getProgramName()));
+            }
+        }
+    }
+
+    private Set<String> getTablesFromMappingJson(String mappingJson) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Map<String, Object>> mapping = mapper
+                .readValue(mappingJson, new TypeReference<Map<String, Map<String, Object>>>(){});
+        if(mapping != null && !CollectionUtils.isEmpty(mapping.get("formTableMappings"))) {
+            return mapping.get("formTableMappings").keySet();
+        }
+        return new HashSet<>();
+    }
+
+    private List<Mapping> getAllMappings() {
+        final String sql = "SELECT program_name, mapping_json, dhis_program_stage_id FROM mapping";
+        return analyticsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Mapping.class));
+    }
+
+    public String getProgramForEncounter(Integer encounter_id) {
+        String formNameSpaceAndPath = getFormNameSpacePathForEncounter(encounter_id);
+        String tableName = getFormTableNameFromFormNameSpaceAndPath(formNameSpaceAndPath);
+
+        return getProgramNameForFormTable(tableName);
+    }
+
+    private String getFormTableNameFromFormNameSpaceAndPath(String formName) {
+        formName = formName.substring(formName.indexOf("^")+1, formName.indexOf("."));
+        formName = formName.replaceAll(" ", "_");
+        return AnalyticsUtil.generateColumnName(formName);
     }
 }
 
