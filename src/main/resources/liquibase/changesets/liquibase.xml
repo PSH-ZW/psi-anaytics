@@ -492,7 +492,7 @@
             delete from analytics_cron_job where name = 'mrsProgramEncounterJob';
         </sql>
     </changeSet>
-    <changeSet id = "program enrolment cron job" author="sgk">
+    <changeSet id = "program enrolment cron job updated" author="sgk">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="analytics_cron_job"/>
         </preConditions>
