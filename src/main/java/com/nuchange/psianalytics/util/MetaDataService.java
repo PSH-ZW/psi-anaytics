@@ -31,7 +31,7 @@ public class MetaDataService {
     @Qualifier("mrsJdbcTemplate")
     protected JdbcTemplate mrsJdbcTemplate;
 
-    private static Logger logger = LoggerFactory.getLogger(MetaDataService.class);
+    private static final Logger logger = LoggerFactory.getLogger(MetaDataService.class);
 
     private static Map<String, String> formToProgramMap = new HashMap<>();
 
@@ -378,11 +378,20 @@ public class MetaDataService {
     public void updateEventsToSync(String type, Object primaryIdentifier, Object patientId, Object programId
             , Object encounterId, Boolean isEncounterType) {
         if (isEncounterType) {
+            String checkSql = "select type_identifier from events_to_sync where encounter_id = ? and patient_id = ?";
+            List<String> stringList = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), encounterId.toString(), patientId.toString());
+            if(!CollectionUtils.isEmpty(stringList)) return;
+
             String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,encounter_id, program_id) " +
                     "values (?, ?, ?, ?, ?)";
             analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
                     encounterId.toString(), programId);
         }else {
+            //TODO: needs to be checked if below line is needed
+            String checkSql = "select type_identifier from events_to_sync where program_id = ? and patient_id = ?";
+            List<String> stringList = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), programId.toString(), patientId.toString());
+            if(!CollectionUtils.isEmpty(stringList)) return;
+
             String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,program_id) " +
                     "values (?, ?, ?, ?)";
             analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
