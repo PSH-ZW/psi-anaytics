@@ -1,3 +1,4 @@
+--OpenMRS DB
 DROP FUNCTION IF EXISTS get_concept_name;
 DELIMITER $$
 CREATE FUNCTION get_concept_name(concept_id_str varchar(50))
@@ -16,3 +17,18 @@ BEGIN
 END $$
 DELIMITER;
 -----------------------------------------
+
+--Analytics DB
+--reset synced events;
+update events_to_sync set synced = false;
+delete from processed_events;
+
+--clear all data in analytics
+delete from patient;
+delete from encounter;
+delete from viac_form_template_8681;
+delete from events_to_sync;
+delete from instance_tracker;
+delete from orgunit_tracker;
+delete from processed_events;
+delete from program_enrolment;

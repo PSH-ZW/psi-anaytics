@@ -94,6 +94,7 @@ public class AnalyticsUtil {
         name = name.replaceAll("-", "_").replaceAll("/", "_");
         name = name.replaceAll("&", "").replaceAll("\\?", "");
         name = name.replaceAll("__", "_").replaceAll("\\.", "_");
+        name = name.replaceAll("'", "").replaceAll(":", "");
         return name.toLowerCase();
     }
 
