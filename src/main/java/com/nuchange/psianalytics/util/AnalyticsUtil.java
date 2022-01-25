@@ -95,9 +95,12 @@ public class AnalyticsUtil {
         name = name.replaceAll(" ", "_").replaceAll(",", "");
         name = name.replaceAll("-", "_").replaceAll("/", "_");
         name = name.replaceAll("&", "").replaceAll("\\?", "");
-        name = name.replaceAll("__", "_").replaceAll("\\.", "_");
         name = name.replaceAll("'", "").replaceAll(":", "");
-        name = name.replaceAll("’", "");
+        name = name.replaceAll("’", "").replaceAll("–", "");
+        name = name.replaceAll("\\.", "_").replaceAll("\\+", "");
+
+        //This needs to be done at the very last.
+        name = name.replaceAll("_+", "_");
         return name.toLowerCase();
     }
 

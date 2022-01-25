@@ -55,13 +55,21 @@ class PsiAnalyticsApplicationTests {
 		formNames.add("forms/Prep_Cont_Form.json");
 		formNames.add("forms/Prep_Init_Form.json");
 		formNames.add("forms/Provider_HIV_test_counselling.json");
+		formNames.add("forms/Assessment_and_Plan_new_1.json");
+		formNames.add("forms/Family_Planning_Initial_7872_1.json");
+		formNames.add("forms/IPV_Template_9524_1.json");
+		formNames.add("forms/NCD_Template_9509_1.json");
+		formNames.add("forms/PrEP_Screening_Tool_8867_1.json");
+		formNames.add("forms/Referrals_Template_9373_1.json");
+		formNames.add("forms/STI_Symptoms_1.json");
+		formNames.add("forms/TB_Screening_and_History_1.json");
 
 		List<String> queries = new ArrayList<>();
 		for (String formName : formNames) {
 			String query = AnalyticsUtil.generateCreateTableForForm(formName);
 			queries.add(query);
 		}
-		assertEquals(10, queries.size());
+		assertEquals(18, queries.size());
 
 		Pattern pattern = Pattern.compile("[/-]");
 		for (String query : queries) {
@@ -74,7 +82,11 @@ class PsiAnalyticsApplicationTests {
 			assertFalse(query.contains("'"));
 			assertFalse(query.contains(":"));
 			assertFalse(query.contains("’"));
+			assertFalse(query.contains("-"));
 		}
+
+		//Evaluate this to get the queries.
+		String createQueries = String.join("\n", queries);
 	}
 
 	/*@Test
