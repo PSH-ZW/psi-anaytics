@@ -206,7 +206,7 @@ public class AnalyticsUtil {
             return;
         }
         if (control.getType().equals(JobConstants.OBS_CONTROL_GROUP)) {
-            handleObsControls(control.getControls(), obsWithConcepts, tableName, null);
+            handleObsControls(control.getControls(), obsWithConcepts, tableName, control.getLabel().getValue());
         } else if (control.getType().equals(JobConstants.OBS_SECTION_CONTROL)) {
             handleObsControls(control.getControls(), obsWithConcepts, tableName, control.getLabel().getValue());
         } else {
@@ -230,6 +230,7 @@ public class AnalyticsUtil {
         String conceptName = formConcept.getName();
         formConcept.setName(getShortName(conceptName));
         if (sectionLabel != null) {
+            sectionLabel = getInitialsForName(sectionLabel);
             formConcept.setName(sectionLabel + "_" + formConcept.getName());
         }
         formTable.getConcepts().add(formConcept);
