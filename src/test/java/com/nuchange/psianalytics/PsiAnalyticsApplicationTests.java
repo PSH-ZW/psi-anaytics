@@ -45,6 +45,7 @@ class PsiAnalyticsApplicationTests {
 	public void shouldGenerateCreateTableQueriesForListOfForms() throws IOException {
 		//used to create queries for all the tables.
 		List<String> formNames = new ArrayList<>();
+		formNames.add("forms/Viac_Form_Template_8681_1.json");
 		formNames.add("forms/Art_initial_Visit_compulsory_Question_1_of_2.json");
 		formNames.add("forms/Art_initial_Visit_compulsory_Question_2_of_2.json");
 		formNames.add("forms/FP_Continuation.json");
@@ -60,7 +61,7 @@ class PsiAnalyticsApplicationTests {
 			String query = AnalyticsUtil.generateCreateTableForForm(formName);
 			queries.add(query);
 		}
-		assertEquals(9, queries.size());
+		assertEquals(10, queries.size());
 
 		Pattern pattern = Pattern.compile("[/-]");
 		for (String query : queries) {
@@ -72,6 +73,7 @@ class PsiAnalyticsApplicationTests {
 			assertFalse(query.contains("__"));
 			assertFalse(query.contains("'"));
 			assertFalse(query.contains(":"));
+			assertFalse(query.contains("’"));
 		}
 	}
 

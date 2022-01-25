@@ -86,7 +86,9 @@ public class AnalyticsUtil {
         if (name.contains("(")) {
            name = name.substring(0, name.indexOf("(")).trim();
         }
-        return replaceSpecialCharactersInColumnName(name);
+        String columnName = replaceSpecialCharactersInColumnName(name);
+        //column and table names for postgres are truncated at 64 chars.
+        return columnName.substring(0,Math.min(columnName.length(), 63));
     }
 
     public static String replaceSpecialCharactersInColumnName(String name) {
@@ -95,6 +97,7 @@ public class AnalyticsUtil {
         name = name.replaceAll("&", "").replaceAll("\\?", "");
         name = name.replaceAll("__", "_").replaceAll("\\.", "_");
         name = name.replaceAll("'", "").replaceAll(":", "");
+        name = name.replaceAll("’", "");
         return name.toLowerCase();
     }
 
@@ -103,20 +106,34 @@ public class AnalyticsUtil {
             StringBuilder shortName = new StringBuilder();
             String lastName = name.substring(name.lastIndexOf(",")+1).trim();
             name = name.substring(0, name.lastIndexOf(","));
-            String[] commaSeprated = name.split(",");
-            for (String s : commaSeprated) {
+            String[] commaSeparated = name.split(",");
+            for (String s : commaSeparated) {
                 s = s.trim();
-                String[] spaceSeprated = s.split(" ");
+                String[] spaceSeparated = s.split(" ");
                 StringBuilder firstLetters = new StringBuilder();
-                for (String word : spaceSeprated) {
+                for (String word : spaceSeparated) {
                     word = word.trim();
                     firstLetters.append(word.charAt(0));
                 }
                 shortName.append(firstLetters).append("_");
             }
-            return shortName + lastName;
+            name = shortName + lastName;
+        }
+        if(name.contains("(")) {
+            name = name.replaceAll("\\(", "_").replaceAll("\\)", "_");
         }
         return name;
+    }
+
+    private static String getInitialsForName(String name) {
+        StringBuilder shortName = new StringBuilder();
+        name = name.replaceAll("\\(", " ").replaceAll("_", " ")
+                .replaceAll("\\)", " ");
+        String[] words = name.split("\\s+");
+        for (String word : words) {
+            shortName.append(word.charAt(0));
+        }
+        return shortName.toString();
     }
     public static void getRowAndColumnValuesForQuery(JdbcTemplate template, String query, List<String> colHeaders,
                                                      List<Map<String, Object>> rowValues, Object[] params) {
@@ -155,9 +172,18 @@ public class AnalyticsUtil {
         StringBuilder query = new StringBuilder();
         query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(forms.getName())).append("(");
         query.append("id serial PRIMARY KEY, ");
+
+        Set<String> columnNames = new HashSet<>();
         if (obsWithConcepts.containsKey(forms.getName())) {
             for (FormConcept concept : obsWithConcepts.get(forms.getName()).getConcepts()) {
                 String name = AnalyticsUtil.generateColumnName(concept.getName());
+                if(columnNames.contains(name)) {
+                    String errorMessage = String.format("There is a collision for column name %s." +
+                            " Please update the concept name for one of the form concepts to make it unique.", name);
+                    logger.error(errorMessage);
+                    throw new RuntimeException(errorMessage);
+                }
+                columnNames.add(name);
                 query.append(name).append(" varchar, ");
             }
         }
@@ -212,6 +238,7 @@ public class AnalyticsUtil {
     private static void generateFormConceptsForMultiselectColumns(FormTable formTable, FormConcept formConcept) {
         //Generate a boolean column for each possible value of the multiselect.
         String multiSelectFieldName = getShortName(formConcept.getName());
+        multiSelectFieldName = getInitialsForName(multiSelectFieldName);
         for(ConceptAnswer answerConcept : formConcept.getAnswers()) {
             FormConcept answerConceptName = answerConcept.getName();
             String multiSelectOptionName = answerConceptName.getName();
