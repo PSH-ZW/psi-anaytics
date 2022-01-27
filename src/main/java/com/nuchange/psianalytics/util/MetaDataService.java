@@ -445,15 +445,25 @@ public class MetaDataService {
 
     public String getProgramForEncounter(Integer encounter_id) {
         String formNameSpaceAndPath = getFormNameSpacePathForEncounter(encounter_id);
-        String tableName = getFormTableNameFromFormNameSpaceAndPath(formNameSpaceAndPath);
+        if(formNameSpaceAndPath != null) {
+            String tableName = getFormTableNameFromFormNameSpaceAndPath(formNameSpaceAndPath);
+            return getProgramNameForFormTable(tableName);
+        }
 
-        return getProgramNameForFormTable(tableName);
+        return null;
     }
 
     private String getFormTableNameFromFormNameSpaceAndPath(String formName) {
         formName = formName.substring(formName.indexOf("^")+1, formName.indexOf("."));
         formName = formName.replaceAll(" ", "_");
         return AnalyticsUtil.generateColumnName(formName);
+    }
+
+    public boolean isValidProgramName(String programName) {
+        if(formToProgramMap.isEmpty()) {
+            initialiseFormProgramMap();
+        }
+        return formToProgramMap.containsValue(programName);
     }
 }
 

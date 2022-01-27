@@ -144,7 +144,7 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
         values.deleteCharAt(values.length() - 1);
         columns.append(") ");
         values.append(" )");
-        return columns.toString() + values.toString();
+        return columns.toString() + values;
     }
 
     private String getQueryToFetchParent(Query query) {

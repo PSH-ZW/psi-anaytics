@@ -19,6 +19,7 @@ import java.util.*;
 public class AnalyticsUtil {
     private static Logger logger = LoggerFactory.getLogger(AnalyticsUtil.class);
     private static Map<String, Forms> formCache = new HashMap<>();
+    private static Map<String, Map<UUID, String>> formColumnCache = new HashMap<>();
 
     public static String getInsertQuery(List<String> colHeaders, String target) {
         StringBuilder query = new StringBuilder("INSERT INTO " + target + " (");
@@ -168,33 +169,68 @@ public class AnalyticsUtil {
 
     public static String generateCreateTableForForm(String formName) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        Forms forms;
-        forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
-        Map<String, FormTable> obsWithConcepts = new HashMap<>();
-        handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null);
+        Forms forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
         StringBuilder query = new StringBuilder();
         query.append("CREATE TABLE ").append(AnalyticsUtil.generateColumnName(forms.getName())).append("(");
         query.append("id serial PRIMARY KEY, ");
-
-        Set<String> columnNames = new HashSet<>();
-        if (obsWithConcepts.containsKey(forms.getName())) {
-            for (FormConcept concept : obsWithConcepts.get(forms.getName()).getConcepts()) {
-                String name = AnalyticsUtil.generateColumnName(concept.getName());
-                if(columnNames.contains(name)) {
-                    String errorMessage = String.format("There is a collision for column name %s." +
-                            " Please update the concept name for one of the form concepts to make it unique.", name);
-                    logger.error(errorMessage);
-                    throw new RuntimeException(errorMessage);
-                }
-                columnNames.add(name);
-                query.append(name).append(" varchar, ");
-            }
+        Map<UUID, String> columnNames = generateColumnNamesForForm(forms);
+        for (String columnName : columnNames.values()) {
+            query.append(columnName).append(" varchar, ");
         }
         query.append("encounter_id integer, visit_id integer, patient_id integer, ");
         query.append("username varchar, date_created timestamp, patient_identifier varchar, ");
         query.append("location_id integer, location_name varchar, instance_id integer)");
 
         return query.toString();
+    }
+
+    private static Map<UUID, String> generateColumnNamesForForm(Forms forms) {
+        Map<String, FormTable> obsWithConcepts = new HashMap<>();
+        handleObsControls(forms.getControls(), obsWithConcepts, forms.getName(), null);
+
+        Map<UUID, String> generatedColumnNames = new HashMap<>();
+        if (obsWithConcepts.containsKey(forms.getName())) {
+            for (FormConcept concept : obsWithConcepts.get(forms.getName()).getConcepts()) {
+                String name = AnalyticsUtil.generateColumnName(concept.getName());
+                if(generatedColumnNames.containsValue(name)) {
+                    String errorMessage = String.format("There is a collision for column name %s." +
+                            " Please update the concept name for one of the form concepts to make it unique.", name);
+                    logger.error(errorMessage);
+                    throw new RuntimeException(errorMessage);
+                }
+                generatedColumnNames.put(parseUuid(concept.getUuid()), name);
+            }
+        }
+
+        return generatedColumnNames;
+    }
+
+    private static UUID parseUuid(String uuidString) {
+        UUID uuid;
+        try{
+            uuid = UUID.fromString(uuidString);
+        }catch (IllegalArgumentException e) {
+            uuid = UUID.fromString(
+                    uuidString.replaceFirst(
+                            "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
+                            "$1-$2-$3-$4-$5"
+                            )
+            );
+        }
+
+        return uuid;
+    }
+
+    private static Map<UUID, String> getColumnNamesForForm(String formName) throws IOException {
+        if(formColumnCache.containsKey(formName)) {
+            return formColumnCache.get(formName);
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        Forms forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
+        Map<UUID, String> columnNames = generateColumnNamesForForm(forms);
+        formColumnCache.put(formName, columnNames);
+        return columnNames;
     }
 
     public static void handleObsControls(List<FormControl> controls, Map<String, FormTable> obsWithConcepts,

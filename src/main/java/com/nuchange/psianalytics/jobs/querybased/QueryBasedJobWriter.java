@@ -79,8 +79,10 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
     private void insertSyncDataForEncounter(String target, Map<String, Object> stringObjectMap) {
         Integer encounter_id = Integer.valueOf(stringObjectMap.get("encounter_id").toString());
         String programName = metaDataService.getProgramForEncounter(encounter_id);
-        metaDataService.updateEventsToSync(target, stringObjectMap.get("uuid"),
-                stringObjectMap.get("patient_id"), programName, encounter_id, true);
+        if(programName != null && metaDataService.isValidProgramName(programName)) {
+            metaDataService.updateEventsToSync(target, stringObjectMap.get("uuid"),
+                    stringObjectMap.get("patient_id"), programName, encounter_id, true);
+        }
     }
 
 }
