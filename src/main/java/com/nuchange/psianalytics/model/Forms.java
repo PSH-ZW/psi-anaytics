@@ -3,6 +3,7 @@ package com.nuchange.psianalytics.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Forms {
@@ -32,5 +33,18 @@ public class Forms {
 
     public void setControls(List<FormControl> controls) {
         this.controls = controls;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Forms forms = (Forms) o;
+        return uuid.equals(forms.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
 }

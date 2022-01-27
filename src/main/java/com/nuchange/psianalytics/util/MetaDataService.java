@@ -175,6 +175,22 @@ public class MetaDataService {
         return null;
     }
 
+    public Concept getConceptById(Integer conceptId){
+        final String sql = "select * from concept where concept_id = ?";
+        List<Concept> concepts = mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(Concept.class), conceptId);
+        if(!CollectionUtils.isEmpty(concepts)){
+            return concepts.get(0);
+        }
+        return null;
+    }
+
+    public List<UUID> getConceptNameUuidsForConcept(Integer conceptId) {
+        final String sql = "select uuid from concept_name where concept_id = ?";
+        return mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(UUID.class), conceptId);
+    }
+
     public Location getLocationByEncounterId(Integer encounterId){
         final String sql = "select location_id, name, uuid from location where location_id = (select location_id from encounter where encounter_id = ?)";
         List<Location> locations = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Location.class), encounterId);

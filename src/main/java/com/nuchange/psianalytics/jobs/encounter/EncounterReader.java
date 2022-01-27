@@ -51,24 +51,26 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
             Forms form = AnalyticsUtil.readForm("forms/" + file.getFileName() + ".json");
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
-            String conceptName = metaDataService.getFullNameOfConceptByUuid(UUID.fromString(concept.getUuid()));
             String conceptUuid = concept.getUuid();
             String formTableName = AnalyticsUtil.generateColumnName(form.getName());
+            Map<UUID, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
             String formNameWithInstance = formTableName + "_" + file.getInstance().toString();
             if (conceptMap.containsKey(conceptUuid)) {
                 ObsType obsType = conceptMap.get(conceptUuid);
-                if (obsType.getParentType() != null && obsType.getParentType().equals(JobConstants.OBS_SECTION_CONTROL)) {
-                    conceptName = obsType.getLabel().getValue() + "_" + AnalyticsUtil.getShortName(conceptName);
-                }
-                conceptName = AnalyticsUtil.getShortName(conceptName);
-                conceptName = AnalyticsUtil.generateColumnName(conceptName);
+                String columnName = columnNames.get(UUID.fromString(conceptUuid));
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
                     //TODO: handle voiding
                     //TODO: initialise query if this is the first one.
-                    String valueSelected = metaDataService.getFullNameOfConceptByConceptId(obs.getValueCoded());
-                    valueSelected = AnalyticsUtil.getShortName(valueSelected);
-                    valueSelected = AnalyticsUtil.replaceSpecialCharactersInColumnName(valueSelected);
-                    String columnName = conceptName + "_" + valueSelected;
+
+                    List<UUID> conceptNameUuids = metaDataService.getConceptNameUuidsForConcept(obs.getValueCoded());
+                    for (UUID conceptNameUuid : conceptNameUuids) {
+                        //The forms use the uuid of the concept_name (instead of uuid of the concept) for multiselect answers.
+                        // Get all concept names for the concept and check if the uuid of that concept name is in the columnName map
+                        if(columnNames.containsKey(conceptNameUuid)) {
+                            columnName = columnNames.get(conceptNameUuid);
+                            break;
+                        }
+                    }
                     Query query = obsColAndVal.get(formNameWithInstance);
                     query.getColAndVal().put(columnName, "true");
                 }
@@ -83,12 +85,11 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             Query query = new Query();
                             query.setTable(formTableName);
                             obsColAndVal.put(formNameWithInstance, query);
+                            addExtraAttributeToQuery(query, encounter, file);
                         }
                         if (!Objects.equals(obsType.getParentType(), JobConstants.OBS_CONTROL_GROUP)) {
                             Query query = obsColAndVal.get(formNameWithInstance);
-                            query.getColAndVal().put(conceptName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                            //TODO: can we move this method call to the if condition above?
-                            addExtraAttributeToQuery(query, encounter, file);
+                            query.getColAndVal().put(columnName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
                             query.setIgnore(obs.getVoided() == 1);
                         }
                     }
@@ -167,6 +168,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             Query query = new Query();
             query.setTable(tableName);
             obsColAndVal.put(tableNameWithInstance, query);
+            addExtraAttributeToQuery(query, encounter, file);
         }
         Concept currentConcept = metaDataService.getConceptByObsId(parentObs.getObsId());
         String conceptName = metaDataService.getFullNameOfConceptByUuid(UUID.fromString(currentConcept.getUuid()));

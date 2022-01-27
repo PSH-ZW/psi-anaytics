@@ -19,7 +19,7 @@ import java.util.*;
 public class AnalyticsUtil {
     private static Logger logger = LoggerFactory.getLogger(AnalyticsUtil.class);
     private static Map<String, Forms> formCache = new HashMap<>();
-    private static Map<String, Map<UUID, String>> formColumnCache = new HashMap<>();
+    private static Map<Forms, Map<UUID, String>> formColumnCache = new HashMap<>();
 
     public static String getInsertQuery(List<String> colHeaders, String target) {
         StringBuilder query = new StringBuilder("INSERT INTO " + target + " (");
@@ -221,15 +221,12 @@ public class AnalyticsUtil {
         return uuid;
     }
 
-    private static Map<UUID, String> getColumnNamesForForm(String formName) throws IOException {
-        if(formColumnCache.containsKey(formName)) {
-            return formColumnCache.get(formName);
+    public static Map<UUID, String> getColumnNamesForForm(Forms forms) {
+        if(formColumnCache.containsKey(forms)) {
+            return formColumnCache.get(forms);
         }
-
-        ObjectMapper mapper = new ObjectMapper();
-        Forms forms = parseForm(mapper.readTree(AnalyticsUtil.class.getClassLoader().getResource(formName)));
         Map<UUID, String> columnNames = generateColumnNamesForForm(forms);
-        formColumnCache.put(formName, columnNames);
+        formColumnCache.put(forms, columnNames);
         return columnNames;
     }
 

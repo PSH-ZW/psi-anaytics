@@ -67,3 +67,12 @@ grant all privileges on table prep_screening_tool_8867 to analytics;
 grant all privileges on table referrals_template_9373 to analytics;
 grant all privileges on table sti_symptoms to analytics;
 grant all privileges on table tb_screening_and_history to analytics;
+
+grant usage, select on all sequences in schema public to analytics; --run this in analytics db as user postgres
+---
+-- Bash commands for updating existing tables and sequences
+-- sudo -u postgres -i
+-- for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname = 'public';"`
+-- do `psql -c "alter table \"$tbl\" owner to analytics"`
+-- done
+-- for tbl in `psql -qAt -c "select sequence_name from information_schema.sequences where sequence_schema = 'public';"` ; do psql -c "alter sequence \"$tbl\" owner to analytics"; done
