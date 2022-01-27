@@ -20,11 +20,9 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +36,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
 
     @Autowired
     SimpleJobOperator jobOperator;
-    
+
     private StepExecution stepExecution;
 
 
@@ -93,12 +91,15 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         String uuid = AnalyticsUtil.getUuidFromParam(objectRef, eventCategory);
         QueryJob queryJob = QueryBaseJobUtil.getJobDetails(category);
         String queryToFindId = queryJob.getFindIdByUuid();
-        List<Integer> listOfId = getTemplate().query(queryToFindId, new RowMapper<Integer>() {
-            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getInt(1);
-            }
-        }, uuid);
+        List<Integer> listOfId = getTemplate().query(queryToFindId, (rs, rowNum) -> rs.getInt(1), uuid);
 
+        if(CollectionUtils.isEmpty(listOfId)) {
+            //There are no resource(patient, enrollment etc.) with the uuid specified in the eventRecord in the DB.
+            //Could be because the data has been deleted. We will delete the eventRecord otherwise, the job will be stuck
+            //here trying to read the non-existent resource again and again.
+            metaDataService.deleteEventRecord(eventRecords.getId());
+            return null;
+        }
         List<ResultExtractor> resultExtractorList =
                 getResultExtractorForCategoryAndId(queryJob, category, new Long(listOfId.get(0)));
         ExecutionContext executionContext = stepExecution.getExecutionContext();

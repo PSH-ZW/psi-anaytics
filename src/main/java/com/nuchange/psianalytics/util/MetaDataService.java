@@ -87,6 +87,11 @@ public class MetaDataService {
         }
     }
 
+    public void deleteEventRecord(Integer id) {
+        String deleteSql = "delete from event_records where id = ?";
+        mrsJdbcTemplate.update(deleteSql, id);
+    }
+
     public String getFullNameOfConceptByUuid(UUID conceptUuid){
         final String sql = "SELECT concept_name.name FROM concept INNER JOIN concept_name ON " +
                 "concept.concept_id = concept_name.concept_id WHERE concept.uuid = ? AND concept_name_type = 'FULLY_SPECIFIED' and locale = 'en'";

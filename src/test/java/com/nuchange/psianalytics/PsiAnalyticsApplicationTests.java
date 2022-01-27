@@ -51,11 +51,11 @@ class PsiAnalyticsApplicationTests {
 		formNames.add("forms/Art_initial_Visit_compulsory_Question_2_of_2.json");
 		formNames.add("forms/FP_Continuation.json");
 		formNames.add("forms/FP_Counselling_Only.json");
-		formNames.add("forms/HIV_self_testing.json");
-		formNames.add("forms/Post_HIV_test_counselling.json");
+		formNames.add("forms/HIV_self_testing_1_1.json");
+		formNames.add("forms/Post_HIV_test_counselling_3329_1.json");
 		formNames.add("forms/Prep_Cont_Form.json");
 		formNames.add("forms/Prep_Init_Form.json");
-		formNames.add("forms/Provider_HIV_test_counselling.json");
+		formNames.add("forms/Provider_HIV_test_counselling_1_1.json");
 		formNames.add("forms/Assessment_and_Plan_new_1.json");
 		formNames.add("forms/Family_Planning_Initial_7872_1.json");
 		formNames.add("forms/IPV_Template_9524_1.json");
