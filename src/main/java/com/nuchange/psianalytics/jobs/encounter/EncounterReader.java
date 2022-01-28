@@ -59,13 +59,14 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             String formTableName = AnalyticsUtil.generateColumnName(form.getName());
             Map<UUID, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
             String formNameWithInstance = formTableName + "_" + file.getInstance().toString();
+            if (!obsColAndVal.containsKey(formNameWithInstance)) {
+                initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, file);
+            }
             if (conceptMap.containsKey(conceptUuid)) {
                 ObsType obsType = conceptMap.get(conceptUuid);
                 String columnName = columnNames.get(UUID.fromString(conceptUuid));
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
                     //TODO: handle voiding
-                    //TODO: initialise query if this is the first one.
-
                     List<UUID> conceptNameUuids = metaDataService.getConceptNameUuidsForConcept(obs.getValueCoded());
                     for (UUID conceptNameUuid : conceptNameUuids) {
                         //The forms use the uuid of the concept_name (instead of uuid of the concept) for multiselect answers.
@@ -78,25 +79,10 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                     Query query = obsColAndVal.get(formNameWithInstance);
                     query.getColAndVal().put(columnName, "true");
                 }
-
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
-
-                    if (obs.getObsGroupId() != null) {
-                        Obs obsGroup = metaDataService.getObsGroup(obs);
-                        generateQueryForObsGroup(obs, obsGroup, obsColAndVal, file, form, encounter);
-                    } else {
-                        if (!obsColAndVal.containsKey(formNameWithInstance)) {
-                            Query query = new Query();
-                            query.setTable(formTableName);
-                            obsColAndVal.put(formNameWithInstance, query);
-                            addExtraAttributeToQuery(query, encounter, file);
-                        }
-                        if (!Objects.equals(obsType.getParentType(), JobConstants.OBS_CONTROL_GROUP)) {
-                            Query query = obsColAndVal.get(formNameWithInstance);
-                            query.getColAndVal().put(columnName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                            query.setIgnore(obs.getVoided() == 1);
-                        }
-                    }
+                    Query query = obsColAndVal.get(formNameWithInstance);
+                    query.getColAndVal().put(columnName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
+                    query.setIgnore(obs.getVoided() == 1);
                 }
             }
         }
@@ -130,6 +116,14 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         return dto;
     }
 
+    private void initialiseQuery(String formTableName, Map<String, Query> obsColAndVal,
+                                 String formNameWithInstance, Encounter encounter, FileAttributes file) {
+        Query query = new Query();
+        query.setTable(formTableName);
+        obsColAndVal.put(formNameWithInstance, query);
+        addExtraAttributeToQuery(query, encounter, file);
+    }
+
     private Query createIgnoredQueryFrom(Integer encounterId, String table) {
         Query diagnosisQuery = new Query();
         diagnosisQuery.setTable(table);
@@ -145,47 +139,12 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         query.getColAndVal().put("encounter_id", String.valueOf(encounter.getEncounterId()));
         query.getColAndVal().put("visit_id", String.valueOf(encounter.getVisitId()));
         query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatientId()));
-        query.getColAndVal().put("patient_identifier", String.valueOf(encounter.getPatientId()));
+        query.getColAndVal().put("patient_identifier", String.valueOf(encounter.getPatientId())); //TODO:can remove this
         /*query.getColAndVal().put("provider_id", String.valueOf(provider.getProviderId()));*/
         query.getColAndVal().put("location_id", String.valueOf(encounter.getLocationId()));
         Location location = metaDataService.getLocationByEncounterId(encounter.getEncounterId());
         query.getColAndVal().put("location_name", location.getName());
         query.getColAndVal().put("date_created", String.valueOf(encounter.getEncounterDatetime()));
-        query.getColAndVal().put("instance_id", String.valueOf(file.getInstance()));
-    }
-
-    private void generateQueryForObsGroup(Obs currentObs, Obs parentObs, Map<String, Query> obsColAndVal,
-                                          FileAttributes file, Forms forms, Encounter encounter) {
-        if (parentObs != null) {
-            Obs obsGroup = metaDataService.getObsGroup(parentObs);
-            if (obsGroup != null) {
-                generateQueryForObsGroup(parentObs, obsGroup, obsColAndVal, file, forms, encounter);
-            }
-        }
-        Concept parentConcept = metaDataService.getConceptByObsId(parentObs.getObsId());
-        String formTableName = AnalyticsUtil.generateColumnName(forms.getName());
-        String parentConceptName = metaDataService.getFullNameOfConceptByUuid(UUID.fromString(parentConcept.getUuid()));
-        String tableName = forms.getName() + "_" + AnalyticsUtil.generateColumnName(parentConceptName);
-        tableName = AnalyticsUtil.generateColumnName(tableName);
-        String tableNameWithInstance = tableName + "_" + file.getInstance().toString();
-        if (!obsColAndVal.containsKey(tableNameWithInstance)) {
-            Query query = new Query();
-            query.setTable(tableName);
-            obsColAndVal.put(tableNameWithInstance, query);
-            addExtraAttributeToQuery(query, encounter, file);
-        }
-        Concept currentConcept = metaDataService.getConceptByObsId(parentObs.getObsId());
-        String conceptName = metaDataService.getFullNameOfConceptByUuid(UUID.fromString(currentConcept.getUuid()));
-        conceptName = AnalyticsUtil.generateColumnName(conceptName);
-        Query query = obsColAndVal.get(tableNameWithInstance);
-        query.setIgnore(currentObs.getVoided() == 1 ? true : false);
-        query.getColAndVal().put(conceptName, metaDataService.getValueAsString(currentObs, Locale.ENGLISH));
-        query.getColAndVal().put("parent_id", null);
-        query.setParentTable(formTableName);
-        query.setParentConcept(AnalyticsUtil.generateColumnName(parentConceptName));
-        query.getColAndVal().put("encounter_id", String.valueOf(encounter.getEncounterId()));
-        query.getColAndVal().put("visit_id", String.valueOf(encounter.getVisitId()));
-        query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatientId()));
         query.getColAndVal().put("instance_id", String.valueOf(file.getInstance()));
     }
 
