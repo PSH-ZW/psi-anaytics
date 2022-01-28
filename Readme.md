@@ -14,7 +14,7 @@
 
 ####Setting up Openmrs DB
 1. Create a mysql container.
-2. import the openmrs DB. 
+2. import the openmrs DB downloaded from [here](http://206.189.138.201/psi_openmrs.sql.gz). 
 3. Copy and run the functions in sql_functions.sql.
 
 ####Running the application
@@ -64,3 +64,17 @@ event
    1. if version of table and version of obs does not match we stop sync
    2. we need to have a utility which lists down all the forms which does not have a table and version detail in 
    analytics(use spring based cmd line utility to support this)
+
+###Forms used in each program
+| Health Area | Forms in Bahmni                                                                                                       |
+|-------------|-----------------------------------------------------------------------------------------------------------------------|
+| ART         | Art initial Visit compulsory Question 1 of 2<br> Art initial Visit compulsory Question 2 of 2<br> Assessment and Plan |
+| PrEP        | PrEP Screening Tool<br> PrEP Initial<br> PrEP Continuation                                                            |
+| FP          | FP Counselling Only<br> Family Planning Initial<br> FP Continuation                                                   |
+| HTS         | Provider HIV test counselling<br> (Post HIV Test Counselling<br> HIV Self testing)                                    |
+| TB          | TB Screening and History                                                                                              |
+| NCD         | NCD Template                                                                                                          |
+| STI         | STI Symptoms                                                                                                          |
+| VIAC        | VIAC Form Template                                                                                                    |
+| Referrals   | Referrals template                                                                                                    |
+| IPV         | IPV form                                                                                                              |
