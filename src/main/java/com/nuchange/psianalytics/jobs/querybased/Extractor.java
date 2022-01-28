@@ -2,9 +2,9 @@ package com.nuchange.psianalytics.jobs.querybased;
 
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;
-import com.nuchange.psianalytics.util.AnalyticsUtil;
 import com.nuchange.psianalytics.util.PSIContext;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
+import com.nuchange.psiutil.AnalyticsUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;

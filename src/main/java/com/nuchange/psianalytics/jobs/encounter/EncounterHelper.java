@@ -1,7 +1,7 @@
 package com.nuchange.psianalytics.jobs.encounter;
 
-import com.nuchange.psianalytics.model.ObsType;
-import com.nuchange.psianalytics.util.AnalyticsUtil;
+import com.nuchange.psiutil.AnalyticsUtil;
+import com.nuchange.psiutil.model.ObsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

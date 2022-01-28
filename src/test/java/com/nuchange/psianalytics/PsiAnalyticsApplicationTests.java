@@ -1,6 +1,6 @@
 package com.nuchange.psianalytics;
 
-import com.nuchange.psianalytics.util.AnalyticsUtil;
+import com.nuchange.psiutil.AnalyticsUtil;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestApplication.class)
