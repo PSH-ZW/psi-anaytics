@@ -47,14 +47,14 @@ class PsiAnalyticsApplicationTests {
 		//used to create queries for all the tables.
 		List<String> formNames = new ArrayList<>();
 		formNames.add("forms/Viac_Form_Template_8681_1.json");
-		formNames.add("forms/Art_initial_Visit_compulsory_Question_1_of_2.json");
-		formNames.add("forms/Art_initial_Visit_compulsory_Question_2_of_2.json");
-		formNames.add("forms/FP_Continuation.json");
-		formNames.add("forms/FP_Counselling_Only.json");
+		formNames.add("forms/Art_initial_Visit_compulsory_Question_1_of_2_new_1.json");
+		formNames.add("forms/Art_initial_Visit_compulsory_Question_2_of_2_6708_1.json");
+		formNames.add("forms/FP_Continuation_1_1.json");
+		formNames.add("forms/FP_Counselling_Only_3_1.json");
 		formNames.add("forms/HIV_self_testing_1_1.json");
 		formNames.add("forms/Post_HIV_test_counselling_3329_1.json");
-		formNames.add("forms/Prep_Cont_Form.json");
-		formNames.add("forms/Prep_Init_Form.json");
+		formNames.add("forms/Prep_Cont_Form_8533_1.json");
+		formNames.add("forms/Prep_Init_Form_8491_1.json");
 		formNames.add("forms/Provider_HIV_test_counselling_1_1.json");
 		formNames.add("forms/Assessment_and_Plan_new_1.json");
 		formNames.add("forms/Family_Planning_Initial_7872_1.json");
