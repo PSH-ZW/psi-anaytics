@@ -4,6 +4,7 @@ import com.nuchange.psiutil.AnalyticsUtil;
 import com.nuchange.psiutil.model.ObsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -12,6 +13,9 @@ import java.util.Map;
 
 @Component
 public class EncounterHelper {
+    @Value("${form.baseDir}")
+    protected String formDir;
+
     private static final Logger logger = LoggerFactory.getLogger(EncounterHelper.class);
 
     // <form,<concept, obsType>>
@@ -22,7 +26,7 @@ public class EncounterHelper {
             return formConceptMap.get(fileName);
         }
         logger.debug("Reading form json file: " + fileName);
-        Map<String, ObsType> conceptMap = AnalyticsUtil.extractConceptsFromFile("forms/" + fileName + ".json");
+        Map<String, ObsType> conceptMap = AnalyticsUtil.extractConceptsFromFile(formDir + fileName + ".json");
         formConceptMap.put(fileName, conceptMap);
         return conceptMap;
     }

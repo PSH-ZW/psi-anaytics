@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -27,6 +28,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     protected MetaDataService metaDataService;
     @Autowired
     protected EncounterHelper encounterHelper;
+    @Value("${form.baseDir}")
+    protected String formDir;
 
     public EncounterReader(DataSource dataSource) {
         super(dataSource);
@@ -54,7 +57,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             //TODO: below line needs to be uncommented post necessary meta_data is available
             /*noMisMatch(file.getFullName());*/
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
-            Forms form = AnalyticsUtil.readForm("forms/" + file.getFileName() + ".json");
+            Forms form = AnalyticsUtil.readForm(formDir + file.getFileName() + ".json");
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
             String conceptUuid = concept.getUuid();
             String formTableName = AnalyticsUtil.generateColumnName(form.getName());
