@@ -143,9 +143,9 @@ public class MetaDataService {
         return null;
     }
 
-    public List<Obs> getObsByEncounterIdAndVoided(Integer encounterId, Integer voided){
-        final String sql = "SELECT * FROM obs WHERE encounter_id = ? AND voided = ? AND form_namespace_and_path IS NOT null ";
-        return mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Obs.class), encounterId, voided);
+    public List<Obs> getObsByEncounterIdAndVoided(Integer encounterId){
+        final String sql = "SELECT * FROM obs WHERE encounter_id = ? AND voided = 0 AND form_namespace_and_path IS NOT null ";
+        return mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Obs.class), encounterId);
     }
 
     public Obs getObsById(Integer id){

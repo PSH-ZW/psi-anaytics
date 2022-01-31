@@ -39,12 +39,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     public EncounterJobDto readEncounter(Integer encounterId) throws Exception {
         logger.debug("Processing Encounter : " + encounterId);
         Encounter encounter = metaDataService.getEncounterByEncounterId(encounterId);
-        //TODO:can get voided and nonVoided obs using a single query. no need to get them separately as we are voided ones
-        // to obsForEncounterList.
-        List<Obs> obsForEncounter = metaDataService.getObsByEncounterIdAndVoided(encounterId, 0);
-        List<Obs> voidedObs = metaDataService.getObsByEncounterIdAndVoided(encounterId, 1);
-        // adding voided obs to delete any obs got synced before and no non-voided obs are present
-        obsForEncounter.addAll(voidedObs);
+        List<Obs> obsForEncounter = metaDataService.getObsByEncounterIdAndVoided(encounterId);
         Set<String> deleted = new HashSet<>();
         /* To Store All Queries which are generated */
         List<Query> insertQueries = new ArrayList<>();
