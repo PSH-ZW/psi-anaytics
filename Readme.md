@@ -71,7 +71,7 @@ event
 | ART         | Art initial Visit compulsory Question 1 of 2<br> Art initial Visit compulsory Question 2 of 2<br> Assessment and Plan |
 | PrEP        | PrEP Screening Tool<br> PrEP Initial<br> PrEP Continuation                                                            |
 | FP          | FP Counselling Only<br> Family Planning Initial<br> FP Continuation                                                   |
-| HTS         | Provider HIV test counselling<br> (Post HIV Test Counselling<br> HIV Self testing)                                    |
+| HTS         | Provider HIV test counselling<br> HIV Self testing<br>                                    |
 | TB          | TB Screening and History                                                                                              |
 | NCD         | NCD Template                                                                                                          |
 | STI         | STI Symptoms                                                                                                          |
