@@ -497,5 +497,12 @@ public class MetaDataService {
         }
         return formToProgramMap.containsValue(programName);
     }
+
+    public boolean shouldFlattenForm(String formName) {
+        if(formToProgramMap.isEmpty()) {
+            initialiseFormProgramMap();
+        }
+        return formToProgramMap.containsKey(formName);
+    }
 }
 

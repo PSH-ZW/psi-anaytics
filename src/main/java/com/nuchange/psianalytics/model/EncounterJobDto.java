@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class EncounterJobDto {
 
-    List<Query> insertQueries;
-    Map<String, List<ResultExtractor>> extractorsWithTarget;
+    private List<Query> insertQueries;
+    private Map<String, List<ResultExtractor>> extractorsWithTarget;
 
     public EncounterJobDto() {
         insertQueries = new ArrayList<>();

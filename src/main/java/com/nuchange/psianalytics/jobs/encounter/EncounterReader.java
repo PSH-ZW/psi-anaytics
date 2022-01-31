@@ -39,6 +39,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     public EncounterJobDto readEncounter(Integer encounterId) throws Exception {
         logger.debug("Processing Encounter : " + encounterId);
         Encounter encounter = metaDataService.getEncounterByEncounterId(encounterId);
+        //TODO:can get voided and nonVoided obs using a single query. no need to get them separately as we are voided ones
+        // to obsForEncounterList.
         List<Obs> obsForEncounter = metaDataService.getObsByEncounterIdAndVoided(encounterId, 0);
         List<Obs> voidedObs = metaDataService.getObsByEncounterIdAndVoided(encounterId, 1);
         // adding voided obs to delete any obs got synced before and no non-voided obs are present
@@ -52,15 +54,18 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
 
         for (Obs obs : obsForEncounter) {
             //TODO: we are doing this for each obs, check whether we can group obs belonging to one form.
-            //TODO: only read forms we need to push.
             FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
             //TODO: below line needs to be uncommented post necessary meta_data is available
             /*noMisMatch(file.getFullName());*/
+            String formTableName = AnalyticsUtil.generateColumnName(file.getFormName());
+            if(!metaDataService.shouldFlattenForm(formTableName)) {
+                continue;
+            }
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
             Forms form = AnalyticsUtil.readForm(formDir + file.getFileName() + ".json");
+            formTableName = AnalyticsUtil.generateColumnName(form.getName()); //TODO: this can be removed.
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
             String conceptUuid = concept.getUuid();
-            String formTableName = AnalyticsUtil.generateColumnName(form.getName());
             Map<UUID, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
             String formNameWithInstance = formTableName + "_" + file.getInstance().toString();
             if (!obsColAndVal.containsKey(formNameWithInstance)) {
