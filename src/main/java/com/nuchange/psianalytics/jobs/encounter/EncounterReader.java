@@ -66,6 +66,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             if (!obsColAndVal.containsKey(formNameWithInstance)) {
                 initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, file);
             }
+            Query query = obsColAndVal.get(formNameWithInstance);
             if (conceptMap.containsKey(conceptUuid)) {
                 ObsType obsType = conceptMap.get(conceptUuid);
                 String columnName = columnNames.get(UUID.fromString(conceptUuid));
@@ -80,13 +81,12 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             break;
                         }
                     }
-                    Query query = obsColAndVal.get(formNameWithInstance);
-                    query.getColAndVal().put(columnName, "true");
+                    String value = obs.getVoided() != 1 ? "true" : "";
+                    query.getColAndVal().put(columnName, value);
                 }
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
-                    Query query = obsColAndVal.get(formNameWithInstance);
-                    query.getColAndVal().put(columnName, metaDataService.getValueAsString(obs, Locale.ENGLISH));
-                    query.setIgnore(obs.getVoided() == 1);
+                    String value = obs.getVoided() != 1 ? metaDataService.getValueAsString(obs, Locale.ENGLISH) : "";
+                    query.getColAndVal().put(columnName, value);
                 }
             }
         }

@@ -16,7 +16,7 @@ insert into mapping(program_name, mapping_json, config) values('PREP',
 '{"formTableMappings" : {"prep_cont_form_template_8533" : {"vf_setting":"Hc4iKERZLDk"}, "prep_screening_tool_8867" : {"dummy" : "replace_this"}, "prep_init_form_template_8491" : {"dummy" : "replace_this"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('HTS',
-'{"formTableMappings" : {"hiv_self_testing_1" : {"vf_setting":"Hc4iKERZLDk"}, "provider_hiv_test_counselling_1" : {"dummy" : "replace_this"}, "post_hiv_test_counselling_3329" : {"dummy" : "replace_this"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"hiv_self_testing_1" : {"vf_setting":"Hc4iKERZLDk"}, "provider_hiv_test_counselling_1" : {"dummy" : "replace_this"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('IPV',
 '{"formTableMappings" : {"ipv_template_9524" : {"vf_setting":"Hc4iKERZLDk"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
@@ -32,6 +32,9 @@ insert into mapping(program_name, mapping_json, config) values('NCD',
 
 insert into mapping(program_name, mapping_json, config) values('TB',
 '{"formTableMappings" : {"tb_screening_and_history" : {"vf_setting":"Hc4iKERZLDk"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+
+insert into mapping(program_name, mapping_json, config) values('STI',
+'{"formTableMappings" : {"sti_symptoms" : {"vf_setting":"Hc4iKERZLDk"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 
 

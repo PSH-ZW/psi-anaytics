@@ -55,6 +55,7 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                 } else if (!query.isIgnore()) {
                     String insertQuery = createQuery(query);
                     batchUpdate.add(insertQuery);
+                    logger.info(String.format("Processed Encounter %s for form : %s", encounterId, query.getTable()));
                     addEntryToEventTrackerIfNotExists(batchUpdate, encounterId);
                 }
             }
