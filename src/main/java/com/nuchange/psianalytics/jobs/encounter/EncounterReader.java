@@ -48,7 +48,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         Map<String, Query> obsColAndVal = new HashMap<>();
 
         for (Obs obs : obsForEncounter) {
-            //TODO: we are doing this for each obs, check whether we can group obs belonging to one form.
             FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
             //TODO: below line needs to be uncommented post necessary meta_data is available
             /*noMisMatch(file.getFullName());*/

@@ -54,6 +54,7 @@ public class JobScheduler implements SchedulingConfigurer {
             FlatteningTask bean = null;
             try {
                  bean = (FlatteningTask) applicationContext.getBean(cronJob.getName());
+                 logger.info(String.format("Found bean for job : %s", cronJob.getName()));
             } catch (NoSuchBeanDefinitionException e) {
                 logger.info("Could not find bean for processing Job: " + cronJob.getName());
             }
@@ -83,27 +84,29 @@ public class JobScheduler implements SchedulingConfigurer {
         return new Runnable() {
             @Override
             public void run() {
-                FlatteningTask job = jobs.get(quartzCronScheduler.getName());
+                String jobName = quartzCronScheduler.getName();
+                FlatteningTask job = jobs.get(jobName);
                 try {
+                    logger.info(String.format("Starting job for %s", jobName));
                     job.process();
                 } catch (InterruptedException e) {
-                    logger.warn("Thread Interrupted for the job: " + quartzCronScheduler.getName());
+                    logger.warn("Thread Interrupted for the job: " + jobName);
                 } catch (IOException e) {
-                    logger.warn("I/O Exception Occur for the job: " + quartzCronScheduler.getName());
+                    logger.warn("I/O Exception Occur for the job: " + jobName);
                 } catch (JobParametersInvalidException e) {
-                    logger.warn("Job Parameter Invalid for the job: " + quartzCronScheduler.getName());
+                    logger.warn("Job Parameter Invalid for the job: " + jobName);
                 } catch (JobExecutionAlreadyRunningException e) {
-                    logger.warn("Job Execution is already running " + quartzCronScheduler.getName());
+                    logger.warn("Job Execution is already running " + jobName);
                 } catch (JobRestartException e) {
-                    logger.warn("Job Restart Exception for the job: " + quartzCronScheduler.getName());
+                    logger.warn("Job Restart Exception for the job: " + jobName);
                 } catch (JobInstanceAlreadyCompleteException e) {
                     e.printStackTrace();
                 }
                 try {
-                    logger.debug("Triggering job: " + quartzCronScheduler.getName());
+                    logger.debug("Triggering job: " + jobName);
 
                 } catch (Exception e) {
-                    logger.warn("Thread Failed for the job: " + quartzCronScheduler.getName());
+                    logger.warn("Thread Failed for the job: " + jobName);
                 }
             }
         };

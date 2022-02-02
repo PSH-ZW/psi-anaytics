@@ -8,6 +8,8 @@ import com.nuchange.psianalytics.model.EventRecords;
 import com.nuchange.psianalytics.model.ProcessedEvents;
 import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psiutil.AnalyticsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
@@ -23,6 +25,8 @@ import javax.sql.DataSource;
 
 @Component(JobConstants.ENCOUNTER_EVENT_BASE_JOB_ITEM_READER_STEP_ONE)
 public class Reader extends EncounterReader<EncounterJobDto> {
+
+    private static Logger logger = LoggerFactory.getLogger(Reader.class);
 
     @Autowired
     protected MetaDataService metaDataService;
@@ -66,8 +70,10 @@ public class Reader extends EncounterReader<EncounterJobDto> {
         String encounterUUID = AnalyticsUtil.getUuidFromParam(params, eventCategory);
         Encounter encounter = metaDataService.getEncounterByUuid(encounterUUID);
         ExecutionContext executionContext = stepExecution.getExecutionContext();
-        executionContext.put("eventId", eventRecords.getId());
+        Integer eventRecordId = eventRecords.getId();
+        executionContext.put("eventId", eventRecordId);
         executionContext.put("eventUuid", eventRecords.getUuid());
+        logger.info(String.format("Processing EventRecord with id : %d for Encounter : %d", eventRecordId, encounter.getEncounterId()));
         return readEncounter(encounter.getEncounterId());
     }
 

@@ -8,6 +8,8 @@ import com.nuchange.psianalytics.model.ResultExtractor;
 import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import com.nuchange.psiutil.AnalyticsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -28,6 +30,8 @@ import java.util.Set;
 
 //@Component(JobConstants.QUERY_EVENT_BASED_MRS_JOB_ITEM_READER_STEP_ONE)
 public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<ResultExtractor>> {
+    private static Logger logger = LoggerFactory.getLogger(QueryEventBasedMrsReader.class);
+
     @Autowired
     ApplicationContext context;
 
@@ -94,8 +98,8 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         List<Integer> listOfId = getTemplate().query(queryToFindId, (rs, rowNum) -> rs.getInt(1), uuid);
 
         if(CollectionUtils.isEmpty(listOfId)) {
-            //There are no resource(patient, enrollment etc.) with the uuid specified in the eventRecord in the DB.
-            //Could be because the data has been deleted. We will delete the eventRecord otherwise, the job will be stuck
+            //If there are no resource(patient, enrollment etc.) with the uuid specified in the eventRecord in the DB,
+            //it could be because the data has been deleted. We will delete the eventRecord, otherwise the job will be stuck
             //here trying to read the non-existent resource again and again.
             metaDataService.deleteEventRecord(eventRecords.getId());
             return null;
@@ -105,6 +109,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         ExecutionContext executionContext = stepExecution.getExecutionContext();
         executionContext.put("eventId", eventRecords.getId());
         executionContext.put("eventUuid", eventRecords.getUuid());
+        logger.info(String.format("Processing EventRecord of category %s with id : %d ", eventCategory, eventRecords.getId()));
         return resultExtractorList;
     }
 
