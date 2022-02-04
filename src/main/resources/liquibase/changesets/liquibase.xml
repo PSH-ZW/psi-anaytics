@@ -2202,4 +2202,17 @@
             );
         </sql>
     </changeSet>
+    <changeSet id = "add missing columns to mapping table" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="created_by" tableName="mapping"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="mapping">
+            <column name="created_by" type="varchar"/>
+            <column name="date_created" type="varchar"/>
+            <column name="modified_by" type="varchar"/>
+            <column name="date_modified" type="varchar"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
