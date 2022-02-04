@@ -26,6 +26,15 @@ Run PsiAnalyticsApplication.java
 This project is used to flatten the hierarchical tables in openMRS(mysql DB) to an analytics DB(postgres).
 The data from the analytics DB will be used for syncing with DHIS2.
 
+####Program Flow
+Whenever we perform operations in Bahmni related to adding a new patient, program enrollment or creating an encounter,
+an event record will be created in the `event_records` table in OpenMRS DB. The `category` column contains the category of the event, 
+eg patient, enrollment etc, and the `object` column contains the uuid reference of the column in the respected table. 
+
+We have two spring batch readers(Reader.java and QueryEventBasedMrsReader.java) that reads these EventRecords and process them periodically.
+The readers read the EventRecords, then get the corresponding object we need to flatten using the uuid from the `object` column, and send them to
+the processors for processing them. Our processor classes doesn't do much currently, then just pass the data to the writer, the writer classed do most 
+of the processing. Writers generate the insert queries with the data values received from procssors and insert them into the respective tables in analytics DB.
 ####DB Access
 We will be using jdbc templates for querying the DB. The datasources and jdbcTemplates are defined in DataSourceConfig.
 
@@ -34,7 +43,7 @@ We will be using jdbc templates for querying the DB. The datasources and jdbcTem
 ####Flattening Process
  wip
  ####Handling MultiSelect inputs
- We will be creating a binary column for each of the values of the field. For the selected options we will set 't' to 
+ We will be creating a binary column for each of the values of the field. For the selected options we will set 'true' to 
 indicate they have been selected.
  
 ###Data Flow
