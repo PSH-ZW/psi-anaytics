@@ -35,7 +35,7 @@ insert into mapping(program_name, mapping_json, config) values('TB',
 
 --Add dhis_program_stage_id for STI program, currently STI program stage is not present.
 insert into mapping(program_name, mapping_json, config) values('STI',
-'{"formTableMappings" : {"sti_symptoms" : {"vf_setting":"Hc4iKERZLDk"}}}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"sti_symptoms" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId":"DummyStageID"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 
 

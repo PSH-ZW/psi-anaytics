@@ -1,7 +1,6 @@
 package com.nuchange.psianalytics.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nuchange.psianalytics.constants.MRSConstants.ConceptDatatype;
 import com.nuchange.psianalytics.model.*;
@@ -33,9 +32,12 @@ public class MetaDataService {
     @Qualifier("mrsJdbcTemplate")
     protected JdbcTemplate mrsJdbcTemplate;
 
+    private final static ObjectMapper mapper = new ObjectMapper();
+
     private static final Logger logger = LoggerFactory.getLogger(MetaDataService.class);
 
     private static Map<String, String> formToProgramMap = new HashMap<>();
+    private static Map<String, String> programToProgramStageIdMap = new HashMap<>();
 
     public List<AnalyticsCronJob> getActiveAnalyticsCronJobs() {
         String sql = "SELECT * FROM analytics_cron_job WHERE enabled = true";
@@ -233,9 +235,9 @@ public class MetaDataService {
         return null;
     }
 
-    public boolean entryExistsInEventTracker(String encounterId) {
-        final String sql = "SELECT count(*) from event_tracker where encounter_id = '%s'";
-        List<Integer> value =  analyticsJdbcTemplate.query(String.format(sql, encounterId),
+    public boolean entryExistsInEventTracker(String encounterId, String programStage) {
+        final String sql = "SELECT count(*) from event_tracker where encounter_id = '%s' and program_stage = '%s'";
+        List<Integer> value =  analyticsJdbcTemplate.query(String.format(sql, encounterId, programStage),
                 JdbcTemplateMapperFactory.newInstance().newRowMapper(Integer.class));
         if(!CollectionUtils.isEmpty(value)) {
             return !value.get(0).equals(0);
@@ -436,42 +438,70 @@ public class MetaDataService {
         return null;
     }
 
-    public String getProgramNameForFormTable(String formName) {
-        if(formToProgramMap.isEmpty()) {
-            initialiseFormProgramMap();
-        }
-        String program = formToProgramMap.get(formName);
+    public String getProgramNameForFormTable(String tableName) {
+        initialiseFormProgramMapIfEmpty();
+        String program = formToProgramMap.get(tableName);
         //TODO: handle exception when form does not belong any programs.
         return program;
     }
 
-    private void initialiseFormProgramMap() {
-        List<Mapping> mappings = getAllMappings();
-        for(Mapping mapping : mappings) {
-            try{
-                Set<String> tables = getTablesFromMappingJson(mapping.getMappingJson());
+    public String getDhisProgramStageIdForTable(String table) {
+        String programName = getProgramNameForFormTable(table);
+        if(!programToProgramStageIdMap.containsKey(programName)) {
+            Mapping mapping = getMappingForProgram(programName);
+            MappingJson mappingJson = null;
+            try {
+                mappingJson = mapper.readValue(mapping.getMappingJson(), MappingJson.class);
+                String dhisProgramStageId = mappingJson.getDhisProgramStageId();
+                programToProgramStageIdMap.put(programName, dhisProgramStageId);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        return programToProgramStageIdMap.get(programName);
+    }
+
+    private Mapping getMappingForProgram(String programName) {
+        String sql = "SELECT program_name, mapping_json FROM mapping where program_name = ?";
+        try{
+            return analyticsJdbcTemplate.query(sql,
+                    JdbcTemplateMapperFactory.newInstance().newRowMapper(Mapping.class), programName).get(0);
+        } catch (Exception e) {
+            logger.error(String.format("Could not get Mapping for program %s", programName), e.getMessage());
+            throw e;
+        }
+    }
+
+    private void initialiseFormProgramMapIfEmpty() {
+        if(formToProgramMap.isEmpty()) {
+            List<Mapping> mappings = getAllMappings();
+            for(Mapping mapping : mappings) {
+                Set<String> tables = getTablesFromMapping(mapping);
                 for(String formTableName : tables) {
                     formToProgramMap.put(formTableName, mapping.getProgramName());
                 }
             }
-            catch (JsonProcessingException e) {
-                logger.error(String.format("Could not process mapping json for program : %s", mapping.getProgramName()));
-            }
         }
     }
 
-    private Set<String> getTablesFromMappingJson(String mappingJson) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Map<String, Object>> mapping = mapper
-                .readValue(mappingJson, new TypeReference<Map<String, Map<String, Object>>>(){});
-        if(mapping != null && !CollectionUtils.isEmpty(mapping.get("formTableMappings"))) {
-            return mapping.get("formTableMappings").keySet();
+    private Set<String> getTablesFromMapping(Mapping mapping) {
+        String mappingJsonString = mapping.getMappingJson();
+        if(mappingJsonString != null) {
+            try {
+                MappingJson mappingJson = mapper.readValue(mappingJsonString, MappingJson.class);
+                Map<String, Map<String, String>> formTableMappings = mappingJson.getFormTableMappings();
+                if (!CollectionUtils.isEmpty(formTableMappings)) {
+                    return formTableMappings.keySet();
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
         return new HashSet<>();
     }
 
     private List<Mapping> getAllMappings() {
-        final String sql = "SELECT program_name, mapping_json, dhis_program_stage_id FROM mapping";
+        final String sql = "SELECT program_name, mapping_json FROM mapping";
         return analyticsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Mapping.class));
     }
 
@@ -492,17 +522,17 @@ public class MetaDataService {
     }
 
     public boolean isValidProgramName(String programName) {
-        if(formToProgramMap.isEmpty()) {
-            initialiseFormProgramMap();
-        }
+        initialiseFormProgramMapIfEmpty();
         return formToProgramMap.containsValue(programName);
     }
 
     public boolean shouldFlattenForm(String formName) {
-        if(formToProgramMap.isEmpty()) {
-            initialiseFormProgramMap();
-        }
+        initialiseFormProgramMapIfEmpty();
         return formToProgramMap.containsKey(formName);
+    }
+
+    public boolean shouldNotFlatterForm(String formName) {
+        return !shouldFlattenForm(formName);
     }
 }
 

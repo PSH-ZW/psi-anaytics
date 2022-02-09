@@ -5,10 +5,12 @@ import com.nuchange.psianalytics.jobs.querybased.QueryBasedJobWriter;
 import com.nuchange.psianalytics.model.EncounterJobDto;
 import com.nuchange.psianalytics.model.Query;
 import com.nuchange.psianalytics.model.ResultExtractor;
+import com.nuchange.psianalytics.util.MetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
 
@@ -19,6 +21,9 @@ import java.util.*;
 
 public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
     private static final Logger logger = LoggerFactory.getLogger(EncounterWriter.class);
+
+    @Autowired
+    private MetaDataService metaDataService;
 
     private StepExecution stepExecution;
 
@@ -37,9 +42,10 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
             Set<String> batchUpdate = new HashSet<>();
             for (Query query : insertQueries) {
                 String encounterId = query.getColAndVal().get("encounter_id");
-                if (!deleteExecuted.contains(query.getTable())) {
+                String tableForForm = query.getTable();
+                if (!deleteExecuted.contains(tableForForm)) {
                     batchDelete.add(deleteIfEncounterPresent(query));
-                    deleteExecuted.add(query.getTable());
+                    deleteExecuted.add(tableForForm);
                 }
                 if (query.getParentTable() != null) {
                     if (!deleteExecuted.contains(query.getParentTable())) {
@@ -55,8 +61,9 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                 } else if (!query.isIgnore()) {
                     String insertQuery = createQuery(query);
                     batchUpdate.add(insertQuery);
-                    logger.info(String.format("Processed Encounter %s for form : %s", encounterId, query.getTable()));
-                    addEntryToEventTrackerIfNotExists(batchUpdate, encounterId);
+                    logger.info(String.format("Processed Encounter %s for form : %s", encounterId, tableForForm));
+                    String programStage = metaDataService.getDhisProgramStageIdForTable(tableForForm);
+                    addEntryToEventTrackerIfNotExists(batchUpdate, encounterId, programStage);
                 }
             }
 
@@ -108,11 +115,11 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
         }
     }
 
-    private void addEntryToEventTrackerIfNotExists(Set<String> batchUpdate, String encounterId) {
+    private void addEntryToEventTrackerIfNotExists(Set<String> batchUpdate, String encounterId, String programStage) {
         //TODO: add more details here if needed.
-        String sql = "INSERT INTO event_tracker(encounter_id) values("+ encounterId +")";
+        String sql = String.format("INSERT INTO event_tracker(encounter_id, program_stage) values(%s, '%s')", encounterId, programStage);
         boolean shouldInsertToEventTracker = !batchUpdate.contains(sql)
-                && !metaDataService.entryExistsInEventTracker(encounterId);
+                && !metaDataService.entryExistsInEventTracker(encounterId, programStage);
         if(shouldInsertToEventTracker) {
             batchUpdate.add(sql);
         }

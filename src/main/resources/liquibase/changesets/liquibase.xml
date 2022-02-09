@@ -2202,6 +2202,7 @@
             );
         </sql>
     </changeSet>
+
     <changeSet id = "add missing columns to mapping table" author="vishnu">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -2215,13 +2216,16 @@
             <column name="date_modified" type="varchar"/>
         </addColumn>
     </changeSet>
+
     <changeSet id = "make patient_id unique in patient table" author="vishnu">
         <addUniqueConstraint tableName="patient" columnNames="patient_id"/>
     </changeSet>
+
     <changeSet id="change unique constraint on encounter_id in event_tracker to (encounter_id, program_stage)" author="vishnu" >
         <dropUniqueConstraint tableName="event_tracker" constraintName="event_tracker_encounter_id_key"/>
         <addUniqueConstraint tableName="event_tracker" columnNames="encounter_id, program_stage"/>
     </changeSet>
+
     <changeSet id="create enrolment_tracker table" author="vishnu">
         <createTable tableName="enrolment_tracker">
         <column name="instance_id" type="varchar">

@@ -52,7 +52,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             //TODO: below line needs to be uncommented post necessary meta_data is available
             /*noMisMatch(file.getFullName());*/
             String formTableName = AnalyticsUtil.generateColumnName(file.getFormName());
-            if(!metaDataService.shouldFlattenForm(formTableName)) {
+            if(metaDataService.shouldNotFlatterForm(formTableName)) {
                 continue;
             }
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
