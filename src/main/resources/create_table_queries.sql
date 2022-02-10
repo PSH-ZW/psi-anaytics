@@ -4,38 +4,38 @@ insert into mapping(program_name, lookup_table, mapping_json, config) values('Pa
 
 insert into mapping(program_name, mapping_json, config) values('VIAC',
 '{"formTableMappings" : {"viac_form_template_8681" : {"vf_setting":"Hc4iKERZLDk","vf_gravida":"UgU0MyC73ST","vf_parity":"JItRQLxfQ4A","vf_type_of_visit":"TgBqFU96ZHX","vf_repeat_specify_period":"RYkDTB2J6QO","vf_treatment_specify_treatment":"onIfDntdyv0","vf_hiv_status":"hh9Z0ymuKRZ",
- "vf_age_at_sexual_debut":"uBemM37lrOO","vf_no_of_lifetime_partners":"hysSfrFntQ7","vf_presenting_complaints":"nC39lIMfk98", "vf_ever_treated_for_stis":"GycGAisxIRC","vf_condom_use_with_regular_non_regular_partner":"SdqY1kZRNui","vf_prior_family_planning_predominantly_used":"QGbsKfo1CA9", "vf_have_you_ever_used_coc":"SUid7AxCFNJ","vf_history_of_smoking":"awZ6r6EZcCs","vf_current_medication_for_chronic_conditions":"LPlUY436Swn", "vf_prior_ca_cervix_screening_in_lifetime":"tRLHoPkaCdv","vf_when_were_you_last_screened":"qD7cp0yKJeZ", "vf_method_used_in_your_last_screen":"ZnnJrowYqmi","vf_screening_method_used_on_this_visit":"Um6zN7O1vzy", "vf_specimen_collected_by":"AdIDU0YDVOj","vf_result":"Oxhq5sfsc7G","vf_intervention":"ioNfmq39dS3"}}, "dhisProgramStageId" : "YoxZS1bsBaW"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+ "vf_age_at_sexual_debut":"uBemM37lrOO","vf_no_of_lifetime_partners":"hysSfrFntQ7","vf_presenting_complaints":"nC39lIMfk98", "vf_ever_treated_for_stis":"GycGAisxIRC","vf_condom_use_with_regular_non_regular_partner":"SdqY1kZRNui","vf_prior_family_planning_predominantly_used":"QGbsKfo1CA9", "vf_have_you_ever_used_coc":"SUid7AxCFNJ","vf_history_of_smoking":"awZ6r6EZcCs","vf_current_medication_for_chronic_conditions":"LPlUY436Swn", "vf_prior_ca_cervix_screening_in_lifetime":"tRLHoPkaCdv","vf_when_were_you_last_screened":"qD7cp0yKJeZ", "vf_method_used_in_your_last_screen":"ZnnJrowYqmi","vf_screening_method_used_on_this_visit":"Um6zN7O1vzy", "vf_specimen_collected_by":"AdIDU0YDVOj","vf_result":"Oxhq5sfsc7G","vf_intervention":"ioNfmq39dS3"}}, "dhisProgramStageId" : "YoxZS1bsBaW"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('FP',
-'{"formTableMappings" : {"family_planning_initial_7872" : {"vf_setting":"Hc4iKERZLDk"}, "fp_continuation_1" : {"dummy" : "replace_this"}, "fp_counselling_only_3" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "KeomfqRdu8Q"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"family_planning_initial_7872" : {"vf_setting":"Hc4iKERZLDk"}, "fp_continuation_1" : {"dummy" : "replace_this"}, "fp_counselling_only_3" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "KeomfqRdu8Q"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('VAWG',
-'{"formTableMappings" : {"vawg_table_no_created_yet" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "WpCuHZOKx9N"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"vawg_table_no_created_yet" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "WpCuHZOKx9N"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('PREP',
-'{"formTableMappings" : {"prep_cont_form_template_8533" : {"vf_setting":"Hc4iKERZLDk"}, "prep_screening_tool_8867" : {"dummy" : "replace_this"}, "prep_init_form_template_8491" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "kv6FYqNxzOd"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"prep_cont_form_template_8533" : {"vf_setting":"Hc4iKERZLDk"}, "prep_screening_tool_8867" : {"dummy" : "replace_this"}, "prep_init_form_template_8491" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "kv6FYqNxzOd"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('HTS',
-'{"formTableMappings" : {"hiv_self_testing_1" : {"vf_setting":"Hc4iKERZLDk"}, "provider_hiv_test_counselling_1" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "bY9Dg3Je4CN"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"hiv_self_testing_1" : {"vf_setting":"Hc4iKERZLDk"}, "provider_hiv_test_counselling_1" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "bY9Dg3Je4CN"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('IPV',
-'{"formTableMappings" : {"ipv_template_9524" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "TGvGDt6e6OM"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"ipv_template_9524" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "TGvGDt6e6OM"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('ART',
-'{"formTableMappings" : {"art_initial_visit_compulsory_question_1_of_2_new" : {"vf_setting":"Hc4iKERZLDk"}, "art_initial_visit_compulsory_question_2_of_2_6708" : {"dummy" : "replace_this"}, "assessment_and_plan_new" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "axGKY6FAhRm"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"art_initial_visit_compulsory_question_1_of_2_new" : {"vf_setting":"Hc4iKERZLDk"}, "art_initial_visit_compulsory_question_2_of_2_6708" : {"dummy" : "replace_this"}, "assessment_and_plan_new" : {"dummy" : "replace_this"}}, "dhisProgramStageId" : "axGKY6FAhRm"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('Referral',
-'{"formTableMappings" : {"referrals_template_9373" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "hpVv6E1Lzfl"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"referrals_template_9373" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "hpVv6E1Lzfl"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('NCD',
-'{"formTableMappings" : {"ncd_template_9509" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "HEMM6ZpkqgJ"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"ncd_template_9509" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "HEMM6ZpkqgJ"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('TB',
-'{"formTableMappings" : {"tb_screening_and_history" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "LQl9pV09DR8"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"tb_screening_and_history" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId" : "LQl9pV09DR8"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 --Add dhis_program_stage_id for STI program, currently STI program stage is not present.
 insert into mapping(program_name, mapping_json, config) values('STI',
-'{"formTableMappings" : {"sti_symptoms" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId":"DummyStageID"}', '{"searchable" :["UIC"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
+'{"formTableMappings" : {"sti_symptoms" : {"vf_setting":"Hc4iKERZLDk"}}, "dhisProgramStageId":"DummyStageID"}', '{"searchable" :["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 
 

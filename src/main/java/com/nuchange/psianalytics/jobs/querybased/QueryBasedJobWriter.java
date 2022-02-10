@@ -54,6 +54,7 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
             for (Map<String,Object> stringObjectMap : extractor.getRowValues()) {
                 ex.insertData(target, jobDetails, colHeaders, id, stringObjectMap);
                 if(target.equals("program_enrolment")) {
+                    //TODO: this is causing error, we are inserting the program id and not the program name here.
                     metaDataService.updateEventsToSync(target, stringObjectMap.get("uuid"),
                             stringObjectMap.get("patient_id"), stringObjectMap.get("program_id"), null, false);
                 }else if(target.equals("encounter")){
