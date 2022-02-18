@@ -88,14 +88,13 @@ public abstract class EncounterWriter<D> extends QueryBasedJobWriter<D> {
                 if (count.isEmpty()) {
                     /* Insert a data into parent table with encounter_id, visit_id and patient_id and instance_id */
                     String insertParent = insertDummyIntoParent(query);
-                    int update = template.update(insertParent);
+                    template.update(insertParent);
                     count = fetchParentForQuery(query);
-                    id = count.get(0);
                 }
                 id = count.get(0);
                 query.getColAndVal().put("parent_id", String.valueOf(id));
                 String insertQuery = createQuery(query);
-                int update = template.update(insertQuery);
+                template.update(insertQuery);
             }
 
             /* Write ResultExtractor into DB */

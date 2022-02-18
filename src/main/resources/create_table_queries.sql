@@ -23,7 +23,7 @@ insert into mapping(program_name, lookup_table, mapping_json, config) values('Pa
 "hiv_test_result":{"id" : "XfQM8urodJJ", "displayName" : "hiv_test_result"},
 "tested_in_the_last_twelve_months":{"id" : "if8LjVC75bP", "displayName" : "tested_in_the_last_twelve_months"},
 "couple_testing":{"id" : "zCOHwazkP0m", "displayName" : "couple_testing"},
-"registration_number_of_partner" :{"id" : "couple_testing", "displayName" : "registration_number_of_partner"}}}}'
+"registration_number_of_partner" :{"id" : "gAauAVU6bEJ", "displayName" : "registration_number_of_partner"}}}, "isPatientMapping" : true}'
 ,'{"searchable":["uic"],"comparable":[],"openLatestCompletedEnrollment":"yes"}');
 
 insert into mapping(program_name, mapping_json, config) values('VIAC',

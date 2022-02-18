@@ -2203,7 +2203,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id = "add missing columns to mapping table" author="vishnu">
+    <changeSet id="add missing columns to mapping table" author="vishnu">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists columnName="created_by" tableName="mapping"/>
@@ -2217,24 +2217,43 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id = "make patient_id unique in patient table" author="vishnu">
+    <changeSet id="make patient_id unique in patient table" author="vishnu">
         <addUniqueConstraint tableName="patient" columnNames="patient_id"/>
     </changeSet>
 
-    <changeSet id="change unique constraint on encounter_id in event_tracker to (encounter_id, program_stage)" author="vishnu" >
+    <changeSet id="change unique constraint on encounter_id in event_tracker to (encounter_id, program_stage)"
+               author="vishnu">
         <dropUniqueConstraint tableName="event_tracker" constraintName="event_tracker_encounter_id_key"/>
         <addUniqueConstraint tableName="event_tracker" columnNames="encounter_id, program_stage"/>
     </changeSet>
 
     <changeSet id="create enrolment_tracker table" author="vishnu">
         <createTable tableName="enrolment_tracker">
-        <column name="instance_id" type="varchar">
-            <constraints nullable="false" unique="true"/>
-        </column>
-        <column name="enrolment_id" type="varchar"/>
+            <column name="instance_id" type="varchar">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="enrolment_id" type="varchar"/>
         </createTable>
     </changeSet>
+
     <changeSet id="change datatype of event_id in event_tracker to varchar" author="vishnu">
         <modifyDataType tableName="event_tracker" columnName="event_id" newDataType="varchar"/>
+    </changeSet>
+
+    <changeSet id="insert mapping for patient" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                select count(*)
+                from mapping
+                where program_name = 'Patient';
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            insert into mapping(program_name, mapping_json, config, date_created, created_by)
+            values ('Patient',
+                    '{"isPatientMapping": true, "formTableMappings": {"patient": {"uic": {"id": "zRA08XEYiSF", "displayName": "CORE - Unique ID (UIC)"}, "gender": {"id": "AteZDFhkI0E", "displayName": "ZW LM - Gender"}, "bithdate": {"id": "wSp6Q7QDMsk", "displayName": "bithdate"}, "birthdate": {"id": "wSp6Q7QDMsk", "displayName": "CORE - Date of Birth"}, "education": {"id": "yIKK6uNLpBj", "displayName": "ZW - Level of education"}, "ethnicity": {"id": "U6K1PHFWDJa", "displayName": "ZW - Ethnicity"}, "residence": {"id": "Y1ZD9VjNofv", "displayName": "residence"}, "occupation": {"id": "zW8FKylorqG", "displayName": "ZW SRH FP - Occupation"}, "population": {"id": "oRtRjOifVZ5", "displayName": "ZW - Population"}, "nationality": {"id": "KFvLq4usev1", "displayName": "ZW - Nationality"}, "couple_testing": {"id": "zCOHwazkP0m", "displayName": "ZW - Couple testing ?"}, "marital_status": {"id": "LopyyOT0FHa", "displayName": "ZW SRH FP - Marital status"}, "tested_for_hiv": {"id": "LWaFZ27oqD9", "displayName": "ZW - Have you been tested for HIV before"}, "contact_tracing": {"id": "CiTvAzwq3eu", "displayName": "ZW - Contact Tracing"}, "dreams_activity": {"id": "O6zCqRM450G", "displayName": "ZW - Dreams Activity"}, "hiv_test_result": {"id": "XfQM8urodJJ", "displayName": "ZW - What was the result?"}, "district_of_birth": {"id": "HQOedKyjsdk", "displayName": "ZW LM - District of birth"}, "index_client_code": {"id": "YiNIPRZdGR2", "displayName": "ZW - Index Client Code"}, "moonlight_testing": {"id": "HvNUMycHwJl", "displayName": "ZW - Moonlight Testing"}, "outreach_site_name": {"id": "gJcVOlb92FS", "displayName": "ZW SRH FP - Outreach name"}, "patient_identifier": {"id": "GGvUui7Dc3F", "displayName": "ZW - Patient Identifier"}, "next_of_kin_address": {"id": "ZckwXrTWdx2", "displayName": "ZW - Next of kin address"}, "next_of_kin_telephone": {"id": "B3hSRRlA8ts", "displayName": "ZW - Phone number of next of kin"}, "date_index_client_tested": {"id": "bcE9MqGH7y4", "displayName": "ZW - Date index client tested"}, "nearest_clinic_or_hospital": {"id": "iJixXXL0E4T", "displayName": "ZW - Nearest Clinic/Hospital"}, "registration_number_of_partner": {"id": "gAauAVU6bEJ", "displayName": "ZW - registration number of the partner"}, "tested_in_the_last_twelve_months": {"id": "if8LjVC75bP", "displayName": "tested_in_the_last_twelve_months"}}}, "dhisProgramStageId": {}}',
+                    '{"comparable": [], "searchable": ["uic"], "openLatestCompletedEnrollment": "yes"}',
+                    now(), 'admin');
+        </sql>
     </changeSet>
 </databaseChangeLog>
