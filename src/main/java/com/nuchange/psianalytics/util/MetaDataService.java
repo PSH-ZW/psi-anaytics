@@ -434,11 +434,10 @@ public class MetaDataService {
     public String getDhisProgramStageIdForTable(String table) {
         String programName = getProgramNameForFormTable(table);
         if(!programToProgramStageIdMap.containsKey(programName)) {
-            Mapping mapping = getMappingForProgram(programName);
-            MappingJson mappingJson = null;
             try {
-                mappingJson = mapper.readValue(mapping.getMappingJson(), MappingJson.class);
-                String dhisProgramStageId = mappingJson.getDhisProgramStageId();
+                Mapping mapping = getMappingForProgram(programName);
+                MappingJson mappingJson = mapper.readValue(mapping.getMappingJson(), MappingJson.class);
+                String dhisProgramStageId = mappingJson.getDhisProgramStageId().get("id");
                 programToProgramStageIdMap.put(programName, dhisProgramStageId);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();

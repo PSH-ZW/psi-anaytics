@@ -7,7 +7,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class MappingJson {
     private Map<String, Map<String, Map<String, String>>> formTableMappings;
-    private Map<String, > dhisProgramStageId;
+    private Map<String, String> dhisProgramStageId;
 
     public Map<String, Map<String, Map<String, String>>> getFormTableMappings() {
         return formTableMappings;
@@ -17,11 +17,11 @@ public class MappingJson {
         this.formTableMappings = formTableMappings;
     }
 
-    public String getDhisProgramStageId() {
+    public Map<String, String> getDhisProgramStageId() {
         return dhisProgramStageId;
     }
 
-    public void setDhisProgramStageId(String dhisProgramStageId) {
+    public void setDhisProgramStageId(Map<String, String> dhisProgramStageId) {
         this.dhisProgramStageId = dhisProgramStageId;
     }
 }
