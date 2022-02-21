@@ -2256,4 +2256,13 @@
                     now(), 'admin');
         </sql>
     </changeSet>
+
+    <changeSet id="drop type_name and type_identifier column from events_to_sync table" author="vishnu">
+        <preConditions>
+            <columnExists tableName="events_to_sync" columnName="type_name"/>
+        </preConditions>
+        <dropColumn tableName="events_to_sync" columnName="type_name"/>
+        <dropColumn tableName="events_to_sync" columnName="type_identifier"/>
+    </changeSet>
+
 </databaseChangeLog>

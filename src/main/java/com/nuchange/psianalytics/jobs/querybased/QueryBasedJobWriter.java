@@ -53,12 +53,8 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
             Integer id = extractor.getProcessingId();
             for (Map<String,Object> stringObjectMap : extractor.getRowValues()) {
                 ex.insertData(target, jobDetails, colHeaders, id, stringObjectMap);
-                if(target.equals("program_enrolment")) {
-                    //TODO: this is causing error, we are inserting the program id and not the program name here.
-                    metaDataService.updateEventsToSync(target, stringObjectMap.get("uuid"),
-                            stringObjectMap.get("patient_id"), stringObjectMap.get("program_id"), null, false);
-                }else if(target.equals("encounter")){
-                    insertSyncDataForEncounter(target, stringObjectMap);
+                if(target.equals("encounter")){
+                    insertSyncDataForEncounter(stringObjectMap);
                 }
             }
 
@@ -77,12 +73,11 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
         }
     }
 
-    private void insertSyncDataForEncounter(String target, Map<String, Object> stringObjectMap) {
-        Integer encounter_id = Integer.valueOf(stringObjectMap.get("encounter_id").toString());
-        String programName = metaDataService.getProgramForEncounter(encounter_id);
+    private void insertSyncDataForEncounter(Map<String, Object> stringObjectMap) {
+        String encounterId = stringObjectMap.get("encounter_id").toString();
+        String programName = metaDataService.getProgramForEncounter(Integer.valueOf(encounterId));
         if(programName != null && metaDataService.isValidProgramName(programName)) {
-            metaDataService.updateEventsToSync(target, stringObjectMap.get("uuid"),
-                    stringObjectMap.get("patient_id"), programName, encounter_id, true);
+            metaDataService.insertIntoEventsToSync(stringObjectMap.get("patient_id"), programName, encounterId);
         }
     }
 

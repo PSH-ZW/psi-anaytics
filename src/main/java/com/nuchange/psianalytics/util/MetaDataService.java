@@ -383,28 +383,14 @@ public class MetaDataService {
         return FALSE;
     }
 
-    //TODO: make separate methods for enrollment and encounter
-    public void updateEventsToSync(String type, Object primaryIdentifier, Object patientId, Object programId
-            , Object encounterId, Boolean isEncounterType) {
-        if (isEncounterType) {
-            String checkSql = "select type_identifier from events_to_sync where encounter_id = ? and patient_id = ?";
-            List<String> stringList = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), encounterId.toString(), patientId.toString());
-            if(!CollectionUtils.isEmpty(stringList)) return;
-
-            String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,encounter_id, program_id) " +
-                    "values (?, ?, ?, ?, ?)";
-            analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
-                    encounterId.toString(), programId);
-        }else {
-            //TODO: needs to be checked if below line is needed
-            String checkSql = "select type_identifier from events_to_sync where program_id = ? and patient_id = ?";
-            List<String> stringList = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), programId.toString(), patientId.toString());
-            if(!CollectionUtils.isEmpty(stringList)) return;
-
-            String insertSql = "insert into events_to_sync(type_name,type_identifier,patient_id,program_id) " +
-                    "values (?, ?, ?, ?)";
-            analyticsJdbcTemplate.update(insertSql, type, primaryIdentifier.toString(), patientId.toString(),
-                    programId.toString());
+    public void insertIntoEventsToSync(Object patientId, String programId, String encounterId) {
+        String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ?";
+        List<Integer> count = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance()
+                .newRowMapper(Integer.class), encounterId, patientId.toString());
+        boolean eventDoesNotExists = !CollectionUtils.isEmpty(count) && count.get(0).equals(0);
+        if(eventDoesNotExists) {
+            String insertSql = "insert into events_to_sync(patient_id, encounter_id, program_id) values (?, ?, ?)";
+            analyticsJdbcTemplate.update(insertSql, patientId.toString(), encounterId, programId);
         }
     }
 
@@ -489,7 +475,7 @@ public class MetaDataService {
         if(mappingJsonString != null) {
             try {
                 MappingJson mappingJson = mapper.readValue(mappingJsonString, MappingJson.class);
-                Map<String, Map<String, String>> formTableMappings = mappingJson.getFormTableMappings();
+                Map<String, Map<String, Map<String, String>>> formTableMappings = mappingJson.getFormTableMappings();
                 if (!CollectionUtils.isEmpty(formTableMappings)) {
                     return formTableMappings.keySet();
                 }
