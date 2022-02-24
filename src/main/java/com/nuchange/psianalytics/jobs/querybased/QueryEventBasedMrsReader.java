@@ -25,6 +25,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -33,13 +35,13 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
     private static Logger logger = LoggerFactory.getLogger(QueryEventBasedMrsReader.class);
 
     @Autowired
-    ApplicationContext context;
+    private ApplicationContext context;
 
     @Autowired
-    JobExplorer jobExplorer;
+    private JobExplorer jobExplorer;
 
     @Autowired
-    SimpleJobOperator jobOperator;
+    private SimpleJobOperator jobOperator;
 
     private StepExecution stepExecution;
 
@@ -60,7 +62,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         return stepExecution.getExitStatus();
     }
 
-    public List<ResultExtractor> readEvent() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public List<ResultExtractor> readEvent() throws UnexpectedInputException, IOException, ParseException, NonTransientResourceException {
         /* Read Event Records According To Category And Processed That */
         String category = getJobParameters().getString("category");
         String eventCategory = JobConstants.CATEGORY_TO_EVENT.get(category);
@@ -75,20 +77,9 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         EventRecords eventRecords = metaDataService.getRecordGreaterThanIdAndCategory(id, eventCategory);
 
         if (eventRecords == null) {
-            if(category != null) {
-                Job job = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
-                /*JobOperator jobOperator1 = BatchRuntime.getJobOperator();*/
-                /*Set<Long> executions = jobOperator.getRunningExecutions(job.getName());
-                jobOperator.stop(executions.iterator().next());*/
-                Set<JobExecution> executions = jobExplorer.findRunningJobExecutions(job.getName());
-                for (JobExecution execution : executions) {
-                    if (execution.getStatus().name().equals("STARTED")) {
-                        Boolean stat = jobOperator.stop(execution.getId());
-                        if (stat) System.out.println("Stopping Job !!: " + execution.getId());
-                    }
-                }
-            }
-            return null;
+            //There are no more events to process, stop the job.
+            stopJob(category);
+            return Collections.emptyList();
         }
 
         String objectRef = eventRecords.getObject();
@@ -105,12 +96,27 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
             return null;
         }
         List<ResultExtractor> resultExtractorList =
-                getResultExtractorForCategoryAndId(queryJob, category, new Long(listOfId.get(0)));
+                getResultExtractorForCategoryAndId(queryJob, category, Long.valueOf(listOfId.get(0)));
         ExecutionContext executionContext = stepExecution.getExecutionContext();
         executionContext.put("eventId", eventRecords.getId());
         executionContext.put("eventUuid", eventRecords.getUuid());
         logger.info(String.format("Processing EventRecord of category %s with id : %d ", eventCategory, eventRecords.getId()));
         return resultExtractorList;
+    }
+
+    private void stopJob(String category) {
+        try{
+            Job job = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
+            Set<JobExecution> executions = jobExplorer.findRunningJobExecutions(job.getName());
+            for (JobExecution execution : executions) {
+                if (execution.isRunning() && !execution.isStopping()) {
+                    jobOperator.stop(execution.getId());
+                    logger.info("Stopped Job: {}", job.getName());
+                }
+            }
+        }catch (Exception e) {
+            logger.warn("Could not find running instance of Job to stop.");
+        }
     }
 
     private ProcessedEvents findLastProcessedEventsForCategory(String category) {

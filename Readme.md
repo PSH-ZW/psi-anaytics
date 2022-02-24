@@ -37,9 +37,12 @@ the processors for processing them. Our processor classes doesn't do much curren
 of the processing. Writers generate the insert queries with the data values received from procssors and insert them into the respective tables in analytics DB.
 ####DB Access
 We will be using jdbc templates for querying the DB. The datasources and jdbcTemplates are defined in DataSourceConfig.
+There are two datasources, one for the openmrs (mySql) DB which we will be reading from and one for analytics(postgres) DB,
+which we will be writing to.
 
 ####Batch jobs
-  wip
+We will have batch jobs for processing `Patients`, `Encounters` and `Program Enrolments`. The reader, writer, processor and related classes for these are present in jobs package.
+Whenever the Application starts 
 ####Flattening Process
  wip
  ####Handling MultiSelect inputs
