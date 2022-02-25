@@ -33,12 +33,12 @@ import java.util.concurrent.TimeUnit;
 @EnableScheduling
 public class JobScheduler implements SchedulingConfigurer {
 
-    private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
     @Autowired
     private ApplicationContext applicationContext;
 
-    private Map<String, FlatteningTask> jobs = new HashMap<>();
+    private final Map<String, FlatteningTask> jobs = new HashMap<>();
 
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -54,17 +54,17 @@ public class JobScheduler implements SchedulingConfigurer {
             FlatteningTask bean = null;
             try {
                  bean = (FlatteningTask) applicationContext.getBean(cronJob.getName());
-                 logger.info(String.format("Found bean for job : %s", cronJob.getName()));
+                 logger.info("Found bean for job : {}", cronJob.getName());
             } catch (NoSuchBeanDefinitionException e) {
-                logger.info("Could not find bean for processing Job: " + cronJob.getName());
+                logger.info("Could not find bean for processing Job: {}", cronJob.getName());
             }
             jobs.put(cronJob.getName(), bean);
             try {
                 scheduledTaskRegistrar.setScheduler(threadPoolTaskScheduler);
                 scheduledTaskRegistrar.addTriggerTask(getTask(cronJob), getTrigger(cronJob));
             } catch (ParseException e) {
-                logger.error("Could not parse the cron expression: " + cronJob.getExpression() + " for: " +
-                        cronJob.getName());
+                logger.error("Could not parse the cron expression: {}  for: {}",
+                        cronJob.getName(), cronJob.getExpression());
                 e.printStackTrace();
             }
         }
@@ -81,33 +81,26 @@ public class JobScheduler implements SchedulingConfigurer {
     }
 
     private Runnable getTask(final AnalyticsCronJob quartzCronScheduler) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                String jobName = quartzCronScheduler.getName();
-                FlatteningTask job = jobs.get(jobName);
-                try {
-                    logger.info(String.format("Starting job for %s", jobName));
+        return () -> {
+            String jobName = quartzCronScheduler.getName();
+            FlatteningTask job = jobs.get(jobName);
+            try {
+                if(job != null) {
+                    logger.info("Starting job for {}", jobName);
                     job.process();
-                } catch (InterruptedException e) {
-                    logger.warn("Thread Interrupted for the job: " + jobName);
-                } catch (IOException e) {
-                    logger.warn("I/O Exception Occur for the job: " + jobName);
-                } catch (JobParametersInvalidException e) {
-                    logger.warn("Job Parameter Invalid for the job: " + jobName);
-                } catch (JobExecutionAlreadyRunningException e) {
-                    logger.warn("Job Execution is already running " + jobName);
-                } catch (JobRestartException e) {
-                    logger.warn("Job Restart Exception for the job: " + jobName);
-                } catch (JobInstanceAlreadyCompleteException e) {
-                    e.printStackTrace();
                 }
-                try {
-                    logger.debug("Triggering job: " + jobName);
-
-                } catch (Exception e) {
-                    logger.warn("Thread Failed for the job: " + jobName);
-                }
+            } catch (InterruptedException e) {
+                logger.warn("Thread Interrupted for the job: {}", jobName);
+            } catch (IOException e) {
+                logger.warn("I/O Exception Occur for the job: {}", jobName);
+            } catch (JobParametersInvalidException e) {
+                logger.warn("Job Parameter Invalid for the job: {}", jobName);
+            } catch (JobExecutionAlreadyRunningException e) {
+                logger.warn("Job Execution is already running {}", jobName);
+            } catch (JobRestartException e) {
+                logger.warn("Job Restart Exception for the job: {}", jobName);
+            } catch (JobInstanceAlreadyCompleteException e) {
+                e.printStackTrace();
             }
         };
     }
