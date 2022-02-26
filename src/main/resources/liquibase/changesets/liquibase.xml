@@ -2265,4 +2265,15 @@
         <dropColumn tableName="events_to_sync" columnName="type_identifier"/>
     </changeSet>
 
+    <changeSet author="vishnu" id="add event_id column to log table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="event_id" tableName="log"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="log">
+            <column name="event_id" type="int"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
