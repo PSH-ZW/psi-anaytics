@@ -23,18 +23,21 @@ Run PsiAnalyticsApplication.java
 ---
 
 ###Overview
-This project is used to flatten the hierarchical tables in openMRS(mysql DB) to an analytics DB(postgres).
-The data from the analytics DB will be used for syncing with DHIS2.
+This project is used for flattening the hierarchical tables in openMRS(mysql DB) to an analytics DB(postgres).
+The data from the analytics DB will be used for syncing with DHIS2. We will be flattening data from `patient` (and related tables like person, person_address, person_attributes etc.),
+`obs` and `program_enrollment` tables in openmrs database. 
+
 
 ####Program Flow
 Whenever we perform operations in Bahmni related to adding a new patient, program enrollment or creating an encounter,
 an event record will be created in the `event_records` table in OpenMRS DB. The `category` column contains the category of the event, 
 eg patient, enrollment etc, and the `object` column contains the uuid reference of the column in the respected table. 
 
-We have two spring batch readers(Reader.java and QueryEventBasedMrsReader.java) that reads these EventRecords and process them periodically.
+When we start the application, the JobScheduler gets triggered. It picks up cron jobs for Patient, Enrollment and Encounter from the analytics_cron_job table in analytics db and starts them.
+It picks up a `FlatteningTask` bean with the name specified in the cronJob settings. We have three implementations for this FlatteningTask interface, `PatientTask`, `EncounterEventBasedJob` and `ProgramEnrollmentTask` for the flattening of patient, encounter and enrollment respectively.
 The readers read the EventRecords, then get the corresponding object we need to flatten using the uuid from the `object` column, and send them to
-the processors for processing them. Our processor classes doesn't do much currently, then just pass the data to the writer, the writer classed do most 
-of the processing. Writers generate the insert queries with the data values received from procssors and insert them into the respective tables in analytics DB.
+the processors for processing (Our processor classes doesn't do much currently, they just pass the data to the writer). The writer classes do most 
+of the processing. Writers generate the insert queries with the data values received from processors and insert them into the respective tables in analytics DB.
 ####DB Access
 We will be using jdbc templates for querying the DB. The datasources and jdbcTemplates are defined in DataSourceConfig.
 There are two datasources, one for the openmrs (mySql) DB which we will be reading from and one for analytics(postgres) DB,
@@ -42,7 +45,6 @@ which we will be writing to.
 
 ####Batch jobs
 We will have batch jobs for processing `Patients`, `Encounters` and `Program Enrolments`. The reader, writer, processor and related classes for these are present in jobs package.
-Whenever the Application starts 
 ####Flattening Process
  wip
  ####Handling MultiSelect inputs
