@@ -50,11 +50,11 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         for (Obs obs : obsForEncounter) {
             FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
             //TODO: below line needs to be uncommented post necessary meta_data is available
-            /*noMisMatch(file.getFullName());*/
             String formTableName = AnalyticsUtil.generateColumnName(file.getFormName());
             if(metaDataService.shouldNotFlatterForm(formTableName)) {
                 continue;
             }
+            noMisMatch(file.getFullName());
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
             Forms form = AnalyticsUtil.readForm(formDir + file.getFileName() + ".json");
             formTableName = AnalyticsUtil.generateColumnName(form.getName()); //TODO: this can be removed.
@@ -168,14 +168,15 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         return super.getJobParameters();
     }
 
-    public Boolean noMisMatch(String formNameSpacePath) throws Exception {
+    public Boolean noMisMatch(String formNameSpacePath) throws RuntimeException {
         /*String formNameSpacePath = metaDataService.getFormNameSpacePathForEncounter(encounterId);*/
         String[] namePathFragment = formNameSpacePath.split("\\.");
         String obsFormName = namePathFragment[0].substring(namePathFragment[0].indexOf("^") + 1);
         Integer obsVersion = Integer.valueOf(namePathFragment[1].substring(0, namePathFragment[1].indexOf("/")));
         FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(obsFormName);
-        if(formDetails.getVersion() < obsVersion) throw new Exception("Inconsistency in form version as form_meta_data version :"
-                + formDetails.getVersion().toString() + "is lower than current obs form version :" + obsVersion.toString());
+        if(formDetails == null) throw new RuntimeException("Inconsistency as Table needs to created for form:" + obsFormName);
+        if(formDetails.getVersion() < obsVersion) throw new RuntimeException("Inconsistency in form version as form_meta_data version :"
+                + formDetails.getVersion().toString() + "is lower than current obs form version :" + obsVersion);
         return true;
     }
 
