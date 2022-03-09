@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -27,13 +28,13 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     @Autowired
     protected EncounterHelper encounterHelper;
 
-    public EncounterReader(DataSource dataSource) {
+    protected EncounterReader(DataSource dataSource) {
         super(dataSource);
     }
 
     @Transactional
-    public EncounterJobDto readEncounter(Integer encounterId) throws Exception {
-        logger.debug("Processing Encounter : " + encounterId);
+    public EncounterJobDto readEncounter(Integer encounterId) throws IOException {
+        logger.debug("Processing Encounter : {}", encounterId);
         Encounter encounter = metaDataService.getEncounterByEncounterId(encounterId);
         List<Obs> obsForEncounter = metaDataService.getObsByEncounterIdAndVoided(encounterId);
         Set<String> deleted = new HashSet<>();
@@ -53,7 +54,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             String formResourcePath = metaDataService.getFormResourcePath(fileAttributes.getFormName(), fileAttributes.getVersion());
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(formResourcePath);
             Forms form = AnalyticsUtil.readForm(formResourcePath);
-            formTableName = AnalyticsUtil.generateColumnName(form.getName()); //TODO: this can be removed.
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
             String conceptUuid = concept.getUuid();
             Map<UUID, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
@@ -91,9 +91,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         QueryJob jobDetailsEncounter = QueryBaseJobUtil.getJobDetails(JobConstants.ENCOUNTER);
         List<ResultExtractor> extractorsEncounters = getResultExtractorForCategoryAndId(jobDetailsEncounter,
                 JobConstants.ENCOUNTER, Long.valueOf(encounterId));
-        if (!extractorWithTarget.containsKey(jobDetailsEncounter.getTarget())) {
-            extractorWithTarget.put(jobDetailsEncounter.getTarget(), new ArrayList<>());
-        }
+        assert jobDetailsEncounter != null;
+        extractorWithTarget.put(jobDetailsEncounter.getTarget(), new ArrayList<>());
         extractorWithTarget.get(jobDetailsEncounter.getTarget()).addAll(extractorsEncounters);
 
         if (!CollectionUtils.isEmpty(deleted)) {
@@ -106,8 +105,8 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             });
         }
 
-        for (String key : obsColAndVal.keySet()) {
-            insertQueries.add(obsColAndVal.get(key));
+        for (Map.Entry<String, Query> entry : obsColAndVal.entrySet()) {
+            insertQueries.add(entry.getValue());
         }
         EncounterJobDto dto = new EncounterJobDto();
         dto.setInsertQueries(insertQueries);
@@ -123,23 +122,11 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         addExtraAttributeToQuery(query, encounter, file);
     }
 
-    private Query createIgnoredQueryFrom(Integer encounterId, String table) {
-        Query diagnosisQuery = new Query();
-        diagnosisQuery.setTable(table);
-        diagnosisQuery.getColAndVal().put("encounter_id", String.valueOf(encounterId));
-        diagnosisQuery.setIgnore(true);
-        return diagnosisQuery;
-    }
-
     public void addExtraAttributeToQuery(Query query, Encounter encounter, FileAttributes file) {
-        /*EncounterProvider encounterProvider = MRSContext.getInstance().getEncounterProviderService().getEncounterProviderByEncounter(encounter);
-        Provider provider = encounterProvider.getProviderId();*/
-
         query.getColAndVal().put("encounter_id", String.valueOf(encounter.getEncounterId()));
         query.getColAndVal().put("visit_id", String.valueOf(encounter.getVisitId()));
         query.getColAndVal().put("patient_id", String.valueOf(encounter.getPatientId()));
         query.getColAndVal().put("patient_identifier", String.valueOf(encounter.getPatientId())); //TODO:can remove this
-        /*query.getColAndVal().put("provider_id", String.valueOf(provider.getProviderId()));*/
         query.getColAndVal().put("location_id", String.valueOf(encounter.getLocationId()));
         Location location = metaDataService.getLocationByEncounterId(encounter.getEncounterId());
         query.getColAndVal().put("location_name", location.getName());
@@ -147,19 +134,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         query.getColAndVal().put("instance_id", String.valueOf(file.getInstance()));
     }
 
-    private Obs findParentObs(Obs obs) {
-        Integer obsGroupId = obs.getObsGroupId();
-        while (obsGroupId != null) {
-            obs = metaDataService.getObsById(obsGroupId);
-            obsGroupId = obs.getObsGroupId();
-        }
-        return obs;
-    }
-
-    public void saveJobParameters(JobParameters jobParameters) {
-        setJobParameter(jobParameters);
-    }
-
+    @Override
     public JobParameters getJobParameters() {
         return super.getJobParameters();
     }
@@ -169,6 +144,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         Integer version = fileAttributes.getVersion();
         FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(formName);
         if(formDetails == null) {
+            //TODO: should we add this error to the logs table?
             throw new RuntimeException("Inconsistency as Table needs to be created for form:" + formName);
         }
         if(formDetails.getVersion() < version) {
