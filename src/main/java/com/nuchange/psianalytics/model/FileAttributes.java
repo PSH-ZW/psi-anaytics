@@ -2,25 +2,18 @@ package com.nuchange.psianalytics.model;
 
 public class FileAttributes {
     String fullName;
-    String fileName;
     String formName;
     Integer instance;
-    Integer fileId;
+    Integer version;
 
     public FileAttributes(String originalFile) {
         super();
         this.fullName = originalFile;
         String temp = originalFile;
         temp = temp.substring(temp.indexOf("^")+1, temp.indexOf("."));
-        temp = temp.replaceAll(" ", "_");
-        temp = temp.replaceAll("\\.", "_");
         this.formName = temp;
         temp = originalFile;
-        temp = temp.substring(temp.indexOf("^")+1, temp.indexOf("/"));
-        temp = temp.replaceAll(" ", "_");
-        temp = temp.replaceAll("\\.", "_");
-        this.fileName = temp;
-        temp = originalFile;
+        this.version = Integer.parseInt(temp.substring(temp.indexOf(".") + 1, temp.indexOf("/")));
         temp = temp.substring(temp.indexOf("-") + 1);
         if(temp.contains("/")) {
             temp = temp.substring(0,temp.indexOf("/"));
@@ -50,14 +43,6 @@ public class FileAttributes {
         this.fullName = fullName;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
     public Integer getInstance() {
         return instance;
     }
@@ -66,11 +51,11 @@ public class FileAttributes {
         this.instance = instance;
     }
 
-    public Integer getFileId() {
-        return fileId;
+    public Integer getVersion() {
+        return version;
     }
 
-    public void setFileId(Integer fileId) {
-        this.fileId = fileId;
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

@@ -516,8 +516,21 @@ public class MetaDataService {
         return formToProgramMap.containsKey(formName);
     }
 
-    public boolean shouldNotFlatterForm(String formName) {
+    public boolean shouldNotFlattenForm(String formName) {
         return !shouldFlattenForm(formName);
+    }
+
+    public String getFormResourcePath(String formName, Integer version) {
+        //get the path where the form json is saved for the latest published version.
+        String sql = "select value_reference from form_resource " +
+                " where form_id = (select form_id from form where name = ? and version = ?)";
+
+        List<String> formResourcePath = mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), formName, version);
+        if(!CollectionUtils.isEmpty(formResourcePath)) {
+            return formResourcePath.get(0);
+        }
+        return null;
     }
 }
 

@@ -3,7 +3,6 @@ package com.nuchange.psianalytics.jobs.encounter;
 import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.querybased.QueryBasedJobReader;
 import com.nuchange.psianalytics.model.*;
-//import com.nuchange.psianalytics.util.AnalyticsUtil;
 import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import com.nuchange.psiutil.AnalyticsUtil;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -28,8 +26,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     protected MetaDataService metaDataService;
     @Autowired
     protected EncounterHelper encounterHelper;
-    @Value("${form.baseDir}")
-    protected String formDir;
 
     public EncounterReader(DataSource dataSource) {
         super(dataSource);
@@ -48,22 +44,22 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         Map<String, Query> obsColAndVal = new HashMap<>();
 
         for (Obs obs : obsForEncounter) {
-            FileAttributes file = new FileAttributes(obs.getFormNameSpaceAndPath());
-            //TODO: below line needs to be uncommented post necessary meta_data is available
-            String formTableName = AnalyticsUtil.generateColumnName(file.getFormName());
-            if(metaDataService.shouldNotFlatterForm(formTableName)) {
+            FileAttributes fileAttributes = new FileAttributes(obs.getFormNameSpaceAndPath());
+            String formTableName = AnalyticsUtil.generateColumnName(fileAttributes.getFormName());
+            if(metaDataService.shouldNotFlattenForm(formTableName)) {
                 continue;
             }
-            noMisMatch(file.getFullName());
-            Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(file.getFileName());
-            Forms form = AnalyticsUtil.readForm(formDir + file.getFileName() + ".json");
+            throwExceptionIfFormVersionsMismatch(fileAttributes);
+            String formResourcePath = metaDataService.getFormResourcePath(fileAttributes.getFormName(), fileAttributes.getVersion());
+            Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(formResourcePath);
+            Forms form = AnalyticsUtil.readForm(formResourcePath);
             formTableName = AnalyticsUtil.generateColumnName(form.getName()); //TODO: this can be removed.
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
             String conceptUuid = concept.getUuid();
             Map<UUID, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
-            String formNameWithInstance = formTableName + "_" + file.getInstance().toString();
+            String formNameWithInstance = formTableName + "_" + fileAttributes.getInstance().toString();
             if (!obsColAndVal.containsKey(formNameWithInstance)) {
-                initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, file);
+                initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, fileAttributes);
             }
             Query query = obsColAndVal.get(formNameWithInstance);
             if (conceptMap.containsKey(conceptUuid)) {
@@ -168,16 +164,17 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         return super.getJobParameters();
     }
 
-    public Boolean noMisMatch(String formNameSpacePath) throws RuntimeException {
-        /*String formNameSpacePath = metaDataService.getFormNameSpacePathForEncounter(encounterId);*/
-        String[] namePathFragment = formNameSpacePath.split("\\.");
-        String obsFormName = namePathFragment[0].substring(namePathFragment[0].indexOf("^") + 1);
-        Integer obsVersion = Integer.valueOf(namePathFragment[1].substring(0, namePathFragment[1].indexOf("/")));
-        FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(obsFormName);
-        if(formDetails == null) throw new RuntimeException("Inconsistency as Table needs to created for form:" + obsFormName);
-        if(formDetails.getVersion() < obsVersion) throw new RuntimeException("Inconsistency in form version as form_meta_data version :"
-                + formDetails.getVersion().toString() + "is lower than current obs form version :" + obsVersion);
-        return true;
+    public void throwExceptionIfFormVersionsMismatch(FileAttributes fileAttributes) {
+        String formName = fileAttributes.getFormName();
+        Integer version = fileAttributes.getVersion();
+        FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(formName);
+        if(formDetails == null) {
+            throw new RuntimeException("Inconsistency as Table needs to be created for form:" + formName);
+        }
+        if(formDetails.getVersion() < version) {
+            throw new RuntimeException("Inconsistency in form version as form_meta_data version :"
+                    + formDetails.getVersion().toString() + "is lower than current obs form version :" + version);
+        }
     }
 
 }
