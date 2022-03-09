@@ -36,8 +36,9 @@ public class MetaDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(MetaDataService.class);
 
-    private static Map<String, String> formToProgramMap = new HashMap<>();
-    private static Map<String, String> programToProgramStageIdMap = new HashMap<>();
+    private static final Map<String, String> formToProgramMap = new HashMap<>();
+    private static final Map<String, String> programToProgramStageIdMap = new HashMap<>();
+    private static final Map<String, FormDetails> formMetadataCache = new HashMap<>();
 
     public List<AnalyticsCronJob> getActiveAnalyticsCronJobs() {
         String sql = "SELECT * FROM analytics_cron_job WHERE enabled = true";
@@ -415,13 +416,16 @@ public class MetaDataService {
         }
     }
     public FormDetails findFormMetaDataDetailsForName(String formName){
-        String sql = "select form_name, version from form_meta_data where form_name = ?";
-        List<FormDetails> formDetails = analyticsJdbcTemplate
-                .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(FormDetails.class), formName);
-        if(!CollectionUtils.isEmpty(formDetails)) {
-            return formDetails.get(0);
+        if(!formMetadataCache.containsKey(formName)) {
+            String sql = "select form_name, version from form_meta_data where form_name = ?";
+            List<FormDetails> formDetails = analyticsJdbcTemplate
+                    .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(FormDetails.class), formName);
+            if(!CollectionUtils.isEmpty(formDetails)) {
+                FormDetails formDetail = formDetails.get(0);
+                formMetadataCache.put(formName, formDetail);
+            }
         }
-        return null;
+        return formMetadataCache.get(formName);
     }
 
     public String getProgramNameForFormTable(String tableName) {
