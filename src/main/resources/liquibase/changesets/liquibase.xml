@@ -2276,4 +2276,14 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="vishnu" id="rename user column in events_to_sync to username">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="username" tableName="events_to_sync"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="events_to_sync" oldColumnName="user" newColumnName="username"/>
+    </changeSet>
+
+
 </databaseChangeLog>
