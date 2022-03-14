@@ -17,18 +17,14 @@ BEGIN
 END $$
 DELIMITER;
 -----------------------------------------
-
---Analytics DB
---reset synced events;
-update events_to_sync set synced = false;
-delete from processed_events;
-
---clear all data in analytics
-delete from patient;
-delete from encounter;
-delete from viac_form_template_8681;
-delete from events_to_sync;
-delete from instance_tracker;
-delete from orgunit_tracker;
-delete from processed_events;
-delete from program_enrolment;
+-----
+DROP PROCEDURE IF EXISTS getAttributes;
+DELIMITER //
+CREATE PROCEDURE getAttributes(personId int )
+BEGIN
+    DROP TABLE IF EXISTS person_attribute_temp;
+    CREATE TABLE person_attribute_temp select pa.person_id, pa.value as value, pat.name as attribute_type from person_attribute pa
+    inner join person_attribute_type pat on pa.person_attribute_type_id = pat.person_attribute_type_id
+    where pa.voided = 0 and pa.person_id = personId;
+END
+//
