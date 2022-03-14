@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class Extractor {
 
@@ -46,9 +45,6 @@ public class Extractor {
         }
         Object[] params = new Object[] { id };
         List<ResultExtractor> extractors = new ArrayList<>();
-        if(Objects.equals(category, AnalyticsUtil.MRS_PATIENT)) {
-            AnalyticsUtil.initialiseTempTableWithPatientAttributes(template, id);
-        }
         AnalyticsUtil.getRowAndColumnValuesForQuery(template, query, colHeaders, rowValues, params);
         if(!CollectionUtils.isEmpty(rowValues)) {
             colHeaders.add("org_unit");

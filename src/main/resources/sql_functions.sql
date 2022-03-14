@@ -18,13 +18,31 @@ END $$
 DELIMITER;
 -----------------------------------------
 -----
-DROP PROCEDURE IF EXISTS getAttributes;
+--TODO:instead of droppinng and creating a new table everytime, delete from the table.
+DROP PROCEDURE IF EXISTS get_attributes;
 DELIMITER //
-CREATE PROCEDURE getAttributes(personId int )
+CREATE PROCEDURE get_attributes(personId int)
 BEGIN
-    DROP TABLE IF EXISTS person_attribute_temp;
-    CREATE TABLE person_attribute_temp select pa.person_id, pa.value as value, pat.name as attribute_type from person_attribute pa
-    inner join person_attribute_type pat on pa.person_attribute_type_id = pat.person_attribute_type_id
+    DELETE FROM person_attribute_temp;
+    INSERT INTO person_attribute_temp(person_id, value, attribute_type) select pa.person_id, pa.value as value, pat.name as attribute_type from person_attribute pa
+    left join person_attribute_type pat on pa.person_attribute_type_id = pat.person_attribute_type_id
     where pa.voided = 0 and pa.person_id = personId;
 END
 //
+
+-----------
+DROP FUNCTION IF EXISTS get_attribute_value;
+DELIMITER $$
+CREATE FUNCTION get_attribute_value(attribute_type_name varchar(50), person_id int)
+    RETURNS varchar(255)
+    DETERMINISTIC
+BEGIN
+   DECLARE attr_value varchar(255);
+
+SELECT coalesce(value, '') into attr_value from person_attribute pa
+    left join person_attribute_type pat on pa.person_attribute_type_id = pat.person_attribute_type_id
+    where pa.voided = 0 and pa.person_id = person_id and pat.name = attribute_type_name;
+
+RETURN attr_value;
+END $$
+DELIMITER;
