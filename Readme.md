@@ -24,8 +24,8 @@ Run PsiAnalyticsApplication.java
 
 ###Overview
 This project is used for flattening the hierarchical tables in openMRS(mysql DB) to an analytics DB(postgres).
-The data from the analytics DB will be used for syncing with DHIS2. We will be flattening data from `patient` (and related tables like person, person_address, person_attributes etc.),
-`obs` and `program_enrollment` tables in openmrs database. 
+ We will be flattening data from `patient` (and related tables like person, person_address, person_attributes etc.),
+`obs` and `program_enrollment` tables in openmrs database to analytics DB. The data from the analytics DB will be used for syncing to DHIS2.
 
 
 ####Program Flow
@@ -45,39 +45,40 @@ which we will be writing to.
 
 ####Batch jobs
 We will have batch jobs for processing `Patients`, `Encounters` and `Program Enrolments`. The reader, writer, processor and related classes for these are present in jobs package.
-####Flattening Process
- wip
+
  ####Handling MultiSelect inputs
  We will be creating a binary column for each of the values of the field. For the selected options we will set 'true' to 
 indicate they have been selected.
  
-###Data Flow
-#Patient
-1. In bahmni we create a patient(event in openmrs) -> synced to analytics as patient and this raises an event 
-2. Bahmni mart-dhis sync reads above event and pushes to dhis2 (we delete the event)
-3. Dhis provides a unique id (tracked entity created)-> save in patient or mapping table
+[//]: # (###Data Flow)
 
-#Enrollment 
-1. Patient getting enrolled to a program-> raises a program event and sync to analytics and raises an event.
-2. Check whether patient is already enrolled in DHIS-2 server, by looking at program enrollment table.
-3. If not enrolled -> enroll the patient and delete the event and update the uid to program enrollment table 
-4. If enrolled -> delete the event
+[//]: # (#Patient)
 
-#Form-data
-1. Whenever a form is filled it raises an encounter event in bahmni and this gets synced to analytics DB and raises an 
-event 
-2. Mart-Dhis2 sync either creates an event or updates an event based on the meta-data for encounter.
+[//]: # (1. In bahmni we create a patient&#40;event in openmrs&#41; -> synced to analytics as patient and this raises an event )
 
-#Yet to discuss
-1. Termination of an enrollment 
+[//]: # (2. Bahmni mart-dhis sync reads above event and pushes to dhis2 &#40;we delete the event&#41;)
 
-#issue with form_program_meta_data
-1. how do you make sure tables in analytics side is capable of syncing form data from bahmni
-2. issue is bahmni has a form which is version 2 and analytics table is version 1.
-   #solutions(proposed)
-   1. if version of table and version of obs does not match we stop sync
-   2. we need to have a utility which lists down all the forms which does not have a table and version detail in 
-   analytics(use spring based cmd line utility to support this)
+[//]: # (3. Dhis provides a unique id &#40;tracked entity created&#41;-> save in patient or mapping table)
+
+[//]: # ()
+[//]: # (#Enrollment )
+
+[//]: # (1. Patient getting enrolled to a program-> raises a program event and sync to analytics and raises an event.)
+
+[//]: # (2. Check whether patient is already enrolled in DHIS-2 server, by looking at program enrollment table.)
+
+[//]: # (3. If not enrolled -> enroll the patient and delete the event and update the uid to program enrollment table )
+
+[//]: # (4. If enrolled -> delete the event)
+
+[//]: # ()
+[//]: # (#Form-data)
+
+[//]: # (1. Whenever a form is filled it raises an encounter event in bahmni and this gets synced to analytics DB and raises an )
+
+[//]: # (event )
+
+[//]: # (2. Mart-Dhis2 sync either creates an event or updates an event based on the meta-data for encounter.)
 
 ###Forms used in each program
 | Health Area | Forms in Bahmni                                                                                                       |
