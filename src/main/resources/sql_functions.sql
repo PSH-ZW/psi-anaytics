@@ -17,19 +17,6 @@ BEGIN
 END $$
 DELIMITER;
 -----------------------------------------
------
---TODO:instead of droppinng and creating a new table everytime, delete from the table.
-DROP PROCEDURE IF EXISTS get_attributes;
-DELIMITER //
-CREATE PROCEDURE get_attributes(personId int)
-BEGIN
-    DELETE FROM person_attribute_temp;
-    INSERT INTO person_attribute_temp(person_id, value, attribute_type) select pa.person_id, pa.value as value, pat.name as attribute_type from person_attribute pa
-    left join person_attribute_type pat on pa.person_attribute_type_id = pat.person_attribute_type_id
-    where pa.voided = 0 and pa.person_id = personId;
-END
-//
-
 -----------
 DROP FUNCTION IF EXISTS get_attribute_value;
 DELIMITER $$
