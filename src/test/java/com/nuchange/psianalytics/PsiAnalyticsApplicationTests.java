@@ -2,6 +2,7 @@ package com.nuchange.psianalytics;
 
 import com.nuchange.psiutil.AnalyticsUtil;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -96,4 +97,10 @@ class PsiAnalyticsApplicationTests {
 		Boolean noInconsistency = AnalyticsUtil.noMisMatch(formName);
 		assertTrue(noInconsistency);
 	}*/
+
+	@Test
+	public void createTableForOneForm() throws IOException {
+		String query = AnalyticsUtil.generateCreateTableForForm("forms/3fb96853-09a1-48c2-95ff-be3aff1c3b9a.json");
+		Assertions.assertNotNull(query);
+	}
 }
