@@ -6,6 +6,7 @@ import com.nuchange.psianalytics.model.*;
 import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import com.nuchange.psiutil.AnalyticsUtil;
+import com.nuchange.psiutil.PsiException;
 import com.nuchange.psiutil.model.FormDetails;
 import com.nuchange.psiutil.model.Forms;
 import com.nuchange.psiutil.model.ObsType;
@@ -144,12 +145,12 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         Integer version = fileAttributes.getVersion();
         FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(formName);
         if(formDetails == null) {
-            //TODO: should we add this error to the logs table?
-            throw new RuntimeException("Inconsistency as Table needs to be created for form:" + formName);
+            throw new PsiException(String.format("Inconsistency as table needs to be created for form: %s." +
+                    " Use show_conflicts command from the command line util to creat the table.", formName));
         }
         if(formDetails.getVersion() < version) {
-            throw new RuntimeException("Inconsistency in form version as form_meta_data version :"
-                    + formDetails.getVersion().toString() + "is lower than current obs form version :" + version);
+            throw new PsiException(String.format("Table for form %s needs to be updated for sync to progress." +
+                    " Use show_conflicts command from the command line util to update the table.", formName));
         }
     }
 
