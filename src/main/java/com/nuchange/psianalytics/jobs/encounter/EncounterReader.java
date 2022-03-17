@@ -51,7 +51,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             if(metaDataService.shouldNotFlattenForm(formTableName)) {
                 continue;
             }
-            throwExceptionIfFormVersionsMismatch(fileAttributes);
+//            throwExceptionIfFormVersionsMismatch(fileAttributes);
             String formResourcePath = metaDataService.getFormResourcePath(fileAttributes.getFormName(), fileAttributes.getVersion());
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(formResourcePath);
             Forms form = AnalyticsUtil.readForm(formResourcePath);
@@ -77,7 +77,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                             break;
                         }
                     }
-                    String value = obs.getVoided() != 1 ? "true" : "";
+                    String value = obs.getVoided() != 1 ? "true" : "false";
                     query.getColAndVal().put(columnName, value);
                 }
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
