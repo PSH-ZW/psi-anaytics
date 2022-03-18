@@ -51,7 +51,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             if(metaDataService.shouldNotFlattenForm(formTableName)) {
                 continue;
             }
-//            throwExceptionIfFormVersionsMismatch(fileAttributes);
+            throwExceptionIfFormVersionsMismatch(fileAttributes);
             String formResourcePath = metaDataService.getFormResourcePath(fileAttributes.getFormName(), fileAttributes.getVersion());
             Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(formResourcePath);
             Forms form = AnalyticsUtil.readForm(formResourcePath);

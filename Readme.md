@@ -31,7 +31,7 @@ This project is used for flattening the hierarchical tables in openMRS(mysql DB)
 ####Program Flow
 Whenever we perform operations in Bahmni related to adding a new patient, program enrollment or creating an encounter,
 an event record will be created in the `event_records` table in OpenMRS DB. The `category` column contains the category of the event, 
-eg patient, enrollment etc, and the `object` column contains the uuid reference of the column in the respected table. 
+eg patient, encounter etc, and the `object` column contains the uuid reference of the column in the respected table. 
 
 When we start the application, the JobScheduler gets triggered. It picks up cron jobs for Patient, Enrollment and Encounter from the analytics_cron_job table in analytics db and starts them.
 It picks up a `FlatteningTask` bean with the name specified in the cronJob settings. We have three implementations for this FlatteningTask interface, `PatientTask`, `EncounterEventBasedJob` and `ProgramEnrollmentTask` for the flattening of patient, encounter and enrollment respectively.
@@ -50,35 +50,35 @@ We will have batch jobs for processing `Patients`, `Encounters` and `Program Enr
  We will be creating a binary column for each of the values of the field. For the selected options we will set 'true' to 
 indicate they have been selected.
  
-[//]: # (###Data Flow)
+###Patient Flattening
+All patient related data including patient name, UIC and other attributes in openmrs db are flattened to a patient table in analytics db. This data will be used to create or update the Tracked Entity Instance for the patient in DHIS2.
+We will be using the Patient mapping entered from the mapping utility to map the columns in patient table to DHIS data elements.
 
-[//]: # (#Patient)
+###Program Enrolment Flattening
+When a patient is enrolled to a bahmni program, corresponding entry will be added in the `patient_program` table in openmrs db. We will be flattening these details to `program_enrolment` table in analytics.
+The flattened data will be used for creating an enrolment for the TrackedEntity. Since currently DHIS2 only has one program (i.e ZW - New Start EMR) and all other Bahmni Programs, like ART, HTS, TB etc. are configured as Program Stages of the ZW - New Start EMR program,
+we will be creating only one enrolment for a TrackedEntityInstance to  ZW - New Start EMR, even if a patient has multiple program enrolments. The enrolmentDate for the DHIS enrolment crated will be the date of the oldest Bahmni Program enrolment for the patient.
 
-[//]: # (1. In bahmni we create a patient&#40;event in openmrs&#41; -> synced to analytics as patient and this raises an event )
+###Encounter
+The encounter details entered into the `encounter` table in openmrs will be flattened to a corresponding `encounter` table in analytics. This will contain the encounter_id, patient_id, encounter_date etc.
+If we have entered any form details in the encounter for which we have already added the mappings from the mapping utility, then the form data will be flattened to a corresponding form table in the analytics db. 
+The data entered for the forms will be read from the `obs` table in openmrs.
 
-[//]: # (2. Bahmni mart-dhis sync reads above event and pushes to dhis2 &#40;we delete the event&#41;)
+In case there are any issues while flattening, for eg: if the table has not been created for the form, new concepts are added to the form(i.e form is updated), the flattening process will stop. It will continue only after the specified commands mentioned in the error message are run using the CLI util.
 
-[//]: # (3. Dhis provides a unique id &#40;tracked entity created&#41;-> save in patient or mapping table)
-
-[//]: # ()
-[//]: # (#Enrollment )
-
-[//]: # (1. Patient getting enrolled to a program-> raises a program event and sync to analytics and raises an event.)
-
-[//]: # (2. Check whether patient is already enrolled in DHIS-2 server, by looking at program enrollment table.)
-
-[//]: # (3. If not enrolled -> enroll the patient and delete the event and update the uid to program enrollment table )
-
-[//]: # (4. If enrolled -> delete the event)
-
-[//]: # ()
-[//]: # (#Form-data)
-
-[//]: # (1. Whenever a form is filled it raises an encounter event in bahmni and this gets synced to analytics DB and raises an )
-
-[//]: # (event )
-
-[//]: # (2. Mart-Dhis2 sync either creates an event or updates an event based on the meta-data for encounter.)
+ ####Important Notes :
+ 1. Handling Multiselect Columns in Forms.
+    DHIS does not support multiselect fields. Instead, for each of the multiselect options, we will create boolean fields. If the multiselect option is selected in bahmni form, the corresponding DHIS element will have value true.
+ 2. Column Naming Convention.
+    To keep the column names in the table unique, we abbreviate all the parent sections of a field and then append it to the field name. For example, for a field `Site Type` inside section `Service Provided` will be named, sp_site_type.
+ 
+   ![img.png](readmeImages/img.png) 
+ 
+**Even if we are adding the section abbreviations to the columns, there are chances that some columns will still have the same name. If such a situation arises, there will be an error when we try to create or update the form table using the CLI.**
+**This can not be handled automatically by the program, and the only workaround would be to manually rename the concepts for the fields in such a way that they are unique.**
+ 
+ 3. Adding and removing fields from the form are supported by the program, but renaming an already created field will cause issues, as the corresponding column name will not be automatically updated.
+    Verify thoroughly that the added concepts does not contain any spelling mistakes and will not be requiring future changes, before publishing. In the extreme case we need to rename the field, we would have to manually rename the column in the corresponding table using an `alter table` query.
 
 ###Forms used in each program
 | Health Area | Forms in Bahmni                                                                                                       |

@@ -96,7 +96,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         ExecutionContext executionContext = stepExecution.getExecutionContext();
         executionContext.put("eventId", eventRecords.getId());
         executionContext.put("eventUuid", eventRecords.getUuid());
-        logger.info(String.format("Processing EventRecord of category %s with id : %d ", eventCategory, eventRecords.getId()));
+        logger.info("Processing EventRecord of with id {} for category {} ",  eventRecords.getId(), eventCategory);
         return resultExtractorList;
     }
 
