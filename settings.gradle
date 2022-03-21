@@ -1,0 +1,5 @@
+rootProject.name = 'psi'
+
+include 'core'
+include 'psi-analytics'
+

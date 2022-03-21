@@ -1,0 +1,156 @@
+
+### This is the main way to configure the application (other than annotations).
+### This fils is in Yaml format but you can also do this using the traditional
+### Java properties file.
+
+spring.jmx:
+   enabled: false
+first.chunck.size: 10
+nuacare.erp.enabled: true
+nuacare.analytics.enabled: true
+nuacare.erpclient.enabled: true
+nuacare.mrs.enabled: true
+nuacare.dbconn.type: jpa
+nuacare.protection: false
+
+spring.batch:
+  job:
+    enabled: false
+
+spring:
+    h2:
+      console:
+        enabled: true
+        path: /console
+
+erp:
+   datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/openerp
+    username: openerp
+    password:
+   liquibase.change-log: classpath:erp_changelog.xml
+   jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: none # todo: in non-dev environments, comment this out:
+      show_sql: false
+      format_sql: false
+    properties.hibernate.hbm2ddl.import_files:
+analytics:
+   datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/clinlims
+    username: analytics_user
+    password: analytics
+   liquibase.change-log: classpath:analytics_changelog_development.xml
+   jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: none # todo: in non-dev environments, comment this out:
+      show_sql: true
+      format_sql: true
+    properties.hibernate.hbm2ddl.import_files:
+mrs:
+   datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/openmrs
+    username: openmrs-user
+    password: password
+   liquibase.change-log: classpath:mrs_changelog.xml
+   jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.MySQLDialect
+      ddl-auto: none # todo: in non-dev environments, comment this out:
+      show_sql: false
+      format_sql: false
+      search.default.directory_provider: filesystem
+      search.default.indexBase: /tmp
+    properties.hibernate.hbm2ddl.import_files:
+
+server:
+  port: 8090
+  contextPath: /nuacare-core
+
+#todo: make sure to always enable security in production
+security:
+  basic:
+    enabled: true
+
+#management endpoints on a separate port
+management:
+  port: 8091
+  security:
+    enabled: false # management port is internal only. no need to secure it.
+
+project:
+  name: spring-boot-rest-nuacare
+  version: 0.1
+  description: boot-nuacare default description
+info:
+  build:
+    artifact: ${project.artifactId}
+    name: ${project.name}
+    description: ${project.description}
+    version: ${project.version}
+
+spring.http.multipart.maxFileSize: 100MB
+
+file.temp.dir: /tmp/nuacare
+
+role.service:
+  name: 'default profile:'
+---
+spring:
+  profiles: test
+nuacare.dbconn.type: jpa
+
+erp:
+   datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:erpdb;DB_CLOSE_DELAY=-1;INIT=create schema IF NOT EXISTS generic;
+    username: sa
+    password: sa
+   liquibase.change-log: classpath:erp_changelog.xml
+   jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.H2Dialect
+      ddl-auto: create # todo: in non-dev environments, comment this out:
+      show_sql: false
+      format_sql: false
+    properties.hibernate.hbm2ddl.import_files: import_erp.sql, masters_erp.sql, registration_erp.sql
+analytics:
+   datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:limsdb;DB_CLOSE_DELAY=-1;INIT=create schema IF NOT EXISTS generic;
+    username: sa
+    password: sa
+   liquibase.change-log: classpath:analytics_changelog_development.xml
+   jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.H2Dialect
+      ddl-auto: create # todo: in non-dev environments, comment this out:
+      show_sql: false
+      format_sql: false
+    properties.hibernate.hbm2ddl.import_files: import_lims.sql
+mrs:
+   liquibase.change-log: classpath:mrs_changelog.xml
+   datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:mrsdb;DB_CLOSE_DELAY=-1;INIT=create schema IF NOT EXISTS generic;
+    username: sa
+    password: sa
+   jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.H2Dialect
+      ddl-auto: create # todo: in non-dev environments, comment this out:
+      show_sql: false
+      format_sql: false
+      search.default.directory_provider: filesystem
+      search.default.indexBase: /tmp
+    properties.hibernate.hbm2ddl.import_files: import_mrs.sql,mrs_extra.sql, registration.sql
+
+nuacare.mrs:
+    ws.url: https://mishq-dev.nuchange.com/openmrs/ws/rest/v1/
+role.service:
+  name: 'test profile:'

@@ -1,0 +1,104 @@
+plugins {
+    id 'nebula.ospackage' version  '8.4.1'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        url 'http://mavenrepo.openmrs.org/nexus/content/repositories/public'
+    }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories'
+    }
+    mavenLocal()
+}
+group 'com.nuchange.psi'
+version project.psiRelease
+apply plugin: 'java'
+
+task normalizeJarName(type: Copy) {
+    from "${buildDir}" + "/libs/"
+    into "${buildDir}" + "/libs/"
+    include(project.name + '-' + project.psiRelease + '.jar')
+    rename(project.name + '-' + project.psiRelease + '.jar', project.name + '.jar')
+}
+
+
+clean {
+    delete "${buildDir}/psi-analytics"
+//    delete "${projectDir}/resources/psi-analytics.zip"
+}
+
+task extractCore(type: Copy){
+    from zipTree(file("${projectDir}/../target/psi-analytics-0.0.1-SNAPSHOT.war"))
+    into file("${buildDir}/psi-analytics")
+}
+
+//644 for all files other than executables
+//744 for all files which are executables
+//755 for all folders
+
+ospackage {
+    packageName = 'psi-analytics'
+    release = project.buildNumber
+    arch = NOARCH
+    os = LINUX
+    user = 'root'
+
+    into '/opt/psi-analytics'
+
+    preInstall file("${projectDir}/scripts/preinstall.sh")
+    postInstall file("${projectDir}/scripts/postinstall.sh")
+    preUninstall file("${projectDir}/scripts/preuninstall.sh")
+
+    from("${projectDir}/scripts/bin/") {
+        fileMode = 0744
+        createDirectoryEntry = true
+        into 'bin'
+    }
+    from("${buildDir}/libs/psi-analytics.jar") {
+        fileMode = 0644
+        createDirectoryEntry = true
+        into 'lib/'
+    }
+    from("${projectDir}/scripts/etc/") {
+        fileMode = 0744
+        createDirectoryEntry = true
+        into 'etc'
+    }
+    from("${projectDir}/resources/placeholder") {
+        createDirectoryEntry = true
+        into 'run'
+    }
+    from("${projectDir}/resources/placeholder") {
+        createDirectoryEntry = true
+        into 'log'
+    }
+    from("${buildDir}/psi-analytics") {
+        fileMode = 0744
+        createDirectoryEntry = true
+        into 'psi-analytics'
+    }
+}
+
+buildRpm {
+    dependsOn 'build', 'normalizeJarName', 'extractCore'
+    requires('unzip')
+    requires('mysql-community-client', "5.6", GREATER | EQUAL)
+}
+
+dependencies {
+    compile project(":core")
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': "com.nuchange.psi.launch.App"
+    }
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}

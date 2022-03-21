@@ -1,0 +1,19 @@
+#For ubuntu
+
+[Unit]
+Description=Psi analytics Java Process Restart Upstart Script
+After=auditd.service systemd-user-sessions.service time-sync.target postgresql.service
+
+[Service]
+User=bahmni
+TimeoutStartSec=0
+Type=simple
+KillMode=process
+WorkingDirectory=/var/run/psi-analytics
+ExecStart=/etc/init.d/psi-analytics start
+Restart=always
+RestartSec=2
+LimitNOFILE=5555
+
+[Install]
+WantedBy=multi-user.target
