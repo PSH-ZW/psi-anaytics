@@ -8,6 +8,6 @@ LIQUIBASE_JAR="${BASEDIR}/../lib/liquibase-core-3.5.3.jar"
 echo "liquibase jar"
 DRIVER="org.postgresql.Driver"
 CREDS="--url=jdbc:postgresql://localhost:5432/analytics --username=analytics --password=password"
-CHANGE_LOG_FILE="${BASEDIR}/../changesets/liquibase.xml"
+CHANGE_LOG_FILE="${BASEDIR}/../changesets/analytics_liquibase.xml"
 
 java $CHANGE_LOG_TABLE  -jar $LIQUIBASE_JAR --driver=$DRIVER --classpath=$CLASSPATH --logLevel=debug --changeLogFile=$CHANGE_LOG_FILE $CREDS update
