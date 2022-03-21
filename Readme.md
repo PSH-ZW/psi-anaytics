@@ -20,6 +20,10 @@
 ####Running the application
 Run PsiAnalyticsApplication.java
 
+##Buildeing the RPM
+Run `./gradlew -PpsiRelease=0.1 :psi-analytics:clean :psi-analytics:buildRpm` from the project root directory.
+(The release version can be passed in properly)
+The rpm file will be created in psi-analytics/build/distributions
 ---
 
 ###Overview
