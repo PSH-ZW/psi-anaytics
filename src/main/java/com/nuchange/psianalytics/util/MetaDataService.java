@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -39,6 +40,8 @@ public class MetaDataService {
     private static final Map<String, String> formToProgramMap = new HashMap<>();
     private static final Map<String, String> programToProgramStageIdMap = new HashMap<>();
     private static final Map<String, FormDetails> formMetadataCache = new HashMap<>();
+    private static final String CATEGORY = "Analytics";
+    public static final String DATE_FORMAT_WITH_24HR_TIME = "yyyy-MM-dd kk:mm:ss";
 
     public List<AnalyticsCronJob> getActiveAnalyticsCronJobs() {
         String sql = "SELECT * FROM analytics_cron_job WHERE enabled = true";
@@ -536,5 +539,35 @@ public class MetaDataService {
         }
         return null;
     }
+
+    public static String getStringFromDate(Date date, String format) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat(format);
+        return outputFormat.format(date);
+    }
+
+    public static Date getDateFromString(String date, String format) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat(format);
+        try {
+            return outputFormat.parse(date);
+        } catch (ParseException ignored) {
+
+        }
+        return new Date(Long.MIN_VALUE);
+    }
+
+    public static String getRealStringOrEmptyString(String value) {
+        if(value == null) return "";
+        return value;
+    }
+
+    public void addLogs( String service, String comments, String statusInfo){
+        String sql = "INSERT INTO log (program, comments, status_info, date_created," +
+                " category) VALUES (?, ?, ?, ?, ?)";
+        String stringFromDate = getStringFromDate(new Date(), DATE_FORMAT_WITH_24HR_TIME);
+        Date dateFromString = getDateFromString(stringFromDate, DATE_FORMAT_WITH_24HR_TIME);
+        analyticsJdbcTemplate.update(sql, getRealStringOrEmptyString(service), getRealStringOrEmptyString(comments)
+                , getRealStringOrEmptyString(statusInfo), dateFromString, CATEGORY);
+    }
+
 }
 
