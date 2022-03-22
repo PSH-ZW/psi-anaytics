@@ -387,14 +387,14 @@ public class MetaDataService {
         return FALSE;
     }
 
-    public void insertIntoEventsToSync(Object patientId, String programId, String encounterId) {
+    public void insertIntoEventsToSync(Object patientId, String programId, String encounterId, Integer retryCount) {
         String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ?";
         List<Integer> count = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance()
                 .newRowMapper(Integer.class), encounterId, patientId.toString());
         boolean eventDoesNotExists = !CollectionUtils.isEmpty(count) && count.get(0).equals(0);
         if(eventDoesNotExists) {
-            String insertSql = "insert into events_to_sync(patient_id, encounter_id, program_id) values (?, ?, ?)";
-            analyticsJdbcTemplate.update(insertSql, patientId.toString(), encounterId, programId);
+            String insertSql = "insert into events_to_sync(patient_id, encounter_id, program_id, retry_count) values (?, ?, ?, ?)";
+            analyticsJdbcTemplate.update(insertSql, patientId.toString(), encounterId, programId, retryCount);
         }
     }
 
@@ -568,6 +568,14 @@ public class MetaDataService {
         analyticsJdbcTemplate.update(sql, getRealStringOrEmptyString(service), getRealStringOrEmptyString(comments)
                 , getRealStringOrEmptyString(statusInfo), dateFromString, CATEGORY);
     }
-
+    public int getRetryCountFromEventsToSync(Object patientId, String encounterId){
+        String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ?";
+        List<Integer> count = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance()
+                .newRowMapper(Integer.class), encounterId, patientId.toString());
+        if(CollectionUtils.isEmpty(count)) {
+            return 0;
+        }
+        return count.get(0);
+    }
 }
 

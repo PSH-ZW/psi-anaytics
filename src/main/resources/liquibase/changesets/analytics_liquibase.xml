@@ -666,5 +666,25 @@
         <renameColumn tableName="events_to_sync" oldColumnName="user" newColumnName="username"/>
     </changeSet>
 
+    <changeSet author="sgk" id="add category column to log table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="category" tableName="log"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="log">
+            <column name="category" type="text"/>
+        </addColumn>
+    </changeSet>
 
+    <changeSet author="sgk" id="add retry_count column to events_to_sync table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="retry_count" tableName="events_to_sync"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="events_to_sync">
+            <column name="retry_count" type="int"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
