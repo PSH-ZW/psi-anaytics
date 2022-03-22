@@ -48,9 +48,13 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="add patient cron job" author="vishnu">
+    <changeSet id="add patient cron job 1" author="vishnu">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="analytics_cron_job"/>
+            <sqlCheck expectedResult="0">
+                select count(*)
+                from analytics_cron_job
+                where name = 'mrsPatientJob';
+            </sqlCheck>
         </preConditions>
         <sql>
             insert into analytics_cron_job (name, start_delay, expression, enabled)
@@ -58,9 +62,13 @@
         </sql>
     </changeSet>
 
-    <changeSet id="encounter cron job" author="sgk">
+    <changeSet id="encounter cron job 1" author="sgk">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="analytics_cron_job"/>
+            <sqlCheck expectedResult="0">
+                select count(*)
+                from analytics_cron_job
+                where name = 'mrsEncounterJob';
+            </sqlCheck>
         </preConditions>
         <sql>
             insert into analytics_cron_job (name, start_delay, expression, enabled)
@@ -68,9 +76,13 @@
         </sql>
     </changeSet>
 
-    <changeSet id="program enrolment cron job" author="sgk">
+    <changeSet id="program enrolment cron job 1" author="sgk">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="analytics_cron_job"/>
+            <sqlCheck expectedResult="0">
+                select count(*)
+                from analytics_cron_job
+                where name = 'mrsProgramEncounterJob';
+            </sqlCheck>
         </preConditions>
         <sql>
             insert into analytics_cron_job (name, start_delay, expression, enabled)
@@ -116,11 +128,21 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="vishnu" id="rename column country_district to county_district">
+    <changeSet author="vishnu" id="rename column country_district to county_district 1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="county_district" tableName="patient"/>
+            </not>
+        </preConditions>
         <renameColumn tableName="patient" oldColumnName="country_district" newColumnName="county_district"/>
     </changeSet>
 
-    <changeSet author="vishnu" id="add attribute columns in patient">
+    <changeSet author="vishnu" id="add attribute columns in patient 1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="patient"/>
+            </not>
+        </preConditions>
         <addColumn tableName="patient">
             <column name="telephone" type="varchar"/>
             <column name="education" type="varchar"/>
@@ -203,8 +225,11 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="sgk" id="event_record_yet_to_be_synced_to_dhis2">
+    <changeSet author="sgk" id="event_record_yet_to_be_synced_to_dhis2 2">
         <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="events_to_sync"/>
+            </not>
             <not>
                 <tableExists tableName="event_record_left_to_sync"/>
             </not>
@@ -257,9 +282,14 @@
         </sql>
     </changeSet>
 
-    <changeSet author="sgk" id="add attribute UIC column in patient">
+    <changeSet author="sgk" id="add column uic to patient 2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="uic" tableName="patient"/>
+            </not>
+        </preConditions>
         <addColumn tableName="patient">
-            <column name="UIC" type="varchar"/>
+            <column name="uic" type="varchar"/>
         </addColumn>
     </changeSet>
 
@@ -309,7 +339,12 @@
         </sql>
     </changeSet>
 
-    <changeSet author="vishnu" id="add_org_unit_column_to_patient">
+    <changeSet author="vishnu" id="add org_unit column to patient 1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="org_unit" tableName="patient"/>
+            </not>
+        </preConditions>
         <addColumn tableName="patient">
             <column name="org_unit" type="varchar"/>
         </addColumn>
@@ -394,10 +429,10 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="vishnu" id="add org_unit to encounter table">
+    <changeSet author="vishnu" id="add org_unit to encounter table 1">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists columnName="org_id" tableName="encounter"/>
+                <columnExists columnName="org_unit" tableName="encounter"/>
             </not>
         </preConditions>
         <addColumn tableName="encounter">
@@ -423,8 +458,11 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="sgk" id="update_event_record_yet_to_be_synced_to_dhis2">
+    <changeSet author="sgk" id="update_event_record_yet_to_be_synced_to_dhis2 2">
         <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="events_to_sync"/>
+            </not>
             <not>
                 <tableExists tableName="event_record_left_to_sync"/>
             </not>
@@ -470,8 +508,11 @@
                    tableName="event_record_left_to_sync"/>
     </changeSet>
 
-    <changeSet author="sgk" id="recreate_yetToBeSyncedTable">
+    <changeSet author="sgk" id="recreate yetToBeSyncedTable 1">
         <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="events_to_sync"/>
+            </not>
             <not>
                 <tableExists tableName="event_record_left_to_sync"/>
             </not>
@@ -489,6 +530,7 @@
             <column name="encounter_id" type="varchar"/>
         </createTable>
     </changeSet>
+
     <changeSet id="delete row from analytics_cron_job" author="sgk">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="analytics_cron_job"/>
@@ -499,9 +541,13 @@
             where name = 'mrsProgramEncounterJob';
         </sql>
     </changeSet>
-    <changeSet id="program enrolment cron job updated" author="sgk">
+    <changeSet id="program enrolment cron job updated 1" author="sgk">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="analytics_cron_job"/>
+            <sqlCheck expectedResult="0">
+                select count(*)
+                from analytics_cron_job
+                where name = 'mrsProgramEnrollmentJob';
+            </sqlCheck>
         </preConditions>
         <sql>
             insert into analytics_cron_job (name, start_delay, expression, enabled)
@@ -527,9 +573,13 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="add dhis sync cron job" author="vishnu">
+    <changeSet id="add dhis sync cron job 1" author="vishnu">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="analytics_cron_job"/>
+            <sqlCheck expectedResult="0">
+                select count(*)
+                from analytics_cron_job
+                where name = 'dhisSyncJob';
+            </sqlCheck>
         </preConditions>
         <sql>
             insert into analytics_cron_job (name, start_delay, expression, enabled)
@@ -576,14 +626,6 @@
         <renameColumn tableName="mapping" oldColumnName="mapping_name" newColumnName="program_name"/>
     </changeSet>
 
-    <changeSet id="drop viac form table if already exists" author="vishnu">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="viac_form_template_8681"/>
-        </preConditions>
-        <dropTable cascadeConstraints="true"
-                   tableName="viac_form_template_8681"/>
-    </changeSet>
-
     <changeSet id="add missing columns to mapping table" author="vishnu">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -598,7 +640,12 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="make patient_id unique in patient table" author="vishnu">
+    <changeSet id="make patient_id unique constraint in patient table" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists columnName="patient_id" tableName="patient"/>
+            </not>
+        </preConditions>
         <addUniqueConstraint tableName="patient" columnNames="patient_id"/>
     </changeSet>
 
