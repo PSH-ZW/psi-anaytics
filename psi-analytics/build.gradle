@@ -27,12 +27,17 @@ task normalizeJarName(type: Copy) {
 
 clean {
     delete "${buildDir}/psi-analytics"
-//    delete "${projectDir}/resources/psi-analytics.zip"
 }
 
 task extractCore(type: Copy){
+    //TODO: zip the build file using mvn and place in resources. Take from there instead of hardcoding the name.
     from zipTree(file("${projectDir}/../target/psi-analytics-0.0.1-SNAPSHOT.war"))
     into file("${buildDir}/psi-analytics")
+}
+
+task copyPropertiesFile(type: Copy) {
+    from "${projectDir}" + "/../src/main/resources/application.properties"
+    into "${buildDir}" + "/../scripts/etc/"
 }
 
 //644 for all files other than executables
@@ -83,7 +88,7 @@ ospackage {
 }
 
 buildRpm {
-    dependsOn 'build', 'normalizeJarName', 'extractCore'
+    dependsOn 'build', 'normalizeJarName', 'extractCore', 'copyPropertiesFile'
     requires('unzip')
     requires('mysql-community-client', "5.6", GREATER | EQUAL)
 }

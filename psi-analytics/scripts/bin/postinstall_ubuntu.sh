@@ -29,8 +29,8 @@ ln -s /opt/psi-analytics/log /var/log/psi-analytics
 rm -f /etc/apache2/conf-enabled/PSI_ANALYTICS_ssl.conf
 ln -s /opt/psi-analytics/etc/PSI_ANALYTICS_ssl.conf /etc/apache2/conf-enabled/PSI_ANALYTICS_ssl.conf
 
-rm -f /opt/psi-analytics/psi-analytics/WEB-INF/classes/application.yml
-cp /opt/psi-analytics/etc/application.yml /opt/psi-analytics/psi-analytics/WEB-INF/classes/
+rm -f /opt/psi-analytics/psi-analytics/WEB-INF/classes/application.properties
+cp /opt/psi-analytics/etc/application.properties /opt/psi-analytics/psi-analytics/WEB-INF/classes/
 
 #chkconfig --add psi-analytics
 cp /opt/psi-analytics/bin/psi-analytics.service /lib/systemd/system
