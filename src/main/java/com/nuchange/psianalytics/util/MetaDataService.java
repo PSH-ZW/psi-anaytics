@@ -387,15 +387,18 @@ public class MetaDataService {
         return FALSE;
     }
 
-    public void insertIntoEventsToSync(Object patientId, String programId, String encounterId, Integer retryCount) {
+    public void insertIntoEventsToSync(Object patientId, String programId, String encounterId) {
         String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ?";
         List<Integer> count = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance()
                 .newRowMapper(Integer.class), encounterId, patientId.toString());
         boolean eventDoesNotExists = !CollectionUtils.isEmpty(count) && count.get(0).equals(0);
+        String sql;
         if(eventDoesNotExists) {
-            String insertSql = "insert into events_to_sync(patient_id, encounter_id, program_id, retry_count) values (?, ?, ?, ?)";
-            analyticsJdbcTemplate.update(insertSql, patientId.toString(), encounterId, programId, retryCount);
+            sql = "insert into events_to_sync(patient_id, encounter_id, program_id) values (?, ?, ?)";
+        } else {
+            sql = "update events_to_sync set synced = false where patient_id = ? and encounter_id = ? and program_id = ?";
         }
+        analyticsJdbcTemplate.update(sql, patientId.toString(), encounterId, programId);
     }
 
     public String getFormNameSpacePathForEncounter(Integer encounterId) {

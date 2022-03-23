@@ -76,9 +76,8 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
     private void insertSyncDataForEncounter(Map<String, Object> stringObjectMap) {
         String encounterId = stringObjectMap.get("encounter_id").toString();
         String programName = metaDataService.getProgramForEncounter(Integer.valueOf(encounterId));
-        int retryCount = metaDataService.getRetryCountFromEventsToSync(stringObjectMap.get("patient_id"), encounterId);
         if(programName != null && metaDataService.isValidProgramName(programName)) {
-            metaDataService.insertIntoEventsToSync(stringObjectMap.get("patient_id"), programName, encounterId, ++retryCount);
+            metaDataService.insertIntoEventsToSync(stringObjectMap.get("patient_id"), programName, encounterId);
         }
     }
 
