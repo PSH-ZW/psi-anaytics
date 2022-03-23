@@ -628,14 +628,14 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="sgk" id="add retry_count column to events_to_sync table">
+    <changeSet author="sgk" id="add retry_count column to events_to_sync table 1">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists columnName="retry_count" tableName="events_to_sync"/>
             </not>
         </preConditions>
         <addColumn tableName="events_to_sync">
-            <column name="retry_count" type="int"/>
+            <column name="retry_count" defaultValue="0" type="int"/>
         </addColumn>
     </changeSet>
 </databaseChangeLog>
