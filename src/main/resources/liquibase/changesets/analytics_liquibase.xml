@@ -225,28 +225,6 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="sgk" id="event_record_yet_to_be_synced_to_dhis2 2">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="events_to_sync"/>
-            </not>
-            <not>
-                <tableExists tableName="event_record_left_to_sync"/>
-            </not>
-        </preConditions>
-        <createTable tableName="event_record_left_to_sync">
-            <column name="event_record_id" type="int" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="type_name" type="varchar">
-                <constraints nullable="false"/>
-            </column>
-            <column name="type_identifier" type="varchar">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-
     <changeSet id="instance_tracker_table" author="sgk">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -458,24 +436,6 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="sgk" id="update_event_record_yet_to_be_synced_to_dhis2 2">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="events_to_sync"/>
-            </not>
-            <not>
-                <tableExists tableName="event_record_left_to_sync"/>
-            </not>
-        </preConditions>
-        <dropNotNullConstraint tableName="event_record_left_to_sync" columnName="type_identifier"
-                               columnDataType="varchar"/>
-        <addColumn tableName="event_record_left_to_sync">
-            <column name="patient_id" type="varchar"/>
-            <column name="program_id" type="varchar"/>
-            <column name="encounter_id" type="varchar"/>
-        </addColumn>
-    </changeSet>
-
     <changeSet author="sgk" id="drop_form_program_meta_data">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="form_program_meta_data"/>
@@ -497,37 +457,6 @@
             <column name="form_name" type="varchar"/>
             <column name="version" type="int"/>
             <column name="associated_table" type="varchar"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet author="sgk" id="drop_yetToBeSyncedTable">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="event_record_left_to_sync"/>
-        </preConditions>
-        <dropTable cascadeConstraints="true"
-                   tableName="event_record_left_to_sync"/>
-    </changeSet>
-
-    <changeSet author="sgk" id="recreate yetToBeSyncedTable 1">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="events_to_sync"/>
-            </not>
-            <not>
-                <tableExists tableName="event_record_left_to_sync"/>
-            </not>
-        </preConditions>
-        <createTable tableName="event_record_left_to_sync">
-            <column name="id" type="int" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="type_name" type="varchar">
-                <constraints nullable="false"/>
-            </column>
-            <column name="type_identifier" type="varchar"/>
-            <column name="patient_id" type="varchar"/>
-            <column name="program_id" type="varchar"/>
-            <column name="encounter_id" type="varchar"/>
         </createTable>
     </changeSet>
 
@@ -555,24 +484,6 @@
         </sql>
     </changeSet>
 
-    <changeSet author="vishnu" id="rename event_record_left_to_sync">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="event_record_left_to_sync"/>
-        </preConditions>
-        <renameTable oldTableName="event_record_left_to_sync" newTableName="events_to_sync"/>
-    </changeSet>
-
-    <changeSet author="vishnu" id="add column synced to events_to_sync">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="synced" tableName="events_to_sync"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="events_to_sync">
-            <column name="synced" type="boolean" defaultValue="false"/>
-        </addColumn>
-    </changeSet>
-
     <changeSet id="add dhis sync cron job 1" author="vishnu">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
@@ -585,20 +496,6 @@
             insert into analytics_cron_job (name, start_delay, expression, enabled)
             values ('dhisSyncJob', 5, '0 45 * ? * *', true);
         </sql>
-    </changeSet>
-
-    <!--    TODO: Do we need these columns? we could remove them if not needed.-->
-    <changeSet author="vishnu" id="add user and comment to events_to_sync">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="comment" tableName="events_to_sync"/>
-                <columnExists columnName="user" tableName="events_to_sync"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="events_to_sync">
-            <column name="user" type="varchar" defaultValue="superman"/>
-            <column name="comment" type="varchar"/>
-        </addColumn>
     </changeSet>
 
     <changeSet author="vishnu" id="drop program_id from mapping">
@@ -689,15 +586,6 @@
         </sql>
     </changeSet>
 
-    <changeSet id="drop type_name and type_identifier column from events_to_sync table " author="vishnu">
-        <preConditions onFail="MARK_RAN">
-            <columnExists tableName="events_to_sync" columnName="type_name"/>
-            <columnExists tableName="events_to_sync" columnName="type_identifier"/>
-        </preConditions>
-        <dropColumn tableName="events_to_sync" columnName="type_name"/>
-        <dropColumn tableName="events_to_sync" columnName="type_identifier"/>
-    </changeSet>
-
     <changeSet author="vishnu" id="add event_id column to log table">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -709,13 +597,24 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="vishnu" id="rename user column in events_to_sync to username">
+<!--TODO: redeploy to test ,all commented changeSets are related to events_to_sync and has been replaced with below changeSet-->
+    <changeSet author="sgk" id="Adding table events_to_sync">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists columnName="username" tableName="events_to_sync"/>
+                <tableExists tableName="events_to_sync"/>
             </not>
         </preConditions>
-        <renameColumn tableName="events_to_sync" oldColumnName="user" newColumnName="username"/>
+        <createTable tableName="events_to_sync">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="patient_id" type="varchar(36)"/>
+            <column name="program_id" type="varchar(36)"/>
+            <column name="encounter_id" type="varchar(36)"/>
+            <column name="synced" type="boolean"/>
+            <column name="username" type="varchar(36)"/>
+            <column name="comment" type="varchar(36)"/>
+        </createTable>
     </changeSet>
 
     <changeSet author="sgk" id="add category column to log table">
