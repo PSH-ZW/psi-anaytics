@@ -649,13 +649,17 @@
         <addUniqueConstraint tableName="patient" columnNames="patient_id"/>
     </changeSet>
 
-    <changeSet id="change unique constraint on encounter_id in event_tracker to (encounter_id, program_stage)"
+    <changeSet id="add unique constraint on (encounter_id, program_stage) in event_tracker table"
                author="vishnu">
-        <dropUniqueConstraint tableName="event_tracker" constraintName="event_tracker_encounter_id_key"/>
         <addUniqueConstraint tableName="event_tracker" columnNames="encounter_id, program_stage"/>
     </changeSet>
 
-    <changeSet id="create enrolment_tracker table" author="vishnu">
+    <changeSet id="create enrolment_tracker table " author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="enrolment_tracker"/>
+            </not>
+        </preConditions>
         <createTable tableName="enrolment_tracker">
             <column name="instance_id" type="varchar">
                 <constraints nullable="false" unique="true"/>
@@ -685,9 +689,10 @@
         </sql>
     </changeSet>
 
-    <changeSet id="drop type_name and type_identifier column from events_to_sync table" author="vishnu">
-        <preConditions>
+    <changeSet id="drop type_name and type_identifier column from events_to_sync table " author="vishnu">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="events_to_sync" columnName="type_name"/>
+            <columnExists tableName="events_to_sync" columnName="type_identifier"/>
         </preConditions>
         <dropColumn tableName="events_to_sync" columnName="type_name"/>
         <dropColumn tableName="events_to_sync" columnName="type_identifier"/>
