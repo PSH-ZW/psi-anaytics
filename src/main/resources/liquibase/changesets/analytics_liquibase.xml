@@ -271,22 +271,6 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="vishnu" id="add mapping table">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="mapping"/>
-            </not>
-        </preConditions>
-        <createTable tableName="mapping">
-            <column name="mapping_name" type="varchar(50)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="lookup_table" type="jsonb"/>
-            <column name="mapping_json" type="jsonb"/>
-            <column name="config" type="jsonb"/>
-        </createTable>
-    </changeSet>
-
     <changeSet id="add_log_table" author="vishnu">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -377,17 +361,6 @@
             <column name="outcome_concept_id" type="int"/>
             <column name="uuid" type="varchar"/>
         </createTable>
-    </changeSet>
-
-    <changeSet author="vishnu" id="add program_id column to mapping">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="program_id" tableName="mapping"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="mapping">
-            <column name="program_id" type="int"/>
-        </addColumn>
     </changeSet>
 
     <changeSet author="vishnu" id="add_event_tracker_table">
@@ -498,45 +471,6 @@
         </sql>
     </changeSet>
 
-    <changeSet author="vishnu" id="drop program_id from mapping">
-        <preConditions onFail="MARK_RAN">
-            <columnExists columnName="program_id" tableName="mapping"/>
-        </preConditions>
-        <dropColumn tableName="mapping" columnName="program_id"/>
-    </changeSet>
-
-    <changeSet author="vishnu" id="add program_stage_id to mapping">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="dhis_program_stage_id" tableName="mapping"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="mapping">
-            <column name="dhis_program_stage_id" type="varchar"/>
-        </addColumn>
-    </changeSet>
-
-    <changeSet author="vishnu" id="rename mapping_name column in mapping to program_name">
-        <preConditions onFail="MARK_RAN">
-            <columnExists columnName="mapping_name" tableName="mapping"/>
-        </preConditions>
-        <renameColumn tableName="mapping" oldColumnName="mapping_name" newColumnName="program_name"/>
-    </changeSet>
-
-    <changeSet id="add missing columns to mapping table" author="vishnu">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="created_by" tableName="mapping"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="mapping">
-            <column name="created_by" type="varchar"/>
-            <column name="date_created" type="varchar"/>
-            <column name="modified_by" type="varchar"/>
-            <column name="date_modified" type="varchar"/>
-        </addColumn>
-    </changeSet>
-
     <changeSet id="make patient_id unique constraint in patient table" author="vishnu">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -567,23 +501,6 @@
 
     <changeSet id="change datatype of event_id in event_tracker to varchar" author="vishnu">
         <modifyDataType tableName="event_tracker" columnName="event_id" newDataType="varchar"/>
-    </changeSet>
-
-    <changeSet id="insert mapping for patient" author="vishnu">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">
-                select count(*)
-                from mapping
-                where program_name = 'Patient';
-            </sqlCheck>
-        </preConditions>
-        <sql>
-            insert into mapping(program_name, mapping_json, config, date_created, created_by)
-            values ('Patient',
-                    '{"isPatientMapping": true, "formTableMappings": {"patient": {"uic": {"id": "zRA08XEYiSF", "displayName": "CORE - Unique ID (UIC)"}, "gender": {"id": "AteZDFhkI0E", "displayName": "ZW LM - Gender"}, "bithdate": {"id": "wSp6Q7QDMsk", "displayName": "bithdate"}, "birthdate": {"id": "wSp6Q7QDMsk", "displayName": "CORE - Date of Birth"}, "education": {"id": "yIKK6uNLpBj", "displayName": "ZW - Level of education"}, "ethnicity": {"id": "U6K1PHFWDJa", "displayName": "ZW - Ethnicity"}, "residence": {"id": "Y1ZD9VjNofv", "displayName": "residence"}, "occupation": {"id": "zW8FKylorqG", "displayName": "ZW SRH FP - Occupation"}, "population": {"id": "oRtRjOifVZ5", "displayName": "ZW - Population"}, "nationality": {"id": "KFvLq4usev1", "displayName": "ZW - Nationality"}, "couple_testing": {"id": "zCOHwazkP0m", "displayName": "ZW - Couple testing ?"}, "marital_status": {"id": "LopyyOT0FHa", "displayName": "ZW SRH FP - Marital status"}, "tested_for_hiv": {"id": "LWaFZ27oqD9", "displayName": "ZW - Have you been tested for HIV before"}, "contact_tracing": {"id": "CiTvAzwq3eu", "displayName": "ZW - Contact Tracing"}, "dreams_activity": {"id": "O6zCqRM450G", "displayName": "ZW - Dreams Activity"}, "hiv_test_result": {"id": "XfQM8urodJJ", "displayName": "ZW - What was the result?"}, "district_of_birth": {"id": "HQOedKyjsdk", "displayName": "ZW LM - District of birth"}, "index_client_code": {"id": "YiNIPRZdGR2", "displayName": "ZW - Index Client Code"}, "moonlight_testing": {"id": "HvNUMycHwJl", "displayName": "ZW - Moonlight Testing"}, "outreach_site_name": {"id": "gJcVOlb92FS", "displayName": "ZW SRH FP - Outreach name"}, "patient_identifier": {"id": "GGvUui7Dc3F", "displayName": "ZW - Patient Identifier"}, "next_of_kin_address": {"id": "ZckwXrTWdx2", "displayName": "ZW - Next of kin address"}, "next_of_kin_telephone": {"id": "B3hSRRlA8ts", "displayName": "ZW - Phone number of next of kin"}, "date_index_client_tested": {"id": "bcE9MqGH7y4", "displayName": "ZW - Date index client tested"}, "nearest_clinic_or_hospital": {"id": "iJixXXL0E4T", "displayName": "ZW - Nearest Clinic/Hospital"}, "registration_number_of_partner": {"id": "gAauAVU6bEJ", "displayName": "ZW - registration number of the partner"}, "tested_in_the_last_twelve_months": {"id": "if8LjVC75bP", "displayName": "tested_in_the_last_twelve_months"}}}, "dhisProgramStageId": {}}',
-                    '{"comparable": [], "searchable": ["uic"], "openLatestCompletedEnrollment": "yes"}',
-                    now(), 'admin');
-        </sql>
     </changeSet>
 
     <changeSet author="vishnu" id="add event_id column to log table">
