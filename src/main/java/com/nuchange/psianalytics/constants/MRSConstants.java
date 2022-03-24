@@ -38,4 +38,7 @@ public class MRSConstants {
             throw new IllegalArgumentException();
         }
     }
+
+    public static final String FACILITY = "Facility";
+    public static final String DISTRICT = "District";
 }

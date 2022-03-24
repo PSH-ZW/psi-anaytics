@@ -2,6 +2,7 @@ package com.nuchange.psianalytics.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nuchange.psianalytics.constants.MRSConstants;
 import com.nuchange.psianalytics.constants.MRSConstants.ConceptDatatype;
 import com.nuchange.psianalytics.model.*;
 import com.nuchange.psiutil.AnalyticsUtil;
@@ -388,9 +389,9 @@ public class MetaDataService {
     }
 
     public void insertIntoEventsToSync(Object patientId, String programId, String encounterId) {
-        String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ?";
+        String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ? and program_id = ?";
         List<Integer> count = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance()
-                .newRowMapper(Integer.class), encounterId, patientId.toString());
+                .newRowMapper(Integer.class), encounterId, patientId.toString(), programId);
         boolean eventDoesNotExists = !CollectionUtils.isEmpty(count) && count.get(0).equals(0);
         String sql;
         if(eventDoesNotExists) {
@@ -571,14 +572,36 @@ public class MetaDataService {
         analyticsJdbcTemplate.update(sql, getRealStringOrEmptyString(service), getRealStringOrEmptyString(comments)
                 , getRealStringOrEmptyString(statusInfo), dateFromString, CATEGORY);
     }
-    public int getRetryCountFromEventsToSync(Object patientId, String encounterId){
-        String checkSql = "select count(*) from events_to_sync where encounter_id = ? and patient_id = ?";
-        List<Integer> count = analyticsJdbcTemplate.query(checkSql, JdbcTemplateMapperFactory.newInstance()
-                .newRowMapper(Integer.class), encounterId, patientId.toString());
-        if(CollectionUtils.isEmpty(count)) {
-            return 0;
+
+    public String getFacilityNameForEncounter(Integer encounterId) {
+        return getOrgunitNameForEncouonterAndType(encounterId, MRSConstants.FACILITY);
+    }
+
+    public String getDistrictNameForEncounter(Integer encounterId) {
+        return getOrgunitNameForEncouonterAndType(encounterId, MRSConstants.DISTRICT);
+    }
+
+    private String getOrgunitNameForEncouonterAndType(Integer encounterId, String type) {
+        String sql = "select cn.name from obs o inner join concept c on o.concept_id = c.concept_id " +
+                " inner join concept_class cc on c.class_id = cc.concept_class_id and cc.name = ? " +
+                " left join concept_name cn on o.value_coded = cn.concept_id and cn.locale = 'en' and cn.concept_name_type = 'FULLY_SPECIFIED' " +
+                " where o.encounter_id = ?";
+        List<String> orgUnitNames = mrsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), type, encounterId);
+        if(!CollectionUtils.isEmpty(orgUnitNames)) {
+            return orgUnitNames.get(0);
         }
-        return count.get(0);
+        return "";
+    }
+
+    public String getOrgUnitForDistrict(String districtName) {
+        String sql = "select orgunit from orgunit_tracker where orgunit like '%-OU-%-" + districtName + "'";
+        List<String> orgUnitNames = analyticsJdbcTemplate.query(sql,
+                JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class));
+        if(!CollectionUtils.isEmpty(orgUnitNames)) {
+            return orgUnitNames.get(0);
+        }
+        return "";
     }
 }
 

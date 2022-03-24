@@ -16,6 +16,7 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -67,7 +68,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                 ObsType obsType = conceptMap.get(conceptUuid);
                 String columnName = columnNames.get(UUID.fromString(conceptUuid));
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
-                    //TODO: handle voiding
                     List<UUID> conceptNameUuids = metaDataService.getConceptNameUuidsForConcept(obs.getValueCoded());
                     for (UUID conceptNameUuid : conceptNameUuids) {
                         //The forms use the uuid of the concept_name (instead of uuid of the concept) for multiselect answers.
@@ -93,6 +93,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         List<ResultExtractor> extractorsEncounters = getResultExtractorForCategoryAndId(jobDetailsEncounter,
                 JobConstants.ENCOUNTER, Long.valueOf(encounterId));
         assert jobDetailsEncounter != null;
+        setOrgUnitForEncounter(encounterId, extractorsEncounters);
         extractorWithTarget.put(jobDetailsEncounter.getTarget(), new ArrayList<>());
         extractorWithTarget.get(jobDetailsEncounter.getTarget()).addAll(extractorsEncounters);
 
@@ -113,6 +114,28 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         dto.setInsertQueries(insertQueries);
         dto.setExtractorsWithTarget(extractorWithTarget);
         return dto;
+    }
+
+    private void setOrgUnitForEncounter(Integer encounterId, List<ResultExtractor> extractorsEncounters) {
+        String facility = metaDataService.getFacilityNameForEncounter(encounterId);
+        String district = metaDataService.getDistrictNameForEncounter(encounterId);
+        String orgUnitCode = getOrgUnitCode(facility, district);
+        List<Map<String, Object>> rowValues = extractorsEncounters.get(0).getRowValues();
+        if(!CollectionUtils.isEmpty(rowValues)) {
+            logger.info("OrgUnit code for encounterId {} : {}", encounterId, orgUnitCode);
+            rowValues.get(0).put("org_unit", orgUnitCode);
+        }
+    }
+
+    private String getOrgUnitCode(String facility, String district) {
+        if(StringUtils.hasLength(facility) && StringUtils.hasLength(district)) {
+            return "ZWNSC-OU-" + facility.toUpperCase() + "-" + district.toUpperCase();
+        } else if (StringUtils.hasLength(facility)){
+            return "ZWNSC-"+facility.toUpperCase();
+        } else if (StringUtils.hasLength(district)) {
+            return metaDataService.getOrgUnitForDistrict(district.toUpperCase());
+        }
+        return "";
     }
 
     private void initialiseQuery(String formTableName, Map<String, Query> obsColAndVal,
