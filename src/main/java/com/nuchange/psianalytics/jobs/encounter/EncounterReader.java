@@ -36,6 +36,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
 
     @Transactional
     public EncounterJobDto readEncounter(Integer encounterId) throws IOException {
+        //TODO: currently we are flattening all encounters. Need to flatten encounters for only the forms we need to sync.
         logger.debug("Processing Encounter : {}", encounterId);
         Encounter encounter = metaDataService.getEncounterByEncounterId(encounterId);
         List<Obs> obsForEncounter = metaDataService.getObsByEncounterIdAndVoided(encounterId);

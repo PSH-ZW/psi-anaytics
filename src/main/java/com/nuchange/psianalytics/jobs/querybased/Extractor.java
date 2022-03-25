@@ -2,12 +2,10 @@ package com.nuchange.psianalytics.jobs.querybased;
 
 import com.nuchange.psianalytics.model.QueryJob;
 import com.nuchange.psianalytics.model.ResultExtractor;
-import com.nuchange.psianalytics.util.PSIContext;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import com.nuchange.psiutil.AnalyticsUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -46,10 +44,6 @@ public class Extractor {
         Object[] params = new Object[] { id };
         List<ResultExtractor> extractors = new ArrayList<>();
         AnalyticsUtil.getRowAndColumnValuesForQuery(template, query, colHeaders, rowValues, params);
-        if(!CollectionUtils.isEmpty(rowValues)) {
-            colHeaders.add("org_unit");
-            rowValues.get(0).put("org_unit", PSIContext.getInstance().getOrgUnitId());
-        }
         for (Map<String, Object> stringObjectMap : rowValues) {
             readChildren(category, stringObjectMap, extractors);
         }

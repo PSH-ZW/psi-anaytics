@@ -459,6 +459,16 @@
         <addUniqueConstraint tableName="patient" columnNames="patient_id"/>
     </changeSet>
 
+    <changeSet author="vishnu" id="remove unique constraint on encounter_id from event_tracker table">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT COUNT(1) FROM information_schema.table_constraints
+                WHERE constraint_name='event_tracker_encounter_id_key' AND table_name='event_tracker';
+            </sqlCheck>
+        </preConditions>
+        <dropUniqueConstraint tableName="event_tracker" constraintName="event_tracker_encounter_id_key"/>
+    </changeSet>
+
     <changeSet id="add unique constraint on (encounter_id, program_stage) in event_tracker table"
                author="vishnu">
         <addUniqueConstraint tableName="event_tracker" columnNames="encounter_id, program_stage"/>
