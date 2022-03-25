@@ -128,19 +128,17 @@
         </createTable>
     </changeSet>
 
-    <changeSet author="vishnu" id="rename column country_district to county_district 1">
+    <changeSet author="vishnu" id="rename column country_district to county_district ">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="county_district" tableName="patient"/>
-            </not>
+            <columnExists columnName="country_district" tableName="patient"/>
         </preConditions>
         <renameColumn tableName="patient" oldColumnName="country_district" newColumnName="county_district"/>
     </changeSet>
 
-    <changeSet author="vishnu" id="add attribute columns in patient 1">
+    <changeSet author="vishnu" id="add missing attribute columns in patient">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="patient"/>
+                <columnExists tableName="patient" columnName="telephone"/>
             </not>
         </preConditions>
         <addColumn tableName="patient">
@@ -454,11 +452,9 @@
         </sql>
     </changeSet>
 
-    <changeSet id="make patient_id unique constraint in patient table" author="vishnu">
+    <changeSet id="add unique constraint on patient_id in patient table" author="vishnu">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists columnName="patient_id" tableName="patient"/>
-            </not>
+            <columnExists columnName="patient_id" tableName="patient"/>
         </preConditions>
         <addUniqueConstraint tableName="patient" columnNames="patient_id"/>
     </changeSet>
@@ -482,7 +478,10 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="change datatype of event_id in event_tracker to varchar" author="vishnu">
+    <changeSet id="change the datatype of event_id in event_tracker to varchar" author="vishnu">
+        <preConditions onFail="MARK_RAN">
+            <columnExists columnName="event_id" tableName="event_tracker"/>
+        </preConditions>
         <modifyDataType tableName="event_tracker" columnName="event_id" newDataType="varchar"/>
     </changeSet>
 
@@ -497,7 +496,6 @@
         </addColumn>
     </changeSet>
 
-<!--TODO: redeploy to test ,all commented changeSets are related to events_to_sync and has been replaced with below changeSet-->
     <changeSet author="sgk" id="Adding table events_to_sync">
         <preConditions onFail="MARK_RAN">
             <not>

@@ -11,8 +11,6 @@
     grant all privileges on database analytics to analytics;
    ~~~
 3. Run the run_liquibase.sh script in resources > liquibase > scripts
-4. Import the table in liquibase/sql_files using:
-    `psql -Uanalytics -danalytics < filename.sql` 
 
 ####Setting up Openmrs DB
 1. Create a mysql container.
