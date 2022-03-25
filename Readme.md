@@ -11,6 +11,8 @@
     grant all privileges on database analytics to analytics;
    ~~~
 3. Run the run_liquibase.sh script in resources > liquibase > scripts
+4. Import the table in liquibase/sql_files using:
+    `psql -Uanalytics -danalytics < filename.sql` 
 
 ####Setting up Openmrs DB
 1. Create a mysql container.
@@ -83,6 +85,7 @@ In case there are any issues while flattening, for eg: if the table has not been
  
  3. Adding and removing fields from the form are supported by the program, but renaming an already created field will cause issues, as the corresponding column name will not be automatically updated.
     Verify thoroughly that the added concepts does not contain any spelling mistakes and will not be requiring future changes, before publishing. In the extreme case we need to rename the field, we would have to manually rename the column in the corresponding table using an `alter table` query.
+ 4. We will be using Facility and District concept classes to identify the fields in the forms. While adding new Facility or District concepts, set its concept class properly as Facility or District.
 
 ###Forms used in each program
 | Health Area | Forms in Bahmni                                                                                                       |
