@@ -564,13 +564,13 @@ public class MetaDataService {
         return value;
     }
 
-    public void addLogs( String service, String comments, String statusInfo){
+    public void addLogs( String service, String comments, String statusInfo, String status){
         String sql = "INSERT INTO log (program, comments, status_info, date_created," +
-                " category) VALUES (?, ?, ?, ?, ?)";
+                " category, status) VALUES (?, ?, ?, ?, ?, ?)";
         String stringFromDate = getStringFromDate(new Date(), DATE_FORMAT_WITH_24HR_TIME);
         Date dateFromString = getDateFromString(stringFromDate, DATE_FORMAT_WITH_24HR_TIME);
         analyticsJdbcTemplate.update(sql, getRealStringOrEmptyString(service), getRealStringOrEmptyString(comments)
-                , getRealStringOrEmptyString(statusInfo), dateFromString, CATEGORY);
+                , getRealStringOrEmptyString(statusInfo), dateFromString, CATEGORY, status);
     }
 
     public String getFacilityNameForEncounter(Integer encounterId) {

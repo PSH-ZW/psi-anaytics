@@ -49,6 +49,10 @@ public class JobConstants {
     public static final String TABLE = "table";
     public static final String OBS_CONTROL = "obsControl";
 
+    public static enum ERROR_STATUS{
+        ERROR,
+        INFO
+    }
     public static final Map<String, String> CATEGORY_TO_ANALYTICS_JOB = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
             put(MRS_PATIENT, MRS_PATIENT_JOB);

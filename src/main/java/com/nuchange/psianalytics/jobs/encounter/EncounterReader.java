@@ -175,7 +175,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                     " Use show_conflicts command from the command line util and Create table from provided cmd to create" +
                     " the table.";
             comment = "Create table: " + formName;
-            metaDataService.addLogs(formName, comment, exceptionString);
+            metaDataService.addLogs(formName, comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             throw new PsiException(exceptionString);
         }
         if(formDetails.getVersion() < version) {
@@ -183,7 +183,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                     " Use show_conflicts command from the command line util and Update table from provided cmd to update" +
                     " the table.";
             comment = "Update table: " + formName;
-            metaDataService.addLogs(formName, comment, exceptionString);
+            metaDataService.addLogs(formName, comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             throw new PsiException(exceptionString);
         }
     }

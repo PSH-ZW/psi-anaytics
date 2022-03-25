@@ -100,7 +100,7 @@ class PsiAnalyticsApplicationTests {
 
 	@Test
 	public void createTableForOneForm() throws IOException {
-		String query = AnalyticsUtil.generateCreateTableForForm("forms/3fb96853-09a1-48c2-95ff-be3aff1c3b9a.json");
+		String query = AnalyticsUtil.generateCreateTableForForm("forms/188d1817-0cce-4293-b4e8-82906af6a731.json");
 		Assertions.assertNotNull(query);
 	}
 }

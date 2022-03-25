@@ -1,8 +1,10 @@
 package com.nuchange.psianalytics;
 
+import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.FlatteningTask;
 import com.nuchange.psianalytics.model.AnalyticsCronJob;
 import com.nuchange.psianalytics.util.MetaDataService;
+import com.nuchange.psiutil.PsiException;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,10 @@ public class JobScheduler implements SchedulingConfigurer {
                  logger.info("Found bean for job : {}", cronJob.getName());
             } catch (NoSuchBeanDefinitionException e) {
                 logger.info("Could not find bean for processing Job: {}", cronJob.getName());
+                String exceptionString = "Could not find bean for processing Job: " + cronJob.getName() ;
+                String comment = "Cron Job name : "+ cronJob.getName() + " and id : " + cronJob.getId();
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
+                throw new PsiException(exceptionString);
             }
             jobs.put(cronJob.getName(), bean);
             try {
@@ -65,6 +71,9 @@ public class JobScheduler implements SchedulingConfigurer {
             } catch (ParseException e) {
                 logger.error("Could not parse the cron expression: {}  for: {}",
                         cronJob.getName(), cronJob.getExpression());
+                String exceptionString = "Could not parse the cron expression: " + cronJob.getName() + "for: " + cronJob.getExpression();
+                String comment = "Cron Job name : "+ cronJob.getName() + " and id : " + cronJob.getId();
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
                 e.printStackTrace();
             }
         }
@@ -87,18 +96,36 @@ public class JobScheduler implements SchedulingConfigurer {
             try {
                 if(job != null) {
                     logger.info("Starting job for {}", jobName);
+                    String exceptionString = "Starting "+ jobName;
+                    String comment = "Cron Job name : "+ jobName;
+                    metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.INFO.toString());
                     job.process();
                 }
             } catch (InterruptedException e) {
                 logger.warn("Thread Interrupted for the job: {}", jobName);
+                String exceptionString = "Thread Interrupted for the job: "+ jobName;
+                String comment = "Cron Job name : "+ jobName ;
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             } catch (IOException e) {
                 logger.warn("I/O Exception Occur for the job: {}", jobName);
+                String exceptionString = "I/O Exception Occur for the job: "+ jobName;
+                String comment = "Cron Job name : "+ jobName ;
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             } catch (JobParametersInvalidException e) {
                 logger.warn("Job Parameter Invalid for the job: {}", jobName);
+                String exceptionString = "Job Parameter Invalid for the job: "+ jobName;
+                String comment = "Cron Job name : "+ jobName ;
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             } catch (JobExecutionAlreadyRunningException e) {
                 logger.warn("Job Execution is already running {}", jobName);
+                String exceptionString = "Job Execution is already running: "+ jobName;
+                String comment = "Cron Job name : "+ jobName ;
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             } catch (JobRestartException e) {
                 logger.warn("Job Restart Exception for the job: {}", jobName);
+                String exceptionString = "Job Restart Exception for the job: "+ jobName;
+                String comment = "Cron Job name : "+ jobName ;
+                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             } catch (JobInstanceAlreadyCompleteException e) {
                 e.printStackTrace();
             }
