@@ -538,4 +538,22 @@
             <column name="retry_count" defaultValue="0" type="int"/>
         </addColumn>
     </changeSet>
+
+    <changeSet author="vishnu" id="import mapping table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="mapping"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="postgresql" path="../sql_files/mapping.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet author="vishnu" id="import orgunit_tracker table">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orgunit_tracker"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="postgresql" path="../sql_files/orgunit_tracker.sql" relativeToChangelogFile="true"/>
+    </changeSet>
 </databaseChangeLog>
