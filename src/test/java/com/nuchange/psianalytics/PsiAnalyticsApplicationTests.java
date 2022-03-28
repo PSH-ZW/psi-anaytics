@@ -98,9 +98,9 @@ class PsiAnalyticsApplicationTests {
 		assertTrue(noInconsistency);
 	}*/
 
-	@Test
-	public void createTableForOneForm() throws IOException {
-		String query = AnalyticsUtil.generateCreateTableForForm("forms/188d1817-0cce-4293-b4e8-82906af6a731.json");
-		Assertions.assertNotNull(query);
-	}
+//	@Test
+//	public void createTableForOneForm() throws IOException {
+//		String query = AnalyticsUtil.generateCreateTableForForm("forms/188d1817-0cce-4293-b4e8-82906af6a731.json");
+//		Assertions.assertNotNull(query);
+//	}
 }
