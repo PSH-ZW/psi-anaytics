@@ -402,13 +402,13 @@ public class MetaDataService {
         analyticsJdbcTemplate.update(sql, patientId.toString(), encounterId, programId);
     }
 
-    public String getFormNameSpacePathForEncounter(Integer encounterId) {
-        String sql = "select form_namespace_and_path from obs where encounter_id = ? and form_namespace_and_path is not null limit 1";
+    public List<String> getFormNameSpacePathsForEncounter(Integer encounterId) {
+        String sql = "select form_namespace_and_path from obs where encounter_id = ? and form_namespace_and_path is not null";
         List<String> formNameSpaceNames = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), encounterId.toString());
         if(!CollectionUtils.isEmpty(formNameSpaceNames)) {
-            return formNameSpaceNames.get(0);
+            return formNameSpaceNames;
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public void initializeFormMetaDataTable() {
@@ -501,25 +501,22 @@ public class MetaDataService {
         return analyticsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Mapping.class));
     }
 
-    public String getProgramForEncounter(Integer encounter_id) {
-        String formNameSpaceAndPath = getFormNameSpacePathForEncounter(encounter_id);
-        if(formNameSpaceAndPath != null) {
-            String tableName = getFormTableNameFromFormNameSpaceAndPath(formNameSpaceAndPath);
-            return getProgramNameForFormTable(tableName);
+    public Set<String> getProgramsInEncounter(Integer encounterId) {
+        List<String> formNameSpaceAndPaths = getFormNameSpacePathsForEncounter(encounterId);
+        Set<String> programs = new HashSet<>();
+        for(String formNameSpaceAndPath : formNameSpaceAndPaths) {
+            if(StringUtils.isNotEmpty(formNameSpaceAndPath)) {
+                String tableName = getFormTableNameFromFormNameSpaceAndPath(formNameSpaceAndPath);
+                programs.add(getProgramNameForFormTable(tableName));
+            }
         }
-
-        return null;
+        return programs;
     }
 
     private String getFormTableNameFromFormNameSpaceAndPath(String formName) {
         formName = formName.substring(formName.indexOf("^")+1, formName.indexOf("."));
         formName = formName.replaceAll(" ", "_");
         return AnalyticsUtil.generateColumnName(formName);
-    }
-
-    public boolean isValidProgramName(String programName) {
-        initialiseFormProgramMapIfEmpty();
-        return formToProgramMap.containsValue(programName);
     }
 
     public boolean shouldFlattenForm(String formName) {

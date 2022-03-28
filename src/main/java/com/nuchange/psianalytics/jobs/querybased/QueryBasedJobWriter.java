@@ -13,11 +13,13 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecutionListener {
 
@@ -75,9 +77,11 @@ public abstract class QueryBasedJobWriter<D> implements ItemWriter<D>, StepExecu
 
     private void insertSyncDataForEncounter(Map<String, Object> stringObjectMap) {
         String encounterId = stringObjectMap.get("encounter_id").toString();
-        String programName = metaDataService.getProgramForEncounter(Integer.valueOf(encounterId));
-        if(programName != null && metaDataService.isValidProgramName(programName)) {
-            metaDataService.insertIntoEventsToSync(stringObjectMap.get("patient_id"), programName, encounterId);
+        Set<String> programNames = metaDataService.getProgramsInEncounter(Integer.valueOf(encounterId));
+        for(String programName : programNames) {
+            if(StringUtils.hasLength(programName)) {
+                metaDataService.insertIntoEventsToSync(stringObjectMap.get("patient_id"), programName, encounterId);
+            }
         }
     }
 
