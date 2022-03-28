@@ -44,6 +44,10 @@ It picks up a `FlatteningTask` bean with the name specified in the cronJob setti
 The readers read the EventRecords, then get the corresponding object we need to flatten using the uuid from the `object` column, and send them to
 the processors for processing (Our processor classes doesn't do much currently, they just pass the data to the writer). The writer classes do most 
 of the processing. Writers generate the insert queries with the data values received from processors and insert them into the respective tables in analytics DB.
+
+The timing at which these batch jobs are triggered are specified in `analytics_cron_job` table in analytics DB.
+![img.png](readmeImages/analytics_cron_job.png)
+
 ####DB Access
 We will be using jdbc templates for querying the DB. The datasources and jdbcTemplates are defined in DataSourceConfig.
 There are two datasources, one for the openmrs (mySql) DB which we will be reading from and one for analytics(postgres) DB,
@@ -52,23 +56,39 @@ which we will be writing to.
 ####Batch jobs
 We will have batch jobs for processing `Patients`, `Encounters` and `Program Enrolments`. The reader, writer, processor and related classes for these are present in jobs package.
 
- ####Handling MultiSelect inputs
+####Handling MultiSelect inputs
  We will be creating a binary column for each of the values of the field. For the selected options we will set 'true' to 
 indicate they have been selected.
  
 ###Patient Flattening
 All patient related data including patient name, UIC and other attributes in openmrs db are flattened to a patient table in analytics db. This data will be used to create or update the Tracked Entity Instance for the patient in DHIS2.
-We will be using the Patient mapping entered from the mapping utility to map the columns in patient table to DHIS data elements.
+We will be using the Patient mapping entered from the mapping utility to map the columns in patient table to DHIS data elements. We will be setting the orgUnitId of the facility we are deploying to in a properties file. 
+This will be taken as the orgUnit of the patient while flattening. 
 
 ###Program Enrolment Flattening
 When a patient is enrolled to a bahmni program, corresponding entry will be added in the `patient_program` table in openmrs db. We will be flattening these details to `program_enrolment` table in analytics.
 The flattened data will be used for creating an enrolment for the TrackedEntity. Since currently DHIS2 only has one program (i.e ZW - New Start EMR) and all other Bahmni Programs, like ART, HTS, TB etc. are configured as Program Stages of the ZW - New Start EMR program,
 we will be creating only one enrolment for a TrackedEntityInstance to  ZW - New Start EMR, even if a patient has multiple program enrolments. The enrolmentDate for the DHIS enrolment crated will be the date of the oldest Bahmni Program enrolment for the patient.
+The orgUnitId of enrolment will be taken from the properties file same as in the case of patient. 
 
 ###Encounter
 The encounter details entered into the `encounter` table in openmrs will be flattened to a corresponding `encounter` table in analytics. This will contain the encounter_id, patient_id, encounter_date etc.
 If we have entered any form details in the encounter for which we have already added the mappings from the mapping utility, then the form data will be flattened to a corresponding form table in the analytics db. 
 The data entered for the forms will be read from the `obs` table in openmrs.
+
+The orgunitId for encounter is determined using the following logic :
+
+![img.png](readmeImages/service_provided.png)
+1. If site type is static and only facility is selected, we select the orgUnit id of the facility.
+2. If site type is outreach, or if we only have district (as some forms are configured like this), we select the id of the district.
+3. If by any chance we don't have facility, or district entered, we select the orgUnitId from the properties file.
+ 
+Getting the orgUnit id from the facility or district is done as follows:
+
+If only facility is there, the name will be ZWNSC - {FACILITY_NAME}, for eg: ZWNSC-BAMBANANI
+If district is selected, the name will be ZWNSC - OU - {FACILITY_NAME} - {DISTRICT_NAME}, for eg : ZWNSC-OU-BAMBANANI-BEITBRIDGE
+
+By using this name, we will get the ID for the orgUnit from `orgunit_tracker` table.
 
 In case there are any issues while flattening, for eg: if the table has not been created for the form, new concepts are added to the form(i.e form is updated), the flattening process will stop. It will continue only after the specified commands mentioned in the error message are run using the CLI util.
 

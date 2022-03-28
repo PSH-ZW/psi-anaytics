@@ -129,6 +129,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     }
 
     private String getOrgUnitCode(String facility, String district) {
+        //Check readme for detailed explanation of logic.
         if(StringUtils.hasLength(facility) && StringUtils.hasLength(district)) {
             return "ZWNSC-OU-" + facility.toUpperCase() + "-" + district.toUpperCase();
         } else if (StringUtils.hasLength(facility)){
