@@ -564,4 +564,11 @@
         </preConditions>
         <sqlFile dbms="postgresql" path="../sql_files/orgunit_tracker.sql" relativeToChangelogFile="true"/>
     </changeSet>
+
+    <changeSet author="vishnu" id="add default value of false to events_to_sync">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="events_to_sync" columnName="synced"/>
+        </preConditions>
+        <addDefaultValue tableName="events_to_sync" columnName="synced" defaultValueBoolean="false"/>
+    </changeSet>
 </databaseChangeLog>
