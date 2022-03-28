@@ -4,7 +4,6 @@ import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.FlatteningTask;
 import com.nuchange.psianalytics.model.AnalyticsCronJob;
 import com.nuchange.psianalytics.util.MetaDataService;
-import com.nuchange.psiutil.PsiException;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +58,6 @@ public class JobScheduler implements SchedulingConfigurer {
                  logger.info("Found bean for job : {}", cronJob.getName());
             } catch (NoSuchBeanDefinitionException e) {
                 logger.info("Could not find bean for processing Job: {}", cronJob.getName());
-                String exceptionString = "Could not find bean for processing Job: " + cronJob.getName() ;
-                String comment = "Cron Job name : "+ cronJob.getName() + " and id : " + cronJob.getId();
-                metaDataService.addLogs("", comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
-                throw new PsiException(exceptionString);
             }
             jobs.put(cronJob.getName(), bean);
             try {

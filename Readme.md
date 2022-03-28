@@ -21,9 +21,11 @@
 Run PsiAnalyticsApplication.java
 
 ##Buildeing the RPM
-Run `./gradlew -PpsiRelease=0.1 :psi-analytics:clean :psi-analytics:buildRpm` from the project root directory.
+1. Build the application using `mvn clean install`
+2. Run `./gradlew -PpsiRelease=0.1 :psi-analytics:clean :psi-analytics:buildRpm` from the project root directory.
 (The release version can be passed in properly)
-The rpm file will be created in psi-analytics/build/distributions
+The rpm file will be created in `psi-analytics/build/distributions` folder.
+
 ---
 
 ###Overview
