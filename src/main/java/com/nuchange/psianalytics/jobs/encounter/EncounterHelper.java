@@ -22,7 +22,7 @@ public class EncounterHelper {
         if (formConceptMap.containsKey(formResourcePath)) {
             return formConceptMap.get(formResourcePath);
         }
-        logger.debug("Reading form json file: {}", formResourcePath);
+        logger.info("Reading form json file: {}", formResourcePath);
         Map<String, ObsType> conceptMap = AnalyticsUtil.extractConceptsFromFile(formResourcePath);
         formConceptMap.put(formResourcePath, conceptMap);
         return conceptMap;

@@ -173,16 +173,14 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         String comment;
         if(formDetails == null) {
             exceptionString = "Inconsistency as table needs to be created for form: " + formName +
-                    " Use show_conflicts command from the command line util and Create table from provided cmd to create" +
-                    " the table.";
+                    " Use show_conflicts command from the command line util and create the table.";
             comment = "Create table: " + formName;
             metaDataService.addLogs(formName, comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             throw new PsiException(exceptionString);
         }
         if(formDetails.getVersion() < version) {
             exceptionString = "Table for form: "+ formName + " needs to be updated for sync to progress." +
-                    " Use show_conflicts command from the command line util and Update table from provided cmd to update" +
-                    " the table.";
+                    " Use show_conflicts command from the command line util and update the table.";
             comment = "Update table: " + formName;
             metaDataService.addLogs(formName, comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             throw new PsiException(exceptionString);
