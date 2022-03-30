@@ -571,4 +571,11 @@
         </preConditions>
         <addDefaultValue tableName="events_to_sync" columnName="synced" defaultValueBoolean="false"/>
     </changeSet>
+
+    <changeSet author="vishnu" id="add default value for username in events_to_sync">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="events_to_sync" columnName="username"/>
+        </preConditions>
+        <addDefaultValue tableName="events_to_sync" columnName="username" defaultValue="superman"/>
+    </changeSet>
 </databaseChangeLog>
