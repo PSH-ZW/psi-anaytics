@@ -91,7 +91,6 @@ If district is selected, the name will be ZWNSC - OU - {FACILITY_NAME} - {DISTRI
 By using this name, we will get the ID for the orgUnit from `orgunit_tracker` table.
 
 In case there are any issues while flattening, for eg: if the table has not been created for the form, new concepts are added to the form(i.e form is updated), the flattening process will stop. It will continue only after the specified commands mentioned in the error message are run using the CLI util.
-We will be using Facility and District concept classes to identify the fields in the forms. In case we are adding a new Facility or District concepts, make sure to set its concept class as Facility or District accordingly.
 
  ####Important Notes :
  1. Handling Multiselect Columns in Forms.
@@ -106,6 +105,7 @@ We will be using Facility and District concept classes to identify the fields in
  
  3. Adding and removing fields from the form are supported by the program, but renaming an already created field will cause issues, as the corresponding column name will not be automatically updated.
     Verify thoroughly that the added concepts does not contain any spelling mistakes and will not be requiring future changes, before publishing. In the extreme case we need to rename the field, we would have to manually rename the column in the corresponding table using an `alter table` query.
+ 4. We will be using Facility and District concept classes to identify the fields in the forms. In case we are adding a new Facility or District concepts, make sure to set its concept class as Facility or District accordingly.
 
 ###Forms used in each program
 | Health Area | Forms in Bahmni                                                                                                       |
