@@ -68,23 +68,16 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             if (conceptMap.containsKey(conceptUuid)) {
                 ObsType obsType = conceptMap.get(conceptUuid);
                 String columnName = columnNames.get(UUID.fromString(conceptUuid));
+                String value = "";
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
-                    List<UUID> conceptNameUuids = metaDataService.getConceptNameUuidsForConcept(obs.getValueCoded());
-                    for (UUID conceptNameUuid : conceptNameUuids) {
-                        //The forms use the uuid of the concept_name (instead of uuid of the concept) for multiselect answers.
-                        // Get all concept names for the concept and check if the uuid of that concept name is in the columnName map
-                        if(columnNames.containsKey(conceptNameUuid)) {
-                            columnName = columnNames.get(conceptNameUuid);
-                            break;
-                        }
-                    }
-                    String value = obs.getVoided() != 1 ? "true" : "false";
-                    query.getColAndVal().put(columnName, value);
+                    UUID answerConceptUuid = metaDataService.getConceptUuidById(obs.getValueCoded());
+                    columnName = columnNames.get(answerConceptUuid);
+                    value = obs.getVoided() != 1 ? "true" : "false";
                 }
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
-                    String value = obs.getVoided() != 1 ? metaDataService.getValueAsString(obs, Locale.ENGLISH) : "";
-                    query.getColAndVal().put(columnName, value);
+                    value = obs.getVoided() != 1 ? metaDataService.getValueAsString(obs, Locale.ENGLISH) : "";
                 }
+                query.getColAndVal().put(columnName, value);
             }
         }
         Map<String, List<ResultExtractor>> extractorWithTarget = new HashMap<>();

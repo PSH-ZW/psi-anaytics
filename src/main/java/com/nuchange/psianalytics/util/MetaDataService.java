@@ -199,10 +199,14 @@ public class MetaDataService {
         return null;
     }
 
-    public List<UUID> getConceptNameUuidsForConcept(Integer conceptId) {
-        final String sql = "select uuid from concept_name where concept_id = ?";
-        return mrsJdbcTemplate.query(sql,
+    public UUID getConceptUuidById(Integer conceptId) {
+        final String sql = "select uuid from concept where concept_id = ?";
+        List<UUID> concepts = mrsJdbcTemplate.query(sql,
                 JdbcTemplateMapperFactory.newInstance().newRowMapper(UUID.class), conceptId);
+        if(!CollectionUtils.isEmpty(concepts)){
+            return concepts.get(0);
+        }
+        return null;
     }
 
     public Location getLocationByEncounterId(Integer encounterId){
