@@ -10,7 +10,7 @@
         <sqlFile path="../sql_files/sql_functions.sql" endDelimiter="\nGO" stripComments="false" relativeToChangelogFile="true"/>
     </changeSet>
 
-    <changeSet author="vishnu" id="add missing eventRecords for patients">
+    <changeSet author="vishnu" id="add missing eventRecords for patients ">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 select count(*)
@@ -19,7 +19,7 @@
             </sqlCheck>
         </preConditions>
         <sql>
-            INSERT INTO event_records_queue(uuid,title,timestamp,object,uri,category,tags)
+            INSERT INTO event_records(uuid,title,timestamp,object,uri,category,tags)
             select uuid(),'Patient',now(),CONCAT('/openmrs/ws/rest/v1/patient/',uuid, '?v=full'),NULL,'patient','patient'
             from person where date_created &lt; (select min(date_created) from event_records where category = 'patient');
         </sql>
