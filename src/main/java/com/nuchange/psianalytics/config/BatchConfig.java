@@ -7,14 +7,16 @@ import com.nuchange.psianalytics.listener.JobCompletionNotificationListener;
 import com.nuchange.psianalytics.model.ResultExtractor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 @Configuration
@@ -55,5 +57,19 @@ public class BatchConfig {
                 .processor(myCustomProcessor)
                 .writer(myCustomWriter)
                 .build();
+    }
+
+    @Bean
+    public BatchConfigurer batchConfigurer(@Qualifier("analyticsDatasource") DataSource dataSource) {
+        return new DefaultBatchConfigurer(dataSource) {
+            @Override
+            protected JobRepository createJobRepository() throws Exception {
+                JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+                factory.setDataSource(dataSource);
+                factory.setTransactionManager(getTransactionManager());
+                factory.setIsolationLevelForCreate("ISOLATION_REPEATABLE_READ");
+                return factory.getObject();
+            }
+        };
     }
 }

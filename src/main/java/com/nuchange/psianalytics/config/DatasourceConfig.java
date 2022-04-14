@@ -15,13 +15,13 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class DatasourceConfig {
 
-    @Primary
     @Bean(name = "mrsDatasource")
     @ConfigurationProperties(prefix = "mrs.datasource")
     public DataSource mrsDatasource() {
         return DataSourceBuilder.create().build();
     }
 
+    @Primary
     @Bean(name = "analyticsDatasource")
     @ConfigurationProperties(prefix = "analytics.datasource")
     public DataSource analyticsDatasource() {
