@@ -18,6 +18,8 @@
 3. Copy and run the functions in sql_functions.sql.
 
 ####Running the application
+You would be needing the latest form jsons from /home/bahmni/clinical_forms folder. 
+Create a folder named /home/bahmni/ , copy the latest forms from one of the live servers.
 Run PsiAnalyticsApplication.java
 
 ##Buildeing the RPM
