@@ -575,18 +575,18 @@ public class MetaDataService {
     }
 
     public String getFacilityNameForEncounter(Integer encounterId) {
-        return getOrgunitNameForEncouonterAndType(encounterId, MRSConstants.FACILITY);
+        return getOrgunitNameForEncounterAndType(encounterId, MRSConstants.FACILITY);
     }
 
     public String getDistrictNameForEncounter(Integer encounterId) {
-        return getOrgunitNameForEncouonterAndType(encounterId, MRSConstants.DISTRICT);
+        return getOrgunitNameForEncounterAndType(encounterId, MRSConstants.DISTRICT);
     }
 
-    private String getOrgunitNameForEncouonterAndType(Integer encounterId, String type) {
+    private String getOrgunitNameForEncounterAndType(Integer encounterId, String type) {
         String sql = "select cn.name from obs o inner join concept c on o.concept_id = c.concept_id " +
                 " inner join concept_class cc on c.class_id = cc.concept_class_id and cc.name = ? " +
                 " left join concept_name cn on o.value_coded = cn.concept_id and cn.locale = 'en' and cn.concept_name_type = 'FULLY_SPECIFIED' " +
-                " where o.encounter_id = ?";
+                " where o.encounter_id = ? and o.voided = 0 order by cn.name";
         List<String> orgUnitNames = mrsJdbcTemplate.query(sql,
                 JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class), type, encounterId);
         if(!CollectionUtils.isEmpty(orgUnitNames)) {
