@@ -6,14 +6,12 @@ import com.nuchange.psianalytics.util.PSIContext;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import com.nuchange.psiutil.AnalyticsUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,14 +105,8 @@ public class Extractor {
             paramsExist = new Object[] {id};
         }
         boolean exist = false;
-//                Integer count = template.queryForObject(existQuery, Integer.class);
         if (existQuery != null && existQuery.length() != 0) {
-            List<Integer> count = template.query(existQuery, (RowMapper<Integer>) new RowMapper<Integer>() {
-                @Override
-                public Integer mapRow(ResultSet resultSet, int i) throws SQLException {
-                    return resultSet.getInt(1);
-                }
-            }, paramsExist);
+            List<Integer> count = template.query(existQuery, (resultSet, i) -> resultSet.getInt(1), paramsExist);
             if (count.size() != 0 && count.get(0) != 0) {
                 exist = true;
             }

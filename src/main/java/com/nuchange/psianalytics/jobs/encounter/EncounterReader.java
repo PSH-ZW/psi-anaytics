@@ -59,7 +59,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             Forms form = AnalyticsUtil.readForm(formResourcePath);
             Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
             String conceptUuid = concept.getUuid();
-            Map<UUID, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
+            Map<String, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
             String formNameWithInstance = formTableName + "_" + fileAttributes.getInstance().toString();
             if (!obsColAndVal.containsKey(formNameWithInstance)) {
                 initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, fileAttributes);
@@ -67,11 +67,11 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             Query query = obsColAndVal.get(formNameWithInstance);
             if (conceptMap.containsKey(conceptUuid)) {
                 ObsType obsType = conceptMap.get(conceptUuid);
-                String columnName = columnNames.get(UUID.fromString(conceptUuid));
+                String columnName = columnNames.get(conceptUuid);
                 String value = "";
                 if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
                     UUID answerConceptUuid = metaDataService.getConceptUuidById(obs.getValueCoded());
-                    columnName = columnNames.get(answerConceptUuid);
+                    columnName = columnNames.get(conceptUuid + answerConceptUuid);
                     value = obs.getVoided() != 1 ? "true" : "false";
                 }
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
