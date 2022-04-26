@@ -4,9 +4,6 @@ import com.nuchange.psianalytics.constants.JobConstants;
 import com.nuchange.psianalytics.jobs.querybased.QueryEventBasedMrsReader;
 import com.nuchange.psianalytics.model.ResultExtractor;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +23,7 @@ public class ProgramEnrolmentReader extends QueryEventBasedMrsReader {
     }
 
     @Override
-    public List<ResultExtractor> read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public List<ResultExtractor> read() throws Exception {
         return readEvent();
     }
 }

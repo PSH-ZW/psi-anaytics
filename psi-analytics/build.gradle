@@ -35,10 +35,6 @@ task extractCore(type: Copy){
     into file("${buildDir}/psi-analytics")
 }
 
-task copyPropertiesFile(type: Copy) {
-    from "${projectDir}" + "/../src/main/resources/application.properties"
-    into "${buildDir}" + "/../scripts/etc/"
-}
 
 //644 for all files other than executables
 //744 for all files which are executables
@@ -88,7 +84,7 @@ ospackage {
 }
 
 buildRpm {
-    dependsOn 'build', 'normalizeJarName', 'extractCore', 'copyPropertiesFile'
+    dependsOn 'build', 'normalizeJarName', 'extractCore'
     requires('unzip')
     requires('mysql-community-client', "5.6", GREATER | EQUAL)
 }
