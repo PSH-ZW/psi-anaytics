@@ -89,7 +89,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
             //it could be because the data has been deleted. We will delete the eventRecord, otherwise the job will be stuck
             //here trying to read the non-existent resource again and again.
             metaDataService.deleteEventRecord(eventRecords.getId());
-            return null;
+            return Collections.emptyList();
         }
         List<ResultExtractor> resultExtractorList =
                 getResultExtractorForCategoryAndId(queryJob, category, Long.valueOf(listOfId.get(0)));
