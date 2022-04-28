@@ -26,8 +26,8 @@ ln -s /opt/psi-analytics/run /var/run/psi-analytics
 ln -s /opt/psi-analytics/psi-analytics /var/run/psi-analytics/psi-analytics
 ln -s /opt/psi-analytics/log /var/log/psi-analytics
 
-rm -f /etc/httpd/conf.d/nuacare_analytics_ssl.conf
-ln -s /opt/psi-analytics/etc/nuacare_analytics_ssl.conf /etc/httpd/conf.d/nuacare_analytics_ssl.conf
+rm -f /etc/httpd/conf.d/psi_analytics_ssl.conf
+ln -s /opt/psi-analytics/etc/psi_analytics_ssl.conf /etc/httpd/conf.d/psi_analytics_ssl.conf
 
 rm -f /opt/psi-analytics/psi-analytics/WEB-INF/classes/application.properties
 cp /opt/psi-analytics/etc/application.properties /opt/psi-analytics/psi-analytics/WEB-INF/classes/
@@ -42,9 +42,9 @@ chown -R bahmni:bahmni /var/run/psi-analytics
 chown -R bahmni:bahmni /etc/init.d/psi-analytics
 chown -R bahmni:bahmni /etc/psi-analytics
 
-mkdir -p /home/bahmni/nuacare/analytics/uploads
-ln -s /home/bahmni/nuacare/analytics/uploads /opt/psi-analytics/uploads
+mkdir -p /home/bahmni/psi/analytics/uploads
+ln -s /home/bahmni/psi/analytics/uploads /opt/psi-analytics/uploads
 
-chown -R bahmni:bahmni /home/bahmni/nuacare/analytics/uploads
+chown -R bahmni:bahmni /home/bahmni/psi/analytics/uploads
 chown -R bahmni:bahmni /opt/psi-analytics/uploads
 

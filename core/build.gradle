@@ -27,17 +27,6 @@ dependencies {
             "org.apache.tomcat:tomcat-jasper-el:${tomcatVersion}",
             "org.apache.tomcat:tomcat-jsp-api:${tomcatVersion}"
 }
-//
-//jar {
-//    manifest {
-//        attributes 'Main-Class': "com.nuchange.nuacare.launch.App"
-//    }
-//    from {
-//        configurations.compile.collect {
-//            it.isDirectory() ? it : zipTree(it)
-//        }
-//    }
-//}
 
 configurations {
     all*.exclude(group: 'com.sun.jdmk', module: 'jmxtools')
