@@ -77,7 +77,11 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
                 if (obsType.getControlType().equals(JobConstants.TABLE)) {
                     value = obs.getVoided() != 1 ? metaDataService.getValueAsString(obs, Locale.ENGLISH) : "";
                 }
-                query.getColAndVal().put(columnName, value);
+                if(StringUtils.hasLength(columnName)) {
+                    //Some old concepts that are removed from the forms might be present in old obs,
+                    // in that case the column name will be null. Skipping them to avoid null pointer exception.
+                    query.getColAndVal().put(columnName, value);
+                }
             }
         }
         Map<String, List<ResultExtractor>> extractorWithTarget = new HashMap<>();
