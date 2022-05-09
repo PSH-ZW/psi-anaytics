@@ -11,6 +11,8 @@ import com.nuchange.psiutil.AnalyticsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.support.SimpleJobOperator;
@@ -26,6 +28,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 //@Component(JobConstants.QUERY_EVENT_BASED_MRS_JOB_ITEM_READER_STEP_ONE)
 public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<ResultExtractor>> {
@@ -75,6 +78,8 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
 
         if (eventRecords == null) {
             //TODO:There are no more events to process, stop the job.
+            stopJob(category);
+//            metaDataService.addLogs("", "All events flattened", "No more event records to flatten, Job Completed" , JobConstants.ERROR_STATUS.INFO.toString());
             return Collections.emptyList();
         }
 
@@ -98,6 +103,22 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         executionContext.put("eventUuid", eventRecords.getUuid());
         logger.info("Processing EventRecord with id {} for category {} ",  eventRecords.getId(), eventCategory);
         return resultExtractorList;
+    }
+
+    private void stopJob(String category) {
+        try{
+            Job job = (Job) context.getBean(JobConstants.CATEGORY_TO_JOB.get(category));
+            Set<JobExecution> executions = jobExplorer.findRunningJobExecutions(job.getName());
+            for (JobExecution execution : executions) {
+                if (execution.isRunning() && !execution.isStopping()) {
+                    jobOperator.stop(execution.getId());
+                    logger.info("Stopping Job: {}", job.getName());
+                    metaDataService.addLogs("", "No more event records to flatten", "Stopping Job:" + job.getName() , JobConstants.ERROR_STATUS.INFO.toString());
+                }
+            }
+        }catch (Exception e) {
+            logger.warn("Could not find running instance of Job to stop.");
+        }
     }
 
     private ProcessedEvents findLastProcessedEventsForCategory(String category) {

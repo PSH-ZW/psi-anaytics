@@ -7,7 +7,9 @@ import com.nuchange.psianalytics.listener.JobCompletionNotificationListener;
 import com.nuchange.psianalytics.model.ResultExtractor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.*;
+import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
@@ -40,6 +42,16 @@ public class BatchConfig {
 
     @Autowired
     JobCompletionNotificationListener completionListener;
+
+    @Autowired
+    JobRegistry jobRegistry;
+
+    @Bean
+    public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor() {
+        JobRegistryBeanPostProcessor postProcessor = new JobRegistryBeanPostProcessor();
+        postProcessor.setJobRegistry(jobRegistry);
+        return postProcessor;
+    }
 
     @Bean
     public Job createJob() {
