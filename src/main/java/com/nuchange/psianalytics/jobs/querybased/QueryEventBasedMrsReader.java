@@ -77,9 +77,7 @@ public abstract class QueryEventBasedMrsReader extends QueryBasedJobReader<List<
         EventRecords eventRecords = metaDataService.getRecordGreaterThanIdAndCategory(id, eventCategory);
 
         if (eventRecords == null) {
-            //TODO:There are no more events to process, stop the job.
             stopJob(category);
-//            metaDataService.addLogs("", "All events flattened", "No more event records to flatten, Job Completed" , JobConstants.ERROR_STATUS.INFO.toString());
             return Collections.emptyList();
         }
 

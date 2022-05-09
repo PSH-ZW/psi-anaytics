@@ -7,17 +7,13 @@ import com.nuchange.psianalytics.util.MetaDataService;
 import com.nuchange.psianalytics.util.QueryBaseJobUtil;
 import com.nuchange.psiutil.AnalyticsUtil;
 import com.nuchange.psiutil.PsiException;
-import com.nuchange.psiutil.model.FormDetails;
 import com.nuchange.psiutil.model.Forms;
 import com.nuchange.psiutil.model.ObsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -37,7 +33,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         super(dataSource);
     }
 
-    @Transactional(noRollbackFor = {PsiException.class})
+    @Transactional
     public EncounterJobDto readEncounter(Integer encounterId) throws IOException {
         //TODO: currently we are flattening all encounters. Need to flatten encounters for only the forms we need to sync.
         logger.debug("Processing Encounter : {}", encounterId);
