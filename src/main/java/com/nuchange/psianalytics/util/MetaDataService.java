@@ -415,28 +415,14 @@ public class MetaDataService {
         return Collections.emptyList();
     }
 
-    public void initializeFormMetaDataTable() {
-        String sql = "select distinct name , version from form where published = 1";
-        List<FormDetails> formDetails = mrsJdbcTemplate.query(sql, JdbcTemplateMapperFactory.newInstance()
-                .newRowMapper(FormDetails.class));
-        if(!CollectionUtils.isEmpty(formDetails)){
-            String insertSql = "insert into form_meta_data(form_name, version) values(?, ?)";
-            for(FormDetails formDetail: formDetails){
-                analyticsJdbcTemplate.update(insertSql, formDetail.getFormName(), formDetail.getVersion().toString());
-            }
+    public Integer findFormMetaDataDetailsForName(String formName){
+        String sql = "select version from form_meta_data where form_name = ?";
+        List<Integer> formVersion = analyticsJdbcTemplate
+                .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(Integer.class), formName);
+        if(!CollectionUtils.isEmpty(formVersion)) {
+            return formVersion.get(0);
         }
-    }
-    public FormDetails findFormMetaDataDetailsForName(String formName){
-        if(!formMetadataCache.containsKey(formName)) {
-            String sql = "select form_name, version from form_meta_data where form_name = ?";
-            List<FormDetails> formDetails = analyticsJdbcTemplate
-                    .query(sql, JdbcTemplateMapperFactory.newInstance().newRowMapper(FormDetails.class), formName);
-            if(!CollectionUtils.isEmpty(formDetails)) {
-                FormDetails formDetail = formDetails.get(0);
-                formMetadataCache.put(formName, formDetail);
-            }
-        }
-        return formMetadataCache.get(formName);
+        return null;
     }
 
     public String getProgramNameForFormTable(String tableName) {

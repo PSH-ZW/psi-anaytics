@@ -14,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -34,7 +37,7 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         super(dataSource);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = {PsiException.class})
     public EncounterJobDto readEncounter(Integer encounterId) throws IOException {
         //TODO: currently we are flattening all encounters. Need to flatten encounters for only the forms we need to sync.
         logger.debug("Processing Encounter : {}", encounterId);
@@ -165,17 +168,17 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
     public void throwExceptionIfFormVersionsMismatch(FileAttributes fileAttributes) {
         String formName = fileAttributes.getFormName();
         Integer version = fileAttributes.getVersion();
-        FormDetails formDetails = metaDataService.findFormMetaDataDetailsForName(formName);
+        Integer formVersion = metaDataService.findFormMetaDataDetailsForName(formName);
         String exceptionString;
         String comment;
-        if(formDetails == null) {
+        if(formVersion == null) {
             exceptionString = "Inconsistency as table needs to be created for form: " + formName +
                     " Use show_conflicts command from the command line util and create the table.";
             comment = "Create table: " + formName;
             metaDataService.addLogs(formName, comment, exceptionString, JobConstants.ERROR_STATUS.ERROR.toString());
             throw new PsiException(exceptionString);
         }
-        if(formDetails.getVersion() < version) {
+        if(formVersion < version) {
             exceptionString = "Table for form: "+ formName + " needs to be updated for sync to progress." +
                     " Use show_conflicts command from the command line util and update the table.";
             comment = "Update table: " + formName;
