@@ -580,15 +580,5 @@ public class MetaDataService {
         }
         return "";
     }
-
-    public String getOrgUnitForDistrict(String districtName) {
-        String sql = "select orgunit from orgunit_tracker where orgunit like '%-OU-%-" + districtName + "'";
-        List<String> orgUnitNames = analyticsJdbcTemplate.query(sql,
-                JdbcTemplateMapperFactory.newInstance().newRowMapper(String.class));
-        if(!CollectionUtils.isEmpty(orgUnitNames)) {
-            return orgUnitNames.get(0);
-        }
-        return "";
-    }
 }
 

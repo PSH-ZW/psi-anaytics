@@ -130,8 +130,6 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
             return "ZWNSC-OU-" + facility.toUpperCase() + "-" + district.toUpperCase();
         } else if (StringUtils.hasLength(facility)){
             return "ZWNSC-"+facility.toUpperCase();
-        } else if (StringUtils.hasLength(district)) {
-            return metaDataService.getOrgUnitForDistrict(district.toUpperCase());
         }
         return "";
     }
