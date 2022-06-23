@@ -40,7 +40,6 @@ public class MetaDataService {
 
     private static final Map<String, String> formToProgramMap = new HashMap<>();
     private static final Map<String, String> programToProgramStageIdMap = new HashMap<>();
-    private static final Map<String, FormDetails> formMetadataCache = new HashMap<>();
     private static final String CATEGORY = "analytics";
     public static final String DATE_FORMAT_WITH_24HR_TIME = "yyyy-MM-dd kk:mm:ss";
 

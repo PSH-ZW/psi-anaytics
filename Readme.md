@@ -22,7 +22,7 @@ You would be needing the latest form jsons from /home/bahmni/clinical_forms fold
 Create a folder named /home/bahmni/ , copy the latest forms from one of the live servers.
 Run PsiAnalyticsApplication.java
 
-##Buildeing the RPM
+##Building the RPM
 1. Build the application using `mvn clean install`
 2. Run `./gradlew -PpsiRelease=0.1 :psi-analytics:clean :psi-analytics:buildRpm` from the project root directory.
 (The release version can be passed in properly)
