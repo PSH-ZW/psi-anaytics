@@ -6,7 +6,6 @@ import com.nuchange.psianalytics.constants.MRSConstants;
 import com.nuchange.psianalytics.constants.MRSConstants.ConceptDatatype;
 import com.nuchange.psianalytics.model.*;
 import com.nuchange.psiutil.AnalyticsUtil;
-import com.nuchange.psiutil.model.FormDetails;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.simpleflatmapper.jdbc.spring.JdbcTemplateMapperFactory;
 import org.slf4j.Logger;
@@ -511,10 +510,6 @@ public class MetaDataService {
     public boolean shouldFlattenForm(String formName) {
         initialiseFormProgramMapIfEmpty();
         return formToProgramMap.containsKey(formName);
-    }
-
-    public boolean shouldNotFlattenForm(String formName) {
-        return !shouldFlattenForm(formName);
     }
 
     public String getFormResourcePath(String formName, Integer version) {

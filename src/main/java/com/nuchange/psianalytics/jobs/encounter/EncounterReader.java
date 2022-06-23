@@ -49,37 +49,36 @@ public abstract class EncounterReader<D> extends QueryBasedJobReader<D> {
         for (Obs obs : obsForEncounter) {
             FileAttributes fileAttributes = new FileAttributes(obs.getFormNameSpaceAndPath());
             String formTableName = AnalyticsUtil.generateColumnName(fileAttributes.getFormName());
-            if(metaDataService.shouldNotFlattenForm(formTableName)) {
-                continue;
-            }
-            throwExceptionIfFormVersionsMismatch(fileAttributes);
-            String formResourcePath = metaDataService.getFormResourcePath(fileAttributes.getFormName(), fileAttributes.getVersion());
-            Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(formResourcePath);
-            Forms form = AnalyticsUtil.readForm(formResourcePath);
-            Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
-            String conceptUuid = concept.getUuid();
-            Map<String, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
-            String formNameWithInstance = formTableName + "_" + fileAttributes.getInstance().toString();
-            if (!obsColAndVal.containsKey(formNameWithInstance)) {
-                initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, fileAttributes);
-            }
-            Query query = obsColAndVal.get(formNameWithInstance);
-            if (conceptMap.containsKey(conceptUuid)) {
-                ObsType obsType = conceptMap.get(conceptUuid);
-                String columnName = columnNames.get(conceptUuid);
-                String value = "";
-                if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
-                    UUID answerConceptUuid = metaDataService.getConceptUuidById(obs.getValueCoded());
-                    columnName = columnNames.get(conceptUuid + answerConceptUuid);
-                    value = obs.getVoided() != 1 ? "true" : "false";
+            if(metaDataService.shouldFlattenForm(formTableName)) {
+                throwExceptionIfFormVersionsMismatch(fileAttributes);
+                String formResourcePath = metaDataService.getFormResourcePath(fileAttributes.getFormName(), fileAttributes.getVersion());
+                Map<String, ObsType> conceptMap = encounterHelper.getConceptObsTypeMapForForm(formResourcePath);
+                Forms form = AnalyticsUtil.readForm(formResourcePath);
+                Concept concept = metaDataService.getConceptByObsId(obs.getObsId());
+                String conceptUuid = concept.getUuid();
+                Map<String, String> columnNames = AnalyticsUtil.getColumnNamesForForm(form);
+                String formNameWithInstance = formTableName + "_" + fileAttributes.getInstance().toString();
+                if (!obsColAndVal.containsKey(formNameWithInstance)) {
+                    initialiseQuery(formTableName, obsColAndVal, formNameWithInstance, encounter, fileAttributes);
                 }
-                if (obsType.getControlType().equals(JobConstants.TABLE)) {
-                    value = obs.getVoided() != 1 ? metaDataService.getValueAsString(obs, Locale.ENGLISH) : "";
-                }
-                if(StringUtils.hasLength(columnName)) {
-                    //Some old concepts that are removed from the forms might be present in old obs,
-                    // in that case the column name will be null. Skipping them to avoid null pointer exception.
-                    query.getColAndVal().put(columnName, value);
+                Query query = obsColAndVal.get(formNameWithInstance);
+                if (conceptMap.containsKey(conceptUuid)) {
+                    ObsType obsType = conceptMap.get(conceptUuid);
+                    String columnName = columnNames.get(conceptUuid);
+                    String value = "";
+                    if (obsType.getControlType().equals(JobConstants.MULTI_SELECT)) {
+                        UUID answerConceptUuid = metaDataService.getConceptUuidById(obs.getValueCoded());
+                        columnName = columnNames.get(conceptUuid + answerConceptUuid);
+                        value = obs.getVoided() != 1 ? "true" : "false";
+                    }
+                    if (obsType.getControlType().equals(JobConstants.TABLE)) {
+                        value = obs.getVoided() != 1 ? metaDataService.getValueAsString(obs, Locale.ENGLISH) : "";
+                    }
+                    if(StringUtils.hasLength(columnName)) {
+                        //Some old concepts that are removed from the forms might be present in old obs,
+                        // in that case the column name will be null. Skipping them to avoid null pointer exception.
+                        query.getColAndVal().put(columnName, value);
+                    }
                 }
             }
         }
