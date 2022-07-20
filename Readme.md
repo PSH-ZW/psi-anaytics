@@ -23,7 +23,7 @@ Create a folder named /home/bahmni/ , copy the latest forms from one of the live
 Run PsiAnalyticsApplication.java
 
 ##Building the RPM
-1. Build the application using `mvn clean install`
+1. Build the application using `mvn clean install -DskipTests`
 2. Run `./gradlew -PpsiRelease=0.1 :psi-analytics:clean :psi-analytics:buildRpm` from the project root directory.
 (The release version can be passed in properly)
 The rpm file will be created in `psi-analytics/build/distributions` folder.
